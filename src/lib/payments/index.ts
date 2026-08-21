@@ -1,4 +1,4 @@
-export { verifyRazorpaySignature, razorpayGet, razorpayPost } from './razorpay-client'
+// No razorpay client exports
 export { getPlans, getPlanByKey, getPlanById, formatPrice } from './plans'
 export type { Plan } from './plans'
 export {

@@ -1,17 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { Check, Loader2 } from 'lucide-react'
-import Script from 'next/script'
-import { verifyPayment } from '@/lib/payment-actions'
-import { trackEvent } from '@/lib/analytics/track-client'
-
-// Add Razorpay window typing
-declare global {
-  interface Window {
-    Razorpay: any
-  }
-}
+import { Check } from 'lucide-react'
 
 const features = [
   'Unlock exact prompt text',
@@ -22,82 +11,12 @@ const features = [
 ]
 
 export default function PricingCards() {
-  const [loadingTier, setLoadingTier] = useState<string | null>(null)
-
-  const handleSubscribe = async (tier: string) => {
-    try {
-      setLoadingTier(tier)
-      trackEvent('checkout_started', { properties: { tier } })
-
-      // Call our API to create an order or subscription
-      const res = await fetch('/api/razorpay/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier })
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Something went wrong')
-      }
-
-      // Open Razorpay Checkout Modal
-      const options: any = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        name: 'Mira Prompts',
-        description: `${tier.charAt(0).toUpperCase() + tier.slice(1)} Premium Access`,
-        handler: async function (response: any) {
-          try {
-            // Instant Verify on the server (hides API calls)
-            await verifyPayment(
-              data.type,
-              response.razorpay_payment_id,
-              data.type === 'order' ? response.razorpay_order_id : response.razorpay_subscription_id,
-              response.razorpay_signature,
-              tier
-            )
-            trackEvent('payment_success', { properties: { tier, paymentId: response.razorpay_payment_id } })
-            // Success!
-            window.location.href = '/explore?payment=success'
-          } catch (err: any) {
-            trackEvent('payment_fail', { properties: { tier, error: err.message } })
-            alert('Verification failed: ' + err.message)
-          }
-        },
-        theme: {
-          color: '#000000',
-        },
-      }
-
-      if (data.type === 'subscription') {
-        options.subscription_id = data.id
-      } else {
-        options.order_id = data.id
-        options.amount = data.amount
-      }
-
-      const rzp = new window.Razorpay(options)
-      
-      rzp.on('payment.failed', function (response: any) {
-        trackEvent('payment_fail', { properties: { tier, error: response.error?.description } })
-        alert('Payment failed: ' + response.error.description)
-      })
-
-      rzp.open()
-
-    } catch (err: any) {
-      alert(err.message)
-    } finally {
-      setLoadingTier(null)
-    }
+  const handleSubscribe = (tier: string) => {
+    alert('Premium plans are launching soon! 🚀\n\nEnjoy all prompts for free during our Beta phase.')
   }
 
   return (
     <>
-      {/* Load Razorpay SDK securely */}
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
-
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {/* Monthly Plan */}
         <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm flex flex-col hover:shadow-lg transition-shadow">
@@ -109,10 +28,9 @@ export default function PricingCards() {
           </div>
           <button 
             onClick={() => handleSubscribe('monthly')}
-            disabled={loadingTier !== null}
             className="w-full py-4 px-6 rounded-full font-bold text-sm bg-gray-100 text-black hover:bg-gray-200 transition-colors mb-8 disabled:opacity-50 flex justify-center items-center gap-2"
           >
-            {loadingTier === 'monthly' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Subscribe Monthly'}
+            Subscribe Monthly
           </button>
           <div className="space-y-4 flex-1">
             {features.map((feature, i) => (
@@ -137,10 +55,9 @@ export default function PricingCards() {
           </div>
           <button 
             onClick={() => handleSubscribe('yearly')}
-            disabled={loadingTier !== null}
             className="w-full py-4 px-6 rounded-full font-bold text-sm bg-white text-black hover:bg-gray-100 transition-colors mb-8 shadow-sm flex justify-center items-center gap-2"
           >
-            {loadingTier === 'yearly' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Subscribe Yearly'}
+            Subscribe Yearly
           </button>
           <div className="space-y-4 flex-1">
             {features.map((feature, i) => (
@@ -164,10 +81,9 @@ export default function PricingCards() {
           </div>
           <button 
             onClick={() => handleSubscribe('lifetime')}
-            disabled={loadingTier !== null}
             className="w-full py-4 px-6 rounded-full font-bold text-sm bg-gradient-to-r from-amber-400 to-amber-500 text-black hover:from-amber-500 hover:to-amber-600 transition-colors mb-8 shadow-sm flex justify-center items-center gap-2"
           >
-            {loadingTier === 'lifetime' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Get Lifetime Access'}
+            Get Lifetime Access
           </button>
           <div className="space-y-4 flex-1">
             {features.map((feature, i) => (

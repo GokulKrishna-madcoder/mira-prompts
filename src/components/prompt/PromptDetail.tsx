@@ -22,23 +22,15 @@ export default async function PromptDetail({ slug }: { slug: string }) {
   // Check saves and likes
   let isSaved = false
   let isLiked = false
-  let isSubscribed = false
 
   if (user) {
-    const [savedRes, likedRes, profileRes] = await Promise.all([
+    const [savedRes, likedRes] = await Promise.all([
       supabase.from('prompt_saves').select('id').eq('user_id', user.id).eq('prompt_id', prompt.id).single(),
       supabase.from('prompt_likes').select('id').eq('user_id', user.id).eq('prompt_id', prompt.id).single(),
-      supabase.from('profiles').select('subscription_status').eq('id', user.id).single(),
     ])
     isSaved = !!savedRes.data
     isLiked = !!likedRes.data
-    // Allow both active recurring subscriptions and one-time lifetime purchases
-    isSubscribed = ['active', 'lifetime'].includes(profileRes.data?.subscription_status)
   }
-
-  // Security Scrub: If prompt is premium and user is not subscribed, hide the prompt text entirely from the server payload
-  const isLocked = prompt.is_premium && !isSubscribed
-  const safePromptText = isLocked ? null : prompt.prompt
 
   return (
     <div id={`prompt-detail-${prompt.id}`} className="prompt-detail-wrapper flex flex-col md:flex-row bg-white rounded-[32px] overflow-hidden min-h-[75vh] w-full text-black shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] relative">
@@ -94,51 +86,19 @@ export default async function PromptDetail({ slug }: { slug: string }) {
           </div>
         </div>
 
-        {/* Main Action or Paywall */}
-        {!isLocked ? (
-          <>
-            <div className="mb-8 w-full" id="prompt-detail-copy-action">
-              <CopyButton text={safePromptText || ''} id={prompt.id} variant="massive" />
-            </div>
+        {/* Prompt Actions & Description */}
+        <div className="mb-8 w-full" id="prompt-detail-copy-action">
+          <CopyButton text={prompt.prompt || ''} id={prompt.id} variant="massive" />
+        </div>
 
-            {/* Description Section */}
-            <div id="prompt-detail-content" className="prompt-detail-content">
-              <h1 className="text-xl font-bold text-black mb-3 leading-tight">{prompt.title}</h1>
-              <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px] font-medium mb-6">
-                <span className="mr-2">📌</span>
-                {safePromptText}
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="mb-8 w-full relative">
-            <h1 className="text-xl font-bold text-black mb-3 leading-tight">{prompt.title}</h1>
-            
-            {/* Fake Blurred Prompt */}
-            <div className="relative rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 select-none min-h-[320px]">
-              <div className="p-6 filter blur-[6px] opacity-40 select-none">
-                <span className="mr-2">📌</span>
-                Create a stunning masterpiece featuring highly detailed concepts, intricate lighting, volumetric fog, cinematic composition, 8k resolution, octane render, masterpiece, best quality...
-              </div>
-              
-              {/* Paywall CTA Overlay */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-white via-white/80 to-transparent p-6 text-center">
-                <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mb-3 shadow-lg">
-                  <span className="text-xl">👑</span>
-                </div>
-                <h3 className="text-lg font-bold text-black mb-2">Prime Exclusive</h3>
-                <p className="text-sm text-gray-600 mb-5 max-w-[250px]">
-                  Unlock the exact prompt used to generate this image and thousands more.
-                </p>
-                <a href="/pricing">
-                  <button className="px-6 py-3 bg-black text-white rounded-full font-bold text-sm shadow-md hover:bg-gray-800 transition-transform hover:scale-105">
-                    Explore Pricing
-                  </button>
-                </a>
-              </div>
-            </div>
+        {/* Description Section */}
+        <div id="prompt-detail-content" className="prompt-detail-content">
+          <h1 className="text-xl font-bold text-black mb-3 leading-tight">{prompt.title}</h1>
+          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px] font-medium mb-6">
+            <span className="mr-2">📌</span>
+            {prompt.prompt}
           </div>
-        )}
+        </div>
 
         <h3 className="text-sm font-semibold text-black mb-3 mt-4">Details</h3>
         <div className="flex flex-wrap gap-2 text-sm">
