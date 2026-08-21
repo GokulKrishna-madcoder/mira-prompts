@@ -4,7 +4,7 @@ import { signIn } from '@/lib/auth-actions'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useActionState } from 'react'
-import { Mail, Lock, LogIn } from 'lucide-react'
+import { Mail, Lock } from 'lucide-react'
 
 export default function LoginPage() {
   const [state, action, pending] = useActionState(
@@ -21,16 +21,11 @@ export default function LoginPage() {
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-red-100/40 blur-[100px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-50/40 blur-[100px] pointer-events-none" />
 
-      {/* Brand logo */}
-      <Link href="/" className="absolute top-6 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 flex items-center hover:opacity-80 transition-opacity">
-        <Image src="/brand/logo.png" alt="Mira Logo" width={44} height={44} className="object-contain w-auto h-auto" unoptimized />
-      </Link>
-
       <div className="w-full max-w-[420px] bg-white/70 backdrop-blur-2xl border border-white/60 p-8 sm:p-10 rounded-[32px] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] relative z-10 mt-12 md:mt-0">
         
         <div className="flex flex-col items-center text-center mb-8">
           <div className="mb-6">
-            <Image src="/brand/logo.png" alt="Mira Logo" width={64} height={64} className="object-contain w-14 h-14 sm:w-16 sm:h-16 drop-shadow-sm" unoptimized />
+            <Image src="/brand/logo.png" alt="Mira Logo" width={96} height={96} className="object-contain w-16 h-16 sm:w-20 sm:h-20 drop-shadow-md" unoptimized />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-2">Welcome back</h1>
           <p className="text-sm text-gray-500 font-medium leading-relaxed max-w-[280px]">
