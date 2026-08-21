@@ -26,8 +26,8 @@ export default function SignUpPage() {
       <div className="w-full max-w-[420px] bg-white/70 backdrop-blur-2xl border border-white/60 p-8 sm:p-10 rounded-[32px] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] relative z-10 mt-12 md:mt-0">
         
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-14 h-14 bg-white shadow-sm border border-gray-100 rounded-2xl flex items-center justify-center mb-6">
-            <UserPlus className="w-6 h-6 text-gray-800" strokeWidth={2} />
+          <div className="mb-6">
+            <Image src="/brand/logo.png" alt="Mira Logo" width={64} height={64} className="object-contain w-14 h-14 sm:w-16 sm:h-16 drop-shadow-sm" unoptimized />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-2">Join Mira Prompts</h1>
           <p className="text-sm text-gray-500 font-medium leading-relaxed max-w-[280px]">
