@@ -101,7 +101,7 @@ export default async function PromptDetail({ slug }: { slug: string }) {
         </div>
 
         <h3 className="text-sm font-semibold text-black mb-3 mt-4">Details</h3>
-        <div className="flex flex-wrap gap-2 text-sm">
+        <div className="flex flex-wrap gap-2 text-sm pb-4 md:pb-0">
           {prompt.category && (
             <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full font-semibold">{prompt.category.name}</span>
           )}

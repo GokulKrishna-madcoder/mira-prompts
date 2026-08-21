@@ -42,7 +42,7 @@ export default function Modal({ children }: { children: React.ReactNode }) {
     <div
       id="modal-overlay"
       ref={overlay}
-      className="modal-overlay fixed inset-0 z-50 bg-black/60 p-4 sm:p-10 flex justify-center items-center overflow-y-auto backdrop-blur-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      className="modal-overlay fixed inset-0 z-50 bg-black/60 p-4 pb-28 sm:p-10 flex justify-center items-center overflow-y-auto backdrop-blur-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       onClick={onClick}
     >
       <button
