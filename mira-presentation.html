@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mira Prompts – Master Architecture & Documentation</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'base', 
+      themeVariables: { 
+        fontFamily: 'Plus Jakarta Sans', 
+        primaryColor: '#000000', 
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#000000',
+        lineColor: '#000000',
+        secondaryColor: '#f3f4f6',
+        tertiaryColor: '#ffffff'
+      } 
+    });
+    
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            brand: { black: '#000000', gray: '#f9fafb', amber: '#f59e0b' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* TasteSkill Premium Styling */
+    :root {
+      --bg-base: #ffffff;
+      --bg-surface: #f9fafb;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --border-color: #e5e7eb;
+      --primary: #000000;
+      --accent: #f59e0b; /* Amber */
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      scroll-behavior: smooth;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 3rem 2rem;
+      border-right: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+    }
+
+    .sidebar-header img {
+      width: 48px;
+      margin-bottom: 2rem;
+    }
+
+    .sidebar-nav a {
+      display: block;
+      padding: 0.6rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      margin-bottom: 0.25rem;
+    }
+
+    .sidebar-nav a:hover {
+      background: var(--bg-surface);
+      color: var(--primary);
+      transform: translateX(4px);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 4rem 6rem;
+      max-width: 1000px;
+    }
+
+    section { margin-bottom: 5rem; scroll-margin-top: 3rem; }
+
+    h1, h2, h3, h4 {
+      color: var(--primary);
+      letter-spacing: -0.02em;
+    }
+
+    h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem; line-height: 1.1; }
+    h2 { 
+      font-size: 2rem; font-weight: 800; margin-top: 4rem; margin-bottom: 1.5rem; 
+      padding-bottom: 1rem; border-bottom: 2px solid var(--bg-surface); 
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    h2::before {
+      content: ''; display: block; width: 6px; height: 1.2em; background: var(--primary); border-radius: 4px;
+    }
+    h3 { font-size: 1.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; }
+    
+    p { margin-bottom: 1.25rem; color: #4b5563; font-size: 1.05rem; }
+    ul { margin-bottom: 1.5rem; padding-left: 1.5rem; color: #4b5563; }
+    li { margin-bottom: 0.5rem; }
+    li strong { color: var(--primary); }
+
+    /* Mermaid */
+    .mermaid {
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 24px;
+      border: 1px solid var(--border-color);
+      margin: 2rem 0;
+      display: flex;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+
+    /* Tables */
+    table {
+      width: 100%; border-collapse: separate; border-spacing: 0; margin: 2rem 0;
+      border-radius: 16px; overflow: hidden; border: 1px solid var(--border-color);
+    }
+    th, td { padding: 1.25rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+    th { background: var(--bg-surface); font-weight: 700; color: var(--primary); }
+    td { background: #ffffff; color: #4b5563; font-size: 0.95rem; }
+    tr:last-child td { border-bottom: none; }
+
+    /* Callouts */
+    .callout {
+      padding: 1.5rem 2rem; border-radius: 16px; margin: 2rem 0;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid var(--primary);
+    }
+    .callout.amber { background: #fffbeb; border-color: #fde68a; border-left-color: var(--accent); }
+    .callout h4 { margin-top: 0; margin-bottom: 0.5rem; font-weight: 800; }
+    .callout p:last-child { margin-bottom: 0; }
+
+    .badge {
+      display: inline-block; padding: 0.25em 0.75em; font-size: 0.75rem; font-weight: 700;
+      border-radius: 9999px; background: var(--bg-surface); color: var(--primary);
+      border: 1px solid var(--border-color); margin-left: 0.5em; vertical-align: middle;
+    }
+
+    code {
+      font-family: var(--font-mono); font-size: 0.85em; background: var(--bg-surface);
+      padding: 0.2em 0.4em; border-radius: 6px; color: #db2777; border: 1px solid var(--border-color);
+    }
+
+    /* Print & Responsive */
+    @media print {
+      .sidebar { display: none; }
+      .main-content { padding: 0; max-width: 100%; }
+      .page-break { page-break-before: always; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+    @media (max-width: 1024px) {
+      .layout { flex-direction: column; }
+      .sidebar { display: none; }
+      .main-content { padding: 1.5rem; max-width: 100%; }
+      h1 { font-size: 2.5rem; }
+    }
+
+    /* Mermaid Specific Text Overrides */
+    .messageText {
+      fill: #000000 !important;
+      font-weight: 600;
+    }
+    .sequenceNumber {
+      fill: #000000 !important;
+    }
+    .node text, .node .label, .node p, text.actor > tspan, .actor text {
+      fill: #ffffff !important;
+      color: #ffffff !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="https://192x192.tiiny.site/192x192.png" alt="Mira Logo" class="rounded-xl shadow-sm">
+        <h2 style="margin: 0; padding: 0; border: none; font-size: 1.5rem;">Mira Prompts</h2>
+        <p class="text-xs text-gray-400 font-bold tracking-widest uppercase mb-8 mt-1">Documentation</p>
+      </div>
+      <ul class="sidebar-nav">
+        <li><a href="#overview">1. Overview</a></li>
+        <li><a href="#tech">2. Tech Stack</a></li>
+        <li><a href="#arch">3. Architecture</a></li>
+        <li><a href="#routes">4. Routing Structure</a></li>
+        <li><a href="#flow">5. Data Flow</a></li>
+        <li><a href="#schema">6. Database Schema</a></li>
+        <li><a href="#security">7. Security & Auth</a></li>
+        <li><a href="#render">8. Rendering Strategy</a></li>
+        <li><a href="#components">9. Components & UI</a></li>
+        <li><a href="#actions">10. Server Actions</a></li>
+        <li><a href="#integrations">11. Integrations</a></li>
+        <li><a href="#business-plan">12. Business & ARR</a></li>
+        <li><a href="#roadmap">13. Future Roadmap</a></li>
+      </ul>
+    </aside>
+
+    <!-- Floating Print Button -->
+    <button onclick="window.print()" class="fixed bottom-8 right-8 bg-black text-white px-6 py-3 rounded-full font-bold shadow-2xl hover:scale-105 transition-transform z-50 flex items-center gap-2 print:hidden">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+        Save as PDF
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      
+      <header class="relative flex flex-col p-12 bg-gray-50 overflow-hidden rounded-[40px] mb-16 border border-gray-100 shadow-sm min-h-[70vh] justify-center">
+        <!-- Background Decals -->
+        <div class="absolute top-0 left-0 w-full h-2 bg-black"></div>
+        <div class="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] bg-gradient-to-br from-gray-200 to-transparent rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+
+        <div class="relative z-10">
+            <div class="inline-block px-4 py-1.5 bg-black text-white text-xs font-bold tracking-widest uppercase rounded-full mb-6">Confidential Architecture Report</div>
+            <h1 class="text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 !text-black">
+                Mira Prompts<br>
+                <span class="text-red-600">Master Specification</span>
+            </h1>
+            <p class="text-2xl text-gray-500 font-medium max-w-2xl leading-relaxed mt-4">
+                The exact architecture, business model, and technical decisions behind the world's most beautiful AI prompt library. Built on "Ponytail" and "Caveman" engineering principles.
+            </p>
+        </div>
+      </header>
+
+      <section id="overview">
+        <h2>1. Overview</h2>
+        <p><strong>Name:</strong> Mira Prompts</p>
+        <p><strong>Version:</strong> 1.0.0</p>
+        <p><strong>Description:</strong> A premium, monetized platform for discovering, saving, and copying exact formulas used to generate stunning AI images across Midjourney, Flux, and ChatGPT.</p>
+
+        <div class="callout">
+          <h4>Core Objectives</h4>
+          <ul>
+            <li>Provide a flawless, visually arresting Masonry grid experience (Pinterest-style).</li>
+            <li>Monetize "Prime" and "Featured" prompts via Razorpay subscriptions (Monthly/Yearly/Lifetime).</li>
+            <li>Eliminate over-engineering using direct Server Actions and native platform capabilities.</li>
+            <li>Maintain an ultra-low latency, real-time notification engine for new content.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="tech">
+        <h2>2. Tech Stack</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Layer</th>
+              <th>Technology</th>
+              <th>Philosophy / Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Framework</td>
+              <td>Next.js 15 (App Router)</td>
+              <td>Caveman Mode: Pure Server Actions. Zero API route bloat.</td>
+            </tr>
+            <tr>
+              <td>Styling</td>
+              <td>Tailwind CSS</td>
+              <td>Utility-first. No component libraries. Pure glassmorphism.</td>
+            </tr>
+            <tr>
+              <td>Icons</td>
+              <td>Lucide React</td>
+              <td>Minimal footprint, consistent stroke styling.</td>
+            </tr>
+            <tr>
+              <td>Database</td>
+              <td>Supabase (PostgreSQL)</td>
+              <td>RLS secured, heavily relational.</td>
+            </tr>
+            <tr>
+              <td>Authentication</td>
+              <td>Supabase Auth</td>
+              <td>Google OAuth + Email Magic Links.</td>
+            </tr>
+            <tr>
+              <td>Payments</td>
+              <td>Razorpay</td>
+              <td>Server-verified HMAC signature matching.</td>
+            </tr>
+            <tr>
+              <td>Realtime</td>
+              <td>Supabase Websockets</td>
+              <td>Live Pinterest-style bell notifications.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="arch">
+        <h2>3. Architecture</h2>
+        <p>Mira Prompts employs a strictly minimal, server-first architecture. It completely bypasses Redux, Zustand, and TanStack Query in favor of native Next.js Server Components and Server Actions.</p>
+
+        <div class="mermaid">
+          flowchart TD
+          Client[Client Browser] --> |Server Action| NextApp[Next.js App Router]
+          NextApp --> |Auth Verification| SupaAuth[Supabase Auth]
+          NextApp --> |Direct SQL / RPC| SupaDB[(Supabase DB)]
+          NextApp --> |Image Buffer| SupaStorage[Supabase Storage]
+          
+          Client --> |Websocket Listen| SupaRealtime[Supabase Realtime]
+          SupaRealtime -.-> |INSERT 'prompts'| Client
+          
+          Client --> |Checkout| Razorpay[Razorpay Gateway]
+          Razorpay --> |Success Token| Client
+          Client --> |Server Action Verify| NextApp
+        </div>
+      </section>
+
+      <section id="routes">
+        <h2>4. Routing Structure</h2>
+        
+        <h3>Public <span class="badge">Static & ISR</span></h3>
+        <ul>
+          <li><code>/</code> - Landing Page</li>
+          <li><code>/explore</code> - Main Masonry Feed</li>
+          <li><code>/prompts/[slug]</code> - SEO-friendly prompt detail page</li>
+          <li><code>/@modal/(.)prompts/[slug]</code> - Intercepted route for popup prompt detail</li>
+          <li><code>/pricing</code>, <code>/about</code>, <code>/terms</code>, <code>/privacy</code></li>
+        </ul>
+
+        <h3>Authentication <span class="badge">Guest Only</span></h3>
+        <ul>
+          <li><code>/login</code>, <code>/signup</code>, <code>/forgot-password</code>, <code>/auth/callback</code></li>
+        </ul>
+
+        <h3>Protected User <span class="badge">Session Required</span></h3>
+        <ul>
+          <li><code>/saved</code> - User's private bookmarked prompts</li>
+          <li><code>/settings</code> - Profile management</li>
+        </ul>
+
+        <h3>Admin Back-Office <span class="badge">Role: 'admin'</span></h3>
+        <ul>
+          <li><code>/admin</code> - MRR/ARR Dashboard</li>
+          <li><code>/admin/prompts</code> - Prompt CRUD</li>
+          <li><code>/admin/categories</code> & <code>/admin/tags</code> - Taxonomy</li>
+          <li><code>/admin/tickets</code> - Support resolution</li>
+        </ul>
+      </section>
+
+      <section id="flow">
+        <h2>5. Data Flow (Payment & Verification)</h2>
+        <p>A strictly secure flow prevents client-side tampering of Razorpay successes. The entire payment lifecycle is securely bridged via Server Actions.</p>
+
+        <div class="mermaid">
+          sequenceDiagram
+          autonumber
+          participant User
+          participant Client as Next.js Client
+          participant Server as Server Action
+          participant Razorpay as Razorpay API
+          participant DB as Supabase DB
+          
+          User->>Client: Clicks "Subscribe Yearly"
+          Client->>Server: POST handleSubscribe('yearly')
+          Server->>Razorpay: Create Order/Subscription (₹999)
+          Razorpay-->>Server: Returns razorpay_order_id
+          Server-->>Client: Returns ID to frontend
+          Client->>Razorpay: Opens Checkout Modal window
+          Note over User,Razorpay: User completes payment flow securely
+          Razorpay-->>Client: Returns signature & payment ID
+          Client->>Server: verifyPayment(signature, ids, tier)
+          Note over Server: Generates crypto.createHmac()
+          Server->>Server: Compares generated vs returned signature
+          Server->>DB: UPDATE profiles SET subscription_status = 'active'
+          DB-->>Server: Success Confirmation
+          Server-->>Client: Verification Success
+          Client->>User: Redirects to /explore
+        </div>
+      </section>
+
+      <section id="schema">
+        <h2>6. Database Schema (Postgres)</h2>
+        <div class="callout">
+          <h4>Relational Integrity</h4>
+          <p>Foreign keys enforce cascading deletes where appropriate, ensuring no orphaned tags or saves remain if a prompt is removed.</p>
+        </div>
+        <ul>
+          <li><strong>profiles</strong>: <code>id</code> (uuid), <code>email</code>, <code>display_name</code>, <code>role</code> (user/admin), <code>subscription_status</code>, <code>last_notification_read_at</code>.</li>
+          <li><strong>prompts</strong>: <code>id</code>, <code>slug</code>, <code>title</code>, <code>prompt</code> (text), <code>image_url</code>, <code>model</code>, <code>aspect_ratio</code>, <code>status</code> (draft/published), <code>is_featured</code>, <code>is_premium</code>, <code>created_by</code>.</li>
+          <li><strong>payment_history</strong>: <code>id</code>, <code>user_id</code> (fk), <code>order_id</code>, <code>payment_id</code>, <code>amount</code>, <code>plan_type</code> (monthly/yearly/lifetime).</li>
+          <li><strong>support_tickets</strong>: <code>id</code>, <code>user_id</code> (fk), <code>message</code>, <code>status</code> (open/resolved).</li>
+          <li><strong>tags</strong> & <strong>categories</strong>: Taxonomy tables with slugs. Mapped via <code>prompt_tags</code> junction table.</li>
+        </ul>
+      </section>
+
+      <section id="security">
+        <h2>7. Security & Auth</h2>
+        <h3>7.1 Row Level Security (RLS)</h3>
+        <p>Database queries executed from the client (or unprivileged server contexts) are restricted automatically by Postgres RLS:</p>
+        <ul>
+          <li><code>prompts</code>: Public can read where <code>status = 'published'</code>. Only admins can insert/update/delete.</li>
+          <li><code>support_tickets</code>: Users can insert and read their own. Admins can read all and update status.</li>
+          <li><code>profiles</code>: Users can update their own bio/display_name. <code>role</code> and <code>subscription_status</code> are protected from client mutation.</li>
+        </ul>
+        
+        <h3>7.2 The <code>requireAdmin()</code> Guard</h3>
+        <p>All admin-facing Server Actions wrap a highly secure guard that decodes the JWT and queries the <code>profiles</code> table to guarantee the <code>role === 'admin'</code> before proceeding.</p>
+      </section>
+
+      <section id="render">
+        <h2>8. Rendering Strategy</h2>
+        <ul>
+          <li><strong>Route Interception & Parallel Routes:</strong> The prompt detail view uses Next.js <code>@modal/(.)prompts/[slug]</code>. This renders the prompt as a beautiful popover *over* the feed on soft navigation, but as a full standalone SEO page on hard refresh.</li>
+          <li><strong>Streaming:</strong> Server components utilize Suspense boundaries. <code>MasonryGrid</code> loads image placeholders instantly.</li>
+          <li><strong>Dynamic vs Static:</strong> The public feed is dynamic to account for personalized "Liked" and "Saved" states injected directly into the HTML payload.</li>
+        </ul>
+      </section>
+
+      <section id="components">
+        <h2>9. Components & UI Lore ("The Silly Details")</h2>
+        <p>Mira Prompts uses highly bespoke micro-interactions.</p>
+        <ul>
+          <li><strong>Auto-WebP Canvas:</strong> Instead of uploading 15MB PNGs to Supabase, <code>prompt-form.tsx</code> intercepts the file, paints it to an off-screen HTML5 Canvas, and compresses it to an 85% WebP blob before the upload even begins.</li>
+          <li><strong>NEXT_REDIRECT Catch:</strong> Server actions throwing <code>redirect()</code> are cleanly caught via <code>err?.message?.includes('NEXT_REDIRECT')</code> in client boundaries to allow Next.js routing to function without throwing false alarms.</li>
+          <li><strong>Mobile Image Perfection:</strong> Mobile modals use <code>w-full h-auto</code> on a raw <code>&lt;img&gt;</code> tag to prevent strict aspect-ratio clipping, matching the Pinterest aesthetic exactly.</li>
+          <li><strong>Invisible Scrollbars:</strong> UI panels use <code>[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]</code> to maintain glassmorphism without native browser tracks.</li>
+        </ul>
+      </section>
+
+      <section id="actions">
+        <h2>10. Server Actions</h2>
+        <p>Instead of building REST endpoints, the app relies strictly on typed Server Actions.</p>
+        <pre><code>// Example: auth-actions.ts
+export async function signInWithGoogle() {
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: `${origin}/auth/callback` }
+  })
+  if (data.url) redirect(data.url)
+}</code></pre>
+        <p>Other actions include <code>createPrompt</code>, <code>updatePrompt</code>, <code>verifyPayment</code>, <code>submitFeedback</code>, and <code>markNotificationsRead</code>.</p>
+      </section>
+
+      <section id="integrations">
+        <h2>11. Integrations</h2>
+        <ul>
+          <li><strong>Razorpay:</strong> Handles INR processing for Indian & Global users. Webhooks fallback included.</li>
+          <li><strong>Google OAuth:</strong> Frictionless onboarding.</li>
+          <li><strong>Supabase Realtime:</strong> The <code>NotificationsPopover</code> listens to <code>channel('realtime_prompts')</code> to update the red bell badge instantly when an admin pushes a Featured prompt.</li>
+        </ul>
+      </section>
+
+      <section id="business-plan">
+        <h2>12. Business Plan & Revenue Projections</h2>
+        <p><strong>Vision:</strong> The premier repository for professional AI creators.</p>
+        <p><strong>Pricing Tiers:</strong></p>
+        <ul>
+          <li><strong>Monthly:</strong> ₹99/mo (Low barrier to entry)</li>
+          <li><strong>Yearly:</strong> ₹999/yr (Best for active creators)</li>
+          <li><strong>Lifetime:</strong> ₹2,999 (High cash-flow generator)</li>
+        </ul>
+
+        <div class="callout amber">
+          <h4>MRR / ARR Expectations (At 10,000 Paid Users)</h4>
+          <p>Assuming a realistic SaaS distribution curve (60% Monthly, 30% Yearly, 10% Lifetime):</p>
+          <ul class="mt-2">
+            <li><strong>6,000 Monthly Users:</strong> ₹594,000 MRR (₹7.1M ARR)</li>
+            <li><strong>3,000 Yearly Users:</strong> ₹2,997,000 Cash Collected (₹2.9M ARR)</li>
+            <li><strong>1,000 Lifetime Users:</strong> ₹2,999,000 One-time Cash Influx</li>
+          </ul>
+          <p class="font-bold mt-2 text-black">Total Expected First-Year Revenue: ~₹13.1M INR ($157k USD)</p>
+        </div>
+      </section>
+
+      <section id="roadmap">
+        <h2>13. Future Roadmap</h2>
+        
+        <h3>Phase 1: Automated AI Tagging (Q3 2026)</h3>
+        <ul>
+          <li>Integrate Google Gemini Flash to automatically read uploaded images and auto-generate the <code>prompt</code>, <code>tags</code>, and <code>style</code> metadata without admin data entry.</li>
+        </ul>
+
+        <h3>Phase 2: Creator Economy & Revenue Share (Q4 2026)</h3>
+        <ul>
+          <li>Transition from an Admin-only upload model to a Community Marketplace.</li>
+          <li>Allow top-tier users to upload their own Prime Prompts and receive a 70% revenue share via Razorpay Route/Splits.</li>
+        </ul>
+
+        <h3>Phase 3: Discord Bot & Automation (Q1 2027)</h3>
+        <ul>
+          <li>A Mira Prompts Discord Bot that allows users to instantly beam prompts from the website directly into their Midjourney Discord channels with one click.</li>
+        </ul>
+
+        <h3>Phase 4: Browser Extension (Q2 2027)</h3>
+        <ul>
+          <li>A Chrome extension that acts as a floating prompt-book. Users can save prompts they find in the wild (Twitter, Reddit) directly into their Mira <code>/saved</code> collection.</li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>
