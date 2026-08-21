@@ -22,9 +22,9 @@ export default function SignUpPage() {
       <div className="w-full max-w-[420px] bg-white/70 backdrop-blur-2xl border border-white/60 p-8 sm:p-10 rounded-[32px] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] relative z-10 mt-12 md:mt-0">
         
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="mb-6">
+          <Link href="/" className="mb-6 hover:opacity-80 transition-opacity inline-block cursor-pointer">
             <Image src="/brand/logo.png" alt="Mira Logo" width={96} height={96} className="object-contain w-16 h-16 sm:w-20 sm:h-20 drop-shadow-md" unoptimized />
-          </div>
+          </Link>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-2">Join Mira Prompts</h1>
           <p className="text-sm text-gray-500 font-medium leading-relaxed max-w-[280px]">
             Save prompts, organize collections, and unlock premium content. Free forever.
