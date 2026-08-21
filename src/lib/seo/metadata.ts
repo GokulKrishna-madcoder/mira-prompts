@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mira.vercel.app'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mira-prompts.vercel.app'
 const SITE_NAME = 'Mira Prompts'
 const DEFAULT_DESCRIPTION = 'Curated AI image prompts for Midjourney, DALL-E, and Stable Diffusion'
 

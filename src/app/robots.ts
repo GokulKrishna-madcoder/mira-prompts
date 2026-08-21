@@ -12,6 +12,6 @@ export default function robots(): MetadataRoute.Robots {
         '/api/'
       ],
     },
-    sitemap: 'https://mira.vercel.app/sitemap.xml',
+    sitemap: 'https://mira-prompts.vercel.app/sitemap.xml',
   }
 }

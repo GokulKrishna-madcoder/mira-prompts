@@ -6,7 +6,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://mira.vercel.app'),
+  metadataBase: new URL('https://mira-prompts.vercel.app'),
   title: {
     default: "Mira Prompts",
     template: "%s | Mira Prompts"
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://mira.vercel.app',
+    url: 'https://mira-prompts.vercel.app',
     siteName: 'Mira Prompts',
     images: [{
       url: '/brand/logo.png',
@@ -52,7 +52,7 @@ export default function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Mira Prompts',
-    url: 'https://mira.vercel.app',
+    url: 'https://mira-prompts.vercel.app',
     description: 'Discover, copy, and save beautifully curated AI image prompts.',
   }
 

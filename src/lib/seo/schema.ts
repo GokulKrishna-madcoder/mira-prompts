@@ -1,4 +1,4 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mira.vercel.app'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://mira-prompts.vercel.app'
 
 export function buildOrganizationSchema() {
   return {

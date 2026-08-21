@@ -53,7 +53,7 @@ export async function generateMetadata(
       images: [prompt.image_url],
     },
     alternates: {
-      canonical: `https://mira.vercel.app/prompts/${slug}`,
+      canonical: `https://mira-prompts.vercel.app/prompts/${slug}`,
     },
   }
 }
@@ -111,7 +111,7 @@ export default async function PromptPage({ params }: Props) {
                   '@type': 'ListItem',
                   position: i + 1,
                   name: item.label,
-                  item: `https://mira.vercel.app${item.href}`,
+                  item: `https://mira-prompts.vercel.app${item.href}`,
                 })),
               })
             }}

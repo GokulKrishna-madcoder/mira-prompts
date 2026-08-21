@@ -24,11 +24,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Explore — Mira Prompts',
     description: 'Browse the best curated AI image prompts by category, popularity, and trending.',
-    url: 'https://mira.vercel.app/explore',
+    url: 'https://mira-prompts.vercel.app/explore',
     type: 'website',
   },
   alternates: {
-    canonical: 'https://mira.vercel.app/explore',
+    canonical: 'https://mira-prompts.vercel.app/explore',
   },
 }
 

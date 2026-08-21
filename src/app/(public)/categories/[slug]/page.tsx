@@ -32,11 +32,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: `${category.name} Prompts — Mira Prompts`,
       description,
-      url: `https://mira.vercel.app/categories/${slug}`,
+      url: `https://mira-prompts.vercel.app/categories/${slug}`,
       type: 'website',
     },
     alternates: {
-      canonical: `https://mira.vercel.app/categories/${slug}`,
+      canonical: `https://mira-prompts.vercel.app/categories/${slug}`,
     },
   }
 }
@@ -90,11 +90,11 @@ export default async function CategoryPage({ params }: Props) {
             '@type': 'CollectionPage',
             name: `${category.name} Prompts`,
             description: category.description || `Browse curated AI image prompts in the ${category.name} category`,
-            url: `https://mira.vercel.app/categories/${slug}`,
+            url: `https://mira-prompts.vercel.app/categories/${slug}`,
             isPartOf: {
               '@type': 'WebSite',
               name: 'Mira Prompts',
-              url: 'https://mira.vercel.app',
+              url: 'https://mira-prompts.vercel.app',
             },
           })
         }}
@@ -109,7 +109,7 @@ export default async function CategoryPage({ params }: Props) {
               '@type': 'ListItem',
               position: i + 1,
               name: item.label,
-              item: `https://mira.vercel.app${item.href}`,
+              item: `https://mira-prompts.vercel.app${item.href}`,
             })),
           })
         }}
