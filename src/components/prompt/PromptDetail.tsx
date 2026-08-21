@@ -5,7 +5,7 @@ import LikeButton from '@/components/ui/LikeButton'
 import ShareDropdown from '@/components/ui/ShareDropdown'
 import ViewTracker from '@/components/prompt/ViewTracker'
 import ExpandableImage from '@/components/prompt/ExpandableImage'
-import { MoreHorizontal } from 'lucide-react'
+import MoreOptionsDropdown from '@/components/prompt/MoreOptionsDropdown'
 
 export default async function PromptDetail({ slug }: { slug: string }) {
   const supabase = await createClient()
@@ -62,9 +62,7 @@ export default async function PromptDetail({ slug }: { slug: string }) {
           <div className="flex items-center gap-1">
             <LikeButton promptId={prompt.id} initialLiked={isLiked} initialCount={prompt.like_count || 0} />
             <ShareDropdown promptUrl={`/prompts/${prompt.slug}`} />
-            <button id="btn-more-options" className="w-10 h-10 flex items-center justify-center rounded-full text-gray-900 hover:bg-gray-100 transition-colors">
-              <MoreHorizontal className="w-6 h-6" strokeWidth={2.5} />
-            </button>
+            <MoreOptionsDropdown promptId={prompt.id} promptUrl={`/prompts/${prompt.slug}`} imageUrl={prompt.image_url} />
           </div>
           
           <div className="shrink-0 scale-110 origin-right">
