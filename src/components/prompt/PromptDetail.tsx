@@ -55,7 +55,7 @@ export default async function PromptDetail({ slug }: { slug: string }) {
       </div>
 
       {/* Right: Info Side */}
-      <div id="prompt-detail-info-side" className="prompt-detail-info-side md:w-1/2 p-6 md:p-8 lg:px-10 lg:py-8 flex flex-col max-h-[85vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div id="prompt-detail-info-side" className="prompt-detail-info-side md:w-1/2 p-6 md:p-8 lg:px-10 lg:py-8 flex flex-col md:max-h-[85vh] md:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         
         {/* Top Header Actions */}
         <div id="prompt-detail-top-actions" className="prompt-detail-top-actions flex items-center justify-between mb-8 sticky top-0 bg-white/95 backdrop-blur-sm py-2 z-10">

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { Settings, X, ExternalLink } from 'lucide-react'
+import { signOut } from '@/lib/auth-actions'
 
 export default function SettingsPopover() {
   const [open, setOpen] = useState(false)
@@ -88,6 +89,17 @@ export default function SettingsPopover() {
               Terms of service
               <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-black transition-colors" />
             </Link>
+
+            <div className="my-2 h-px bg-gray-100 mx-2" />
+            
+            <form action={signOut}>
+              <button 
+                type="submit" 
+                className="w-full text-left px-3 py-3 rounded-xl hover:bg-red-50 text-red-600 font-bold text-[15px] transition-colors"
+              >
+                Sign out
+              </button>
+            </form>
           </div>
         </div>
       )}
