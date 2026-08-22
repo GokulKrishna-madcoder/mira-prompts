@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     template: "%s | Mira Prompts"
   },
   description: "Discover, copy, and save beautifully curated AI image prompts.",
+  verification: {
+    google: '8Q2AOZ6mk8oEHybDHJREJ6ptORoFhuJpF1bEW0flg-A'
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
