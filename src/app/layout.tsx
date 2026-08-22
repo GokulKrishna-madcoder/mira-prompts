@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     url: 'https://mira-prompts.vercel.app',
     siteName: 'Mira Prompts',
     images: [{
-      url: '/brand/preview.png',
+      url: '/brand/preview_1_91x1.jpg',
       width: 1200,
       height: 630,
       alt: 'Mira Prompts',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Mira Prompts',
     description: 'Discover, copy, and save beautifully curated AI image prompts.',
-    images: ['/brand/preview.png'],
+    images: ['/brand/preview_1_91x1.jpg'],
   },
   manifest: "/manifest.json",
   icons: {
