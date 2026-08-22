@@ -292,9 +292,14 @@ export async function updateUserRole(formData: FormData) {
 
   if (!targetUserId || !newRole) return
 
-  const { data: before } = await supabase.from('profiles').select('role').eq('id', targetUserId).single()
+  const supabaseAdmin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 
-  const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', targetUserId)
+  const { data: before } = await supabaseAdmin.from('profiles').select('role').eq('id', targetUserId).single()
+
+  const { error } = await supabaseAdmin.from('profiles').update({ role: newRole }).eq('id', targetUserId)
   if (error) throw new Error(error.message)
 
   await logAuditEvent({

@@ -10,7 +10,7 @@ export default async function AdminAuditPage() {
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (!profile || !['admin', 'editor'].includes(profile.role)) redirect('/')
+  if (!profile || profile.role !== 'admin') redirect('/')
 
   // Admin Client
   const supabaseAdmin = createAdminClient(

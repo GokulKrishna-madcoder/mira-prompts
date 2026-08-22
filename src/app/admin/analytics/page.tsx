@@ -20,7 +20,7 @@ export default async function AdminAnalyticsPage() {
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (!profile || !['admin', 'editor'].includes(profile.role)) redirect('/')
+  if (!profile || profile.role !== 'admin') redirect('/')
 
   const supabaseAdmin = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

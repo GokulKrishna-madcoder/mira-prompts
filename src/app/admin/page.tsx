@@ -1,10 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Eye, Copy, Bookmark, FileText, TrendingUp, PlusCircle, Award } from 'lucide-react'
+import { redirect } from 'next/navigation'
 import AdminLineChart from '@/components/admin/AdminLineChart'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role === 'editor') redirect('/admin/prompts')
 
   const [
     { count: promptsCount },

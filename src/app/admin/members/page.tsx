@@ -13,7 +13,7 @@ export default async function AdminMembersPage() {
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (!profile || !['admin', 'editor'].includes(profile.role)) redirect('/')
+  if (!profile || profile.role !== 'admin') redirect('/')
 
   // Admin Client to fetch raw emails securely
   const supabaseAdmin = createAdminClient(

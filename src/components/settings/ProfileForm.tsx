@@ -19,7 +19,7 @@ export default function ProfileForm({ initialProfile, email }: { initialProfile:
   return (
     <div className="flex flex-col gap-10">
       {/* Visual Profile Preview Card */}
-      <div id="visual-profile-card" className="visual-profile-card w-full max-w-sm mx-auto">
+      <div id="visual-profile-card" className="visual-profile-card w-full mx-auto">
         <div className="bg-gradient-to-br from-gray-900 to-black rounded-[32px] p-6 text-white shadow-xl relative overflow-hidden transition-all hover:shadow-2xl hover:scale-[1.02] duration-300">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10" />
           

@@ -17,14 +17,23 @@ const navItems = [
   { href: '/admin/webhooks', label: 'Webhooks', icon: Webhook },
 ]
 
-export default function AdminNav() {
+export default function AdminNav({ role }: { role: string }) {
   const pathname = usePathname()
+
+  // Filter items based on role
+  const allowedItems = navItems.filter(item => {
+    if (role === 'admin') return true
+    if (role === 'editor') {
+      return ['/admin/prompts', '/admin/prompts/new', '/admin/categories', '/admin/tags'].includes(item.href)
+    }
+    return false
+  })
 
   return (
     <nav id="admin-nav" className="admin-nav w-full md:w-auto md:flex-1 px-2 py-3 md:px-4 md:py-6 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto space-x-2 md:space-x-0 md:space-y-1.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <div className="hidden md:block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-3">Menu</div>
       
-      {navItems.map(item => {
+      {allowedItems.map(item => {
         // Exact match for overview, prefix match for others to keep active state when editing
         const isActive = item.href === '/admin' 
           ? pathname === '/admin' 

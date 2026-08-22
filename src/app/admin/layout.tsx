@@ -54,7 +54,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
 
         {/* Client Nav */}
-        <AdminNav />
+        <AdminNav role={profile.role} />
 
         {/* Floating User Profile Footer */}
         <div id="admin-sidebar-footer" className="admin-sidebar-footer p-4 mt-auto mb-4 mx-4 hidden md:block">
