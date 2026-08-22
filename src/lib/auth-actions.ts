@@ -42,7 +42,7 @@ export async function resendVerification(formData: FormData) {
   const supabase = await createClient()
   const email = formData.get('email') as string
   if (!email) return { error: 'Email is required' }
-  const { error } = await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mira-prompts.vercel.app'}/auth/callback` } })
+  const { error } = await supabase.auth.resend({ type: 'signup', email })
   if (error) return { error: error.message }
   return { success: true }
 }
