@@ -8,26 +8,43 @@ import { trackEvent } from '@/lib/analytics/events'
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient()
+  const email = formData.get('email') as string
   const { error } = await supabase.auth.signInWithPassword({
-    email: formData.get('email') as string,
+    email,
     password: formData.get('password') as string,
   })
-  if (error) return { error: error.message }
+  if (error) return { error: error.message, email }
   revalidatePath('/', 'layout')
   redirect('/')
 }
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient()
+  const email = formData.get('email') as string
   const { error, data } = await supabase.auth.signUp({
-    email: formData.get('email') as string,
+    email,
     password: formData.get('password') as string,
     options: { data: { display_name: formData.get('name') as string } },
   })
   if (error) return { error: error.message }
   trackEvent({ eventName: 'signup', userId: data.user?.id }).catch(() => {})
+  
+  // If session is null, it means email confirmation is required
+  if (!data.session) {
+    return { success: true, email }
+  }
+
   revalidatePath('/', 'layout')
   redirect('/')
+}
+
+export async function resendVerification(formData: FormData) {
+  const supabase = await createClient()
+  const email = formData.get('email') as string
+  if (!email) return { error: 'Email is required' }
+  const { error } = await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mira-prompts.vercel.app'}/auth/callback` } })
+  if (error) return { error: error.message }
+  return { success: true }
 }
 
 export async function signOut() {

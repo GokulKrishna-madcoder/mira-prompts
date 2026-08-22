@@ -1,18 +1,31 @@
 'use client'
 
-import { signIn } from '@/lib/auth-actions'
+import { signIn, resendVerification } from '@/lib/auth-actions'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import { Mail, Lock } from 'lucide-react'
 
 export default function LoginPage() {
   const [state, action, pending] = useActionState(
-    async (_prev: { error?: string } | null, formData: FormData) => {
+    async (_prev: { error?: string, email?: string } | null, formData: FormData) => {
       return await signIn(formData) ?? null
     },
     null
   )
+
+  const [resendMsg, setResendMsg] = useState('')
+  const [resending, setResending] = useState(false)
+
+  const handleResend = async () => {
+    if (!state?.email) return
+    setResending(true)
+    const fd = new FormData()
+    fd.append('email', state.email)
+    const res = await resendVerification(fd)
+    setResendMsg(res?.error || 'Verification link sent!')
+    setResending(false)
+  }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-red-50/50 via-white to-gray-100/80 relative overflow-hidden">
@@ -58,8 +71,25 @@ export default function LoginPage() {
             </Link>
           </div>
           {state?.error && (
-            <div className="p-3 bg-red-50/80 text-red-600 border border-red-100 rounded-xl text-sm font-medium text-center">
-              {state.error}
+            <div className="p-4 bg-red-50/80 border border-red-100 rounded-2xl flex flex-col items-center gap-3 text-center">
+              <span className="text-sm font-medium text-red-600">{state.error}</span>
+              {state.error === 'Email not confirmed' && state.email && (
+                <div className="w-full pt-3 border-t border-red-100/50">
+                  <button 
+                    type="button" 
+                    onClick={handleResend}
+                    disabled={resending}
+                    className="w-full py-3 bg-white text-red-600 rounded-xl text-xs font-bold border border-red-100 shadow-sm hover:bg-red-50 hover:border-red-200 transition-all disabled:opacity-50"
+                  >
+                    {resending ? 'Sending link...' : 'Resend Verification Email'}
+                  </button>
+                  {resendMsg && (
+                    <p className={`mt-2 text-xs font-semibold ${resendMsg.includes('sent') ? 'text-green-600' : 'text-red-600'}`}>
+                      {resendMsg}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
           <button type="submit" disabled={pending}
