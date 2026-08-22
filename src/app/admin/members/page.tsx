@@ -86,9 +86,9 @@ export default async function AdminMembersPage() {
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <p className="text-xs text-gray-500">{p.email}</p>
                       {p.is_verified ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" title="Verified" />
+                        <span title="Verified"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" /></span>
                       ) : (
-                        <AlertCircle className="w-3.5 h-3.5 text-amber-500" title="Unverified" />
+                        <span title="Unverified"><AlertCircle className="w-3.5 h-3.5 text-amber-500" /></span>
                       )}
                     </div>
                   </td>
