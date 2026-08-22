@@ -17,7 +17,7 @@ export function buildMetadata(options: {
     : SITE_NAME
 
   const url = options.path ? `${SITE_URL}${options.path}` : SITE_URL
-  const image = options.image ?? `${SITE_URL}/og-default.png`
+  const image = options.image ?? `${SITE_URL}/brand/preview.png`
 
   return {
     title,
