@@ -1,5 +1,6 @@
 'use server'
 
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { requireAdmin } from '@/lib/auth'
 import { logAuditEvent } from '@/lib/audit/log'
 import { revalidatePath } from 'next/cache'
@@ -307,3 +308,25 @@ export async function updateUserRole(formData: FormData) {
 
   revalidatePath('/admin/members')
 }
+
+export async function deleteUser(userId: string) {
+  const { user } = await requireAdmin() // Verify admin caller
+
+  if (userId === user.id) {
+    throw new Error('You cannot delete your own account.')
+  }
+
+  const supabaseAdmin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
+  if (error) {
+    throw new Error('Failed to delete user: ' + error.message)
+  }
+
+  revalidatePath('/admin/members')
+  return { success: true }
+}
+

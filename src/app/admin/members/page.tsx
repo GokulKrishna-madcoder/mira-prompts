@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { updateUserRole } from '@/lib/admin-actions'
+import { DeleteUserButton } from '@/components/admin/DeleteUserButton'
+import { CheckCircle2, AlertCircle } from 'lucide-react'
 
 export const metadata = { title: 'Members - Admin' }
 
@@ -41,10 +43,12 @@ export default async function AdminMembersPage() {
     const subPlan = activeSub?.subscription_plans
     const planName = Array.isArray(subPlan) ? subPlan[0]?.name : subPlan?.name
     const activeEntitlements = (p.entitlements as any[])?.filter(e => e.active).map(e => e.feature_key) || []
+    const authUser = authUsers.find(u => u.id === p.id)
 
     return {
       ...p,
-      email: authUsers.find(u => u.id === p.id)?.email || 'No email',
+      email: authUser?.email || 'No email',
+      is_verified: !!authUser?.email_confirmed_at,
       authoritative_status: activeSub ? activeSub.status : 'None',
       plan_name: planName || 'Free',
       entitlements: activeEntitlements
@@ -71,6 +75,7 @@ export default async function AdminMembersPage() {
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Entitlements</th>
                 <th className="px-6 py-4 text-right">Joined</th>
+                <th className="px-6 py-4"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -78,7 +83,14 @@ export default async function AdminMembersPage() {
                 <tr key={p.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
                     <p className="font-bold text-black">{p.display_name || 'Anonymous User'}</p>
-                    <p className="text-xs text-gray-500">{p.email}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <p className="text-xs text-gray-500">{p.email}</p>
+                      {p.is_verified ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" title="Verified" />
+                      ) : (
+                        <AlertCircle className="w-3.5 h-3.5 text-amber-500" title="Unverified" />
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <form action={updateUserRole} className="flex items-center gap-2">
@@ -113,11 +125,14 @@ export default async function AdminMembersPage() {
                   <td className="px-6 py-4 text-right text-gray-500 font-medium">
                     {new Date(p.created_at).toLocaleDateString()}
                   </td>
+                  <td className="px-6 py-4 text-right">
+                    <DeleteUserButton userId={p.id} email={p.email} />
+                  </td>
                 </tr>
               ))}
               {(!members || members.length === 0) && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500 font-medium">No members found.</td>
+                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500 font-medium">No members found.</td>
                 </tr>
               )}
             </tbody>
