@@ -8,8 +8,9 @@ export default function CategoryTabs({ categories }: { categories: { id: string;
   const activeCategory = searchParams.get('category')
 
   return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar scrollbar-hide items-center w-full pr-4">
-      <Link
+    <div className="sticky top-0 z-20 bg-[var(--color-background)]/95 backdrop-blur-md pt-2 pb-4 px-4 md:px-8 mb-4">
+      <div className="flex gap-2 overflow-x-auto no-scrollbar scrollbar-hide items-center pb-2">
+        <Link
           href="/"
           className={`shrink-0 px-4 py-2.5 rounded-full text-sm font-semibold transition-colors ${
             !activeCategory 
@@ -32,6 +33,7 @@ export default function CategoryTabs({ categories }: { categories: { id: string;
             {cat.name}
           </Link>
         ))}
+      </div>
     </div>
   )
 }
