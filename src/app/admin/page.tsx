@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Eye, Copy, Bookmark, FileText, TrendingUp, PlusCircle, Award } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import AdminLineChart from '@/components/admin/AdminLineChart'
+import LiveRefresher from '@/components/admin/LiveRefresher'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -61,6 +62,7 @@ export default async function AdminDashboard() {
 
   return (
     <div id="admin-dashboard" className="admin-dashboard p-8 max-w-6xl mx-auto">
+      <LiveRefresher intervalMs={15000} />
       {/* Header */}
       <div id="dashboard-header" className="dashboard-header flex items-center justify-between mb-8">
         <div>
