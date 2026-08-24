@@ -12,6 +12,7 @@ export default function CopyButton({ text, id, variant = 'default' }: { text: st
     setTimeout(() => setCopied(false), 2000)
 
     trackEvent('prompt_copy', { promptId: id })
+    fetch(`/api/prompts/${id}/copy`, { method: 'POST' }).catch(() => {})
   }
 
   if (variant === 'massive') {

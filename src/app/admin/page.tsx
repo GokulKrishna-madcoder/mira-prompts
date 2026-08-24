@@ -18,7 +18,8 @@ export default async function AdminDashboard() {
     { count: promptsCount },
     { data: recentPrompts },
     { data: topCopiedPrompts },
-    { data: platformMetrics }
+    { data: platformMetrics },
+    { data: globalStats }
   ] = await Promise.all([
     supabase.from('prompts').select('*', { count: 'exact', head: true }),
     supabase
@@ -36,8 +37,13 @@ export default async function AdminDashboard() {
       .from('daily_platform_metrics')
       .select('*')
       .order('date', { ascending: true })
-      .limit(30)
+      .limit(30),
+    supabase.from('prompts').select('view_count, copy_count, save_count')
   ])
+
+  const trueTotalViews = globalStats?.reduce((acc, p) => acc + (p.view_count || 0), 0) || 0
+  const trueTotalCopies = globalStats?.reduce((acc, p) => acc + (p.copy_count || 0), 0) || 0
+  const trueTotalSaves = globalStats?.reduce((acc, p) => acc + (p.save_count || 0), 0) || 0
 
   const latestMetrics = platformMetrics?.[platformMetrics.length - 1] || {}
   const mrrRupees = Math.round((latestMetrics.mrr || 0) / 100)
@@ -47,9 +53,9 @@ export default async function AdminDashboard() {
     { label: 'Total Users', value: (latestMetrics.total_users || 0).toLocaleString(), icon: Eye, color: 'bg-rose-50 text-rose-600' },
     { label: 'Paid Users', value: (latestMetrics.paid_users || 0).toLocaleString(), icon: Bookmark, color: 'bg-indigo-50 text-indigo-600' },
     { label: 'Total Prompts', value: promptsCount || 0, icon: FileText, color: 'bg-blue-50 text-blue-600' },
-    { label: 'Total Views', value: (latestMetrics.total_views || 0).toLocaleString(), icon: Eye, color: 'bg-green-50 text-green-600' },
-    { label: 'Total Copies', value: (latestMetrics.total_copies || 0).toLocaleString(), icon: Copy, color: 'bg-purple-50 text-purple-600' },
-    { label: 'Total Saves', value: (latestMetrics.total_saves || 0).toLocaleString(), icon: Bookmark, color: 'bg-amber-50 text-amber-600' },
+    { label: 'Total Views', value: trueTotalViews.toLocaleString(), icon: Eye, color: 'bg-green-50 text-green-600' },
+    { label: 'Total Copies', value: trueTotalCopies.toLocaleString(), icon: Copy, color: 'bg-purple-50 text-purple-600' },
+    { label: 'Total Saves', value: trueTotalSaves.toLocaleString(), icon: Bookmark, color: 'bg-amber-50 text-amber-600' },
   ]
 
   // Prepare chart data (fallback to 0 if no metrics exist)
