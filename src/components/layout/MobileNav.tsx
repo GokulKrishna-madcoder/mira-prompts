@@ -3,9 +3,9 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Compass, Bookmark, Settings, ExternalLink } from 'lucide-react'
+import { Home, Compass, Bookmark, Settings, ExternalLink, User } from 'lucide-react'
 
-export default function MobileNav() {
+export default function MobileNav({ userEmail }: { userEmail?: string }) {
   const pathname = usePathname()
   const [showSettings, setShowSettings] = useState(false)
   const navRef = useRef<HTMLElement>(null)
@@ -28,7 +28,7 @@ export default function MobileNav() {
       {showSettings && (
         <div className="absolute bottom-[72px] right-2 w-[220px] bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 p-2 flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-200">
           <Link href="/settings" onClick={() => setShowSettings(false)} className="px-4 py-3 rounded-xl hover:bg-gray-50 text-black font-semibold text-sm transition-colors">
-            Settings
+            {userEmail ? 'Settings' : 'Log in / Sign up'}
           </Link>
           <div className="h-px bg-gray-100 my-1 mx-2" />
           <span className="px-4 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Support & Legal</span>
@@ -55,8 +55,14 @@ export default function MobileNav() {
             showSettings || pathname === '/settings' ? 'text-black' : 'text-gray-400'
           }`}
         >
-          <Settings className="w-6 h-6" />
-          <span className="text-[10px] font-bold">Settings</span>
+          {userEmail ? (
+            <div className="w-6 h-6 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center font-bold text-gray-600 text-[10px]">
+              {userEmail.charAt(0).toUpperCase()}
+            </div>
+          ) : (
+            <User className="w-6 h-6" />
+          )}
+          <span className="text-[10px] font-bold">{userEmail ? 'Profile' : 'Menu'}</span>
         </button>
       </div>
     </nav>

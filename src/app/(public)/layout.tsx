@@ -2,13 +2,18 @@ import Sidebar from "@/components/layout/Sidebar"
 import TopBar from "@/components/layout/TopBar"
 import MobileNav from "@/components/layout/MobileNav"
 
-export default function PublicLayout({
+import { createClient } from "@/lib/supabase/server"
+
+export default async function PublicLayout({
   children,
   modal
 }: {
   children: React.ReactNode
   modal: React.ReactNode
 }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   return (
     <div id="app-shell" className="app-shell flex w-full min-h-screen bg-[var(--color-background)]">
       <Sidebar />
@@ -19,7 +24,7 @@ export default function PublicLayout({
         </div>
       </div>
       {modal}
-      <MobileNav />
+      <MobileNav userEmail={user?.email} />
     </div>
   )
 }
