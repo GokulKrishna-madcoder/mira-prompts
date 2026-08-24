@@ -21,8 +21,8 @@ export default async function TopBar() {
         <Image 
           src="/brand/logo.png" 
           alt="Mira Logo" 
-          width={32} 
-          height={32} 
+          width={56} 
+          height={56} 
           className="object-contain"
           unoptimized
         />
