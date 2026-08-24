@@ -14,6 +14,12 @@ export default async function PublicLayout({
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  let userInitial: string | undefined
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
+    userInitial = (profile?.display_name || user.email || 'U').charAt(0).toUpperCase()
+  }
+
   return (
     <div id="app-shell" className="app-shell flex w-full min-h-screen bg-[var(--color-background)]">
       <Sidebar />
@@ -24,7 +30,7 @@ export default async function PublicLayout({
         </div>
       </div>
       {modal}
-      <MobileNav userEmail={user?.email} />
+      <MobileNav userInitial={userInitial} />
     </div>
   )
 }

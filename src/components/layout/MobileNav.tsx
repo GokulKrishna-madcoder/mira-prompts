@@ -17,7 +17,7 @@ const getAvatarGradient = (letter: string) => {
   return gradients[letter.charCodeAt(0) % gradients.length]
 }
 
-export default function MobileNav({ userEmail }: { userEmail?: string }) {
+export default function MobileNav({ userInitial }: { userInitial?: string }) {
   const pathname = usePathname()
   const [showSettings, setShowSettings] = useState(false)
   const navRef = useRef<HTMLElement>(null)
@@ -40,7 +40,7 @@ export default function MobileNav({ userEmail }: { userEmail?: string }) {
       {showSettings && (
         <div className="absolute bottom-[72px] right-2 w-[220px] bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 p-2 flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-200">
           <Link href="/settings" onClick={() => setShowSettings(false)} className="px-4 py-3 rounded-xl hover:bg-gray-50 text-black font-semibold text-sm transition-colors">
-            {userEmail ? 'Settings' : 'Log in / Sign up'}
+            {userInitial ? 'Settings' : 'Log in / Sign up'}
           </Link>
           <div className="h-px bg-gray-100 my-1 mx-2" />
           <span className="px-4 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wide">Support & Legal</span>
@@ -67,14 +67,14 @@ export default function MobileNav({ userEmail }: { userEmail?: string }) {
             showSettings || pathname === '/settings' ? 'text-black' : 'text-gray-400'
           }`}
         >
-          {userEmail ? (
-            <div className={`w-6 h-6 rounded-full overflow-hidden flex items-center justify-center font-bold text-white text-[10px] ${getAvatarGradient(userEmail.charAt(0).toUpperCase())}`}>
-              {userEmail.charAt(0).toUpperCase()}
+          {userInitial ? (
+            <div className={`w-6 h-6 rounded-full overflow-hidden flex items-center justify-center font-bold text-white text-[10px] ${getAvatarGradient(userInitial)}`}>
+              {userInitial}
             </div>
           ) : (
             <User className="w-6 h-6" />
           )}
-          <span className="text-[10px] font-bold">{userEmail ? 'Profile' : 'Menu'}</span>
+          <span className="text-[10px] font-bold">{userInitial ? 'Profile' : 'Menu'}</span>
         </button>
       </div>
     </nav>

@@ -22,9 +22,12 @@ export default async function TopBar() {
   const { data: { user } } = await supabase.auth.getUser()
   
   let userLastRead = null
+  let initial = 'U'
+
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('last_notification_read_at').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('last_notification_read_at, display_name').eq('id', user.id).single()
     userLastRead = profile?.last_notification_read_at || null
+    initial = (profile?.display_name || user.email || 'U').charAt(0).toUpperCase()
   }
 
   return (
@@ -46,14 +49,9 @@ export default async function TopBar() {
           <>
             <NotificationsPopover userLastRead={userLastRead} />
             <FeedbackModal />
-            {(() => {
-              const initial = user.email?.charAt(0).toUpperCase() || 'U'
-              return (
-                <Link id="user-avatar" href="/settings" className={`user-avatar hidden md:flex w-10 h-10 ml-2 rounded-full overflow-hidden items-center justify-center font-bold text-white hover:ring-2 hover:ring-gray-300 transition-all ${getAvatarGradient(initial)}`}>
-                  {initial}
-                </Link>
-              )
-            })()}
+            <Link id="user-avatar" href="/settings" className={`user-avatar hidden md:flex w-10 h-10 ml-2 rounded-full overflow-hidden items-center justify-center font-bold text-white hover:ring-2 hover:ring-gray-300 transition-all ${getAvatarGradient(initial)}`}>
+              {initial}
+            </Link>
           </>
         ) : (
           <div id="auth-buttons" className="auth-buttons hidden md:flex items-center gap-2 ml-2">
