@@ -34,7 +34,7 @@ export default async function TopBar() {
     <header id="topbar" className="topbar h-[80px] shrink-0 flex items-center px-4 md:px-8 gap-2 bg-[var(--color-background)] z-30 sticky top-0 w-full">
       <Link href="/" className="md:hidden shrink-0 flex items-center hover:opacity-80 transition-opacity">
         <Image 
-          src="/brand/logo.png" 
+          src="/brand/mobilevlogo.png" 
           alt="Mira Logo" 
           width={56} 
           height={56} 
