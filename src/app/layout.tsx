@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import Script from "next/script"
+import NextTopLoader from 'nextjs-toploader';
 import "./globals.css"
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
@@ -67,6 +68,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <NextTopLoader color="#ef4444" height={3} showSpinner={false} />
         {children}
 
         {process.env.NODE_ENV === 'production' && (

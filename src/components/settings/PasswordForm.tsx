@@ -2,6 +2,7 @@
 
 import { updatePassword } from '@/lib/user-actions'
 import { useActionState } from 'react'
+import { Loader2 } from 'lucide-react'
 
 export default function PasswordForm() {
   const [state, action, pending] = useActionState(
@@ -33,8 +34,9 @@ export default function PasswordForm() {
         <button
           type="submit"
           disabled={pending}
-          className="px-8 py-4 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="px-8 py-4 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed active:scale-[0.98] flex items-center gap-2"
         >
+          {pending && <Loader2 className="w-4 h-4 animate-spin" />}
           {pending ? 'Updating...' : 'Update Password'}
         </button>
       </div>

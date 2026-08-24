@@ -4,7 +4,7 @@ import { signUp, resendVerification } from '@/lib/auth-actions'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useActionState, useState } from 'react'
-import { Mail, Lock, User, ArrowLeft, Send } from 'lucide-react'
+import { Mail, Lock, User, ArrowLeft, Send, Loader2 } from 'lucide-react'
 
 export default function SignUpPage() {
   const [state, action, pending] = useActionState(
@@ -111,8 +111,9 @@ export default function SignUpPage() {
               )}
               <div className="pt-2">
                 <button type="submit" disabled={pending}
-                  className="w-full py-4 bg-black text-white rounded-2xl text-sm font-bold shadow-lg shadow-black/10 hover:bg-gray-800 hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50"
+                  className="w-full py-4 bg-black text-white rounded-2xl text-sm font-bold shadow-lg shadow-black/10 hover:bg-gray-800 hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center gap-2"
                 >
+                  {pending && <Loader2 className="w-4 h-4 animate-spin" />}
                   {pending ? 'Creating account...' : 'Create Account'}
                 </button>
               </div>

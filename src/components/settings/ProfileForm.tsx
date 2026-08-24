@@ -82,7 +82,7 @@ export default function ProfileForm({ initialProfile, email }: { initialProfile:
             <button
               type="submit"
               disabled={pending}
-              className="px-8 py-4 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-8 py-4 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed active:scale-[0.98] flex items-center gap-2"
             >
               {pending && <Loader2 className="w-4 h-4 animate-spin" />}
               {pending ? 'Saving...' : 'Save Profile'}
