@@ -5,6 +5,18 @@ import SearchBar from './SearchBar'
 import FeedbackModal from '@/components/ui/FeedbackModal'
 import NotificationsPopover from '@/components/ui/NotificationsPopover'
 
+const getAvatarGradient = (letter: string) => {
+  const gradients = [
+    'bg-gradient-to-br from-blue-700 to-blue-950',
+    'bg-gradient-to-br from-emerald-700 to-emerald-950',
+    'bg-gradient-to-br from-purple-700 to-purple-950',
+    'bg-gradient-to-br from-rose-700 to-rose-950',
+    'bg-gradient-to-br from-amber-700 to-amber-950'
+  ]
+  if (!letter) return gradients[0]
+  return gradients[letter.charCodeAt(0) % gradients.length]
+}
+
 export default async function TopBar() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -16,7 +28,7 @@ export default async function TopBar() {
   }
 
   return (
-    <header id="topbar" className="topbar h-[80px] shrink-0 flex items-center px-4 md:px-8 gap-4 bg-[var(--color-background)] z-30 sticky top-0 w-full">
+    <header id="topbar" className="topbar h-[80px] shrink-0 flex items-center px-4 md:px-8 gap-2 bg-[var(--color-background)] z-30 sticky top-0 w-full">
       <Link href="/" className="md:hidden shrink-0 flex items-center hover:opacity-80 transition-opacity">
         <Image 
           src="/brand/logo.png" 
@@ -34,9 +46,14 @@ export default async function TopBar() {
           <>
             <NotificationsPopover userLastRead={userLastRead} />
             <FeedbackModal />
-            <Link id="user-avatar" href="/settings" className="user-avatar hidden md:flex w-10 h-10 ml-2 rounded-full bg-gray-200 overflow-hidden items-center justify-center font-bold text-gray-600 hover:ring-2 hover:ring-gray-300 transition-all">
-              {user.email?.charAt(0).toUpperCase() || 'U'}
-            </Link>
+            {(() => {
+              const initial = user.email?.charAt(0).toUpperCase() || 'U'
+              return (
+                <Link id="user-avatar" href="/settings" className={`user-avatar hidden md:flex w-10 h-10 ml-2 rounded-full overflow-hidden items-center justify-center font-bold text-white hover:ring-2 hover:ring-gray-300 transition-all ${getAvatarGradient(initial)}`}>
+                  {initial}
+                </Link>
+              )
+            })()}
           </>
         ) : (
           <div id="auth-buttons" className="auth-buttons hidden md:flex items-center gap-2 ml-2">

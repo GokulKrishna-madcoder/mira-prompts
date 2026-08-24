@@ -5,6 +5,18 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Compass, Bookmark, Settings, ExternalLink, User } from 'lucide-react'
 
+const getAvatarGradient = (letter: string) => {
+  const gradients = [
+    'bg-gradient-to-br from-blue-700 to-blue-950',
+    'bg-gradient-to-br from-emerald-700 to-emerald-950',
+    'bg-gradient-to-br from-purple-700 to-purple-950',
+    'bg-gradient-to-br from-rose-700 to-rose-950',
+    'bg-gradient-to-br from-amber-700 to-amber-950'
+  ]
+  if (!letter) return gradients[0]
+  return gradients[letter.charCodeAt(0) % gradients.length]
+}
+
 export default function MobileNav({ userEmail }: { userEmail?: string }) {
   const pathname = usePathname()
   const [showSettings, setShowSettings] = useState(false)
@@ -56,7 +68,7 @@ export default function MobileNav({ userEmail }: { userEmail?: string }) {
           }`}
         >
           {userEmail ? (
-            <div className="w-6 h-6 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center font-bold text-gray-600 text-[10px]">
+            <div className={`w-6 h-6 rounded-full overflow-hidden flex items-center justify-center font-bold text-white text-[10px] ${getAvatarGradient(userEmail.charAt(0).toUpperCase())}`}>
               {userEmail.charAt(0).toUpperCase()}
             </div>
           ) : (
