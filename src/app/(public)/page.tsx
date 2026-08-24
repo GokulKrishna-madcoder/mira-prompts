@@ -109,7 +109,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
         </div>
       )}
       {!q && (
-        <div className="flex items-center justify-between px-4 md:px-8">
+        <div className="flex items-center justify-between px-4 md:px-8 overflow-x-auto scrollbar-hide gap-4">
           <CategoryTabs categories={categories || []} />
           <SortDropdown />
         </div>
