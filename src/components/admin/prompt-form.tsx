@@ -84,7 +84,7 @@ export default function PromptForm({
 
         {/* Image */}
         <fieldset id="field-image" className="field-image space-y-2">
-          <label htmlFor="input-image" className="block text-sm font-semibold text-gray-700">Image {initialData ? '(Optional)' : '<span className="text-red-500">*</span>'}</label>
+          <label htmlFor="input-image" className="block text-sm font-semibold text-gray-700">Image {initialData ? '(Optional)' : <span className="text-red-500">*</span>}</label>
           <input
             id="input-image"
             name="image"
