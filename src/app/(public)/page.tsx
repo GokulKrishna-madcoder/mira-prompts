@@ -76,7 +76,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     query = query.order(sortField, { ascending: false })
 
     if (q) {
-      query = query.or(`title.ilike.%${q}%,prompt.ilike.%${q}%`)
+      const { data: matchedIds } = await supabase.rpc('search_prompt_ids', { search_term: q })
+      const ids = matchedIds?.map((m: any) => m.prompt_id) || []
+      
+      if (ids.length > 0) {
+        query = query.in('id', ids)
+      } else {
+        query = query.eq('id', '00000000-0000-0000-0000-000000000000')
+      }
     }
 
     if (category) {
