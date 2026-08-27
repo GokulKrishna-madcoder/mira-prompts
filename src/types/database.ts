@@ -72,6 +72,8 @@ export interface Database {
           updated_at: string
           like_count: number | null
           is_premium: boolean | null
+          has_variants: boolean
+          variants: Json | null
         }
         Insert: {
           id?: string
@@ -97,6 +99,8 @@ export interface Database {
           updated_at?: string
           like_count?: number | null
           is_premium?: boolean | null
+          has_variants?: boolean
+          variants?: Json | null
         }
         Update: {
           id?: string
@@ -122,6 +126,8 @@ export interface Database {
           updated_at?: string
           like_count?: number | null
           is_premium?: boolean | null
+          has_variants?: boolean
+          variants?: Json | null
         }
       }
       subscriptions: {
