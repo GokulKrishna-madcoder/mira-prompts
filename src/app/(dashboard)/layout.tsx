@@ -23,7 +23,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-[#F9FAFB]">
-      <TopBar />
+      <TopBar showDesktopLogo={true} />
       <div className="flex-1 flex min-w-0 h-[calc(100vh-80px)] overflow-hidden relative">
         <DashboardSidebar profile={profile} email={user.email || ''} userInitial={userInitial} />
         <main className="flex-1 overflow-y-auto p-4 md:p-8 relative z-0 pb-20 md:pb-8">

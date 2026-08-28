@@ -55,7 +55,7 @@ export default function DashboardSidebar({ profile, email, userInitial }: { prof
           onClick={() => setIsOpen(false)}
         />
       )}
-      <aside className={`w-[280px] shrink-0 border-r border-gray-200 bg-[#fafafa] flex flex-col h-[100dvh] md:h-[calc(100vh-80px)] overflow-y-auto transition-transform duration-300 z-50 
+      <aside className={`w-[280px] shrink-0 border-r border-gray-200 bg-[#fafafa] flex flex-col h-[100dvh] md:h-[calc(100vh-80px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] transition-transform duration-300 z-50 
         ${isOpen ? 'fixed top-0 left-0 translate-x-0' : 'fixed top-0 left-0 -translate-x-full md:sticky md:translate-x-0'}`}>
         
         {/* Mobile Close Button */}
@@ -63,13 +63,6 @@ export default function DashboardSidebar({ profile, email, userInitial }: { prof
           <button onClick={() => setIsOpen(false)} className="p-2 text-gray-500 hover:bg-gray-200 rounded-full">
             <X className="w-5 h-5" />
           </button>
-        </div>
-
-        {/* Desktop Logo */}
-        <div className="hidden md:flex items-center justify-center pt-8">
-          <Link href="/" className="hover:opacity-80 transition-opacity">
-            <Image src="/brand/logo.png" alt="Mira Logo" width={44} height={44} unoptimized />
-          </Link>
         </div>
 
         {/* Profile Header */}

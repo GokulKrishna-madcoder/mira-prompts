@@ -8,7 +8,7 @@ import UserDropdown from './UserDropdown'
 import { getAvatarGradient } from '@/lib/avatar'
 import MobileDashboardToggle from '@/components/dashboard/MobileDashboardToggle'
 
-export default async function TopBar() {
+export default async function TopBar({ showDesktopLogo = false }: { showDesktopLogo?: boolean }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -40,7 +40,23 @@ export default async function TopBar() {
           unoptimized
         />
       </Link>
-      <SearchBar />
+
+      {showDesktopLogo && (
+        <Link href="/" className="hidden md:flex shrink-0 items-center hover:opacity-80 transition-opacity mr-4">
+          <Image 
+            src="/brand/logo.png" 
+            alt="Mira Logo" 
+            width={100} 
+            height={36} 
+            className="object-contain"
+            unoptimized
+          />
+        </Link>
+      )}
+
+      <div className="flex-1">
+        <SearchBar />
+      </div>
 
       <div id="topbar-actions" className="topbar-actions flex items-center gap-2 shrink-0">
         {user ? (

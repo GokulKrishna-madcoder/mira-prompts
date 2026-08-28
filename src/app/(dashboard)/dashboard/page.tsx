@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
+import { Plus, BarChart2, Bookmark, Eye, Heart, Layers, Sparkles } from 'lucide-react'
 
 export default async function DashboardOverview() {
   const supabase = await createClient()
@@ -23,87 +23,116 @@ export default async function DashboardOverview() {
   const totalSaves = prompts?.reduce((sum, p) => sum + (p.save_count || 0), 0) || 0
   const totalLikes = prompts?.reduce((sum, p) => sum + (p.like_count || 0), 0) || 0
 
-  const recentPrompts = prompts?.slice(0, 3) || []
+  const recentPrompts = prompts?.slice(0, 4) || []
 
   // Calculate content mix percentage
   const publishedPercentage = totalPrompts > 0 ? Math.round((publishedPrompts / totalPrompts) * 100) : 0
 
   return (
-    <div className="space-y-6 max-w-[1200px] mx-auto">
+    <div className="space-y-8 max-w-[1200px] mx-auto">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-sm text-gray-500 mt-1">Overview of your prompt library and engagement</p>
+      </div>
+
       {/* Top Row Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#B91C1C] rounded-[24px] p-6 text-white flex flex-col justify-between h-[140px] relative overflow-hidden group">
-          <div className="flex justify-between items-start">
-            <span className="font-bold text-sm text-white/90">Total Prompts</span>
-            <span className="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center text-xs group-hover:bg-white group-hover:text-[#B91C1C] transition-colors cursor-pointer">↗</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="bg-white rounded-3xl border border-gray-200 p-6 flex flex-col justify-between h-[160px] shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#E11D48]/5 rounded-bl-full -mr-8 -mt-8"></div>
+          <div className="flex justify-between items-start relative z-10">
+            <span className="font-bold text-sm text-gray-500">Total Prompts</span>
+            <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-[#E11D48]">
+              <Layers className="w-4 h-4" />
+            </div>
           </div>
-          <div>
-            <h2 className="text-4xl font-black">{totalPrompts}</h2>
-            <p className="text-xs text-white/70 mt-1">Across your library</p>
+          <div className="relative z-10">
+            <h2 className="text-4xl font-black text-gray-900">{totalPrompts}</h2>
+            <p className="text-xs text-gray-400 mt-1 font-medium">Across your library</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex flex-col justify-between h-[140px] shadow-sm">
+        <div className="bg-white rounded-3xl border border-gray-200 p-6 flex flex-col justify-between h-[160px] shadow-sm">
           <div className="flex justify-between items-start">
-            <span className="font-bold text-sm text-gray-900">Impressions</span>
-            <span className="w-6 h-6 rounded-full border border-gray-200 flex items-center justify-center text-xs text-gray-400">↗</span>
+            <span className="font-bold text-sm text-gray-500">Impressions</span>
+            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+              <Eye className="w-4 h-4" />
+            </div>
           </div>
           <div>
             <h2 className="text-4xl font-black text-gray-900">{totalViews}</h2>
-            <p className="text-xs text-gray-400 mt-1">Total views</p>
+            <p className="text-xs text-gray-400 mt-1 font-medium">Total views</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex flex-col justify-between h-[140px] shadow-sm">
+        <div className="bg-white rounded-3xl border border-gray-200 p-6 flex flex-col justify-between h-[160px] shadow-sm">
           <div className="flex justify-between items-start">
-            <span className="font-bold text-sm text-gray-900">Saves</span>
-            <span className="w-6 h-6 rounded-full border border-gray-200 flex items-center justify-center text-xs text-gray-400">↗</span>
+            <span className="font-bold text-sm text-gray-500">Saves</span>
+            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+              <Bookmark className="w-4 h-4" />
+            </div>
           </div>
           <div>
             <h2 className="text-4xl font-black text-gray-900">{totalSaves}</h2>
-            <p className="text-xs text-gray-400 mt-1">Times bookmarked</p>
+            <p className="text-xs text-gray-400 mt-1 font-medium">Times bookmarked</p>
           </div>
         </div>
-        
-        {/* Skipping Followers to match requirement, adding placeholder to maintain grid or just let it span 3 */}
+
+        <div className="bg-white rounded-3xl border border-gray-200 p-6 flex flex-col justify-between h-[160px] shadow-sm">
+          <div className="flex justify-between items-start">
+            <span className="font-bold text-sm text-gray-500">Likes</span>
+            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+              <Heart className="w-4 h-4" />
+            </div>
+          </div>
+          <div>
+            <h2 className="text-4xl font-black text-gray-900">{totalLikes}</h2>
+            <p className="text-xs text-gray-400 mt-1 font-medium">Total likes received</p>
+          </div>
+        </div>
       </div>
 
       {/* Middle Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-[#1A0B0E] to-[#2D0A11] rounded-[24px] p-8 text-white flex flex-col justify-between h-[220px]">
-          <span className="font-bold text-sm text-white/90">Engagement</span>
+        <div className="bg-white rounded-3xl border border-gray-200 p-8 flex flex-col justify-between h-[240px] shadow-sm">
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-sm text-gray-900">Total Copies (Engagement)</span>
+            <BarChart2 className="w-5 h-5 text-gray-400" />
+          </div>
           <div>
-            <h2 className="text-5xl font-black">{totalCopies}</h2>
-            <p className="text-xs text-white/70 mt-1 mb-6">Total copies</p>
-            <div className="flex items-center gap-8 text-sm font-semibold">
-              <div><span className="block text-lg">{totalSaves}</span><span className="text-white/50 text-xs">Saves</span></div>
-              <div><span className="block text-lg">{totalLikes}</span><span className="text-white/50 text-xs">Likes</span></div>
-              <div><span className="block text-lg">{totalViews}</span><span className="text-white/50 text-xs">Views</span></div>
+            <h2 className="text-5xl font-black text-[#E11D48] tracking-tight">{totalCopies}</h2>
+            <p className="text-sm text-gray-500 mt-2 font-medium">Users copied your prompts</p>
+            
+            <div className="mt-8 flex items-center gap-8 border-t border-gray-100 pt-6">
+              <div><span className="block text-xl font-bold text-gray-900">{totalSaves}</span><span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Saves</span></div>
+              <div><span className="block text-xl font-bold text-gray-900">{totalLikes}</span><span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Likes</span></div>
+              <div><span className="block text-xl font-bold text-gray-900">{totalViews}</span><span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Views</span></div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-[24px] border border-gray-100 p-6 shadow-sm flex flex-col h-[220px]">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm flex flex-col h-[240px]">
+          <div className="flex justify-between items-center mb-4">
             <span className="font-bold text-sm text-gray-900">Recent Prompts</span>
-            <Link href="/submit-prompt" className="flex items-center gap-1 text-xs font-bold text-gray-600 px-3 py-1.5 rounded-full border border-gray-200 hover:bg-gray-50">
-              <Plus className="w-3 h-3" /> New
+            <Link href="/submit-prompt" className="flex items-center gap-1.5 text-xs font-bold text-[#E11D48] bg-red-50 px-3 py-1.5 rounded-full hover:bg-red-100 transition-colors">
+              <Plus className="w-3.5 h-3.5" /> New
             </Link>
           </div>
-          <div className="flex-1 flex flex-col items-center justify-center text-center">
+          <div className="flex-1 flex flex-col text-left overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {recentPrompts.length > 0 ? (
-              <ul className="w-full space-y-2">
+              <ul className="w-full space-y-1">
                 {recentPrompts.map(p => (
-                  <li key={p.id} className="flex justify-between items-center text-sm p-2 hover:bg-gray-50 rounded-lg">
-                    <span className="font-semibold truncate w-[70%] text-left">{p.title}</span>
-                    <span className="text-gray-400 text-xs">{p.status}</span>
+                  <li key={p.id} className="flex justify-between items-center p-3 hover:bg-gray-50 rounded-xl transition-colors border border-transparent hover:border-gray-100 cursor-pointer">
+                    <span className="text-sm font-semibold text-gray-800 truncate pr-4">{p.title}</span>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${p.status === 'published' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
+                      {p.status}
+                    </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <>
-                <p className="text-sm text-gray-400 mb-2">No prompts yet. Create one →</p>
-              </>
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-sm text-gray-400 font-medium">No prompts yet. Create one to get started.</p>
+              </div>
             )}
           </div>
         </div>
@@ -111,37 +140,45 @@ export default async function DashboardOverview() {
 
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 bg-white rounded-[24px] border border-gray-100 p-6 shadow-sm h-[220px] flex flex-col">
-          <div className="flex justify-between items-center mb-6">
-            <span className="font-bold text-sm text-gray-900">Saved Boards</span>
-            <span className="text-xs font-bold text-gray-500 px-3 py-1 rounded-full border border-gray-200 cursor-pointer">View all</span>
-          </div>
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-sm text-gray-400">No saved prompts yet.</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-[24px] border border-gray-100 p-6 shadow-sm h-[220px] flex flex-col items-center justify-center">
+        <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm h-[220px] flex flex-col items-center justify-center">
           <span className="font-bold text-sm text-gray-900 self-start w-full mb-4">Content Mix</span>
-          <div className="relative w-28 h-28 rounded-full border-[12px] border-gray-100 flex items-center justify-center" style={{ borderTopColor: '#B91C1C', transform: `rotate(${publishedPercentage * 3.6}deg)`}}>
+          <div className="relative w-28 h-28 rounded-full border-[12px] border-gray-100 flex items-center justify-center" style={{ borderTopColor: '#E11D48', transform: `rotate(${publishedPercentage * 3.6}deg)`}}>
             <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ transform: `rotate(-${publishedPercentage * 3.6}deg)` }}>
-              <span className="text-2xl font-black">{publishedPercentage}%</span>
-              <span className="text-[10px] text-gray-400 font-bold uppercase">Published</span>
+              <span className="text-2xl font-black text-gray-900">{publishedPercentage}%</span>
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Published</span>
             </div>
           </div>
-          <div className="flex items-center gap-4 mt-6 text-xs font-semibold text-gray-500">
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#B91C1C]"></span> Published</span>
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-gray-200"></span> Drafts</span>
+          <div className="flex items-center gap-6 mt-6 text-xs font-semibold text-gray-500">
+            <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-[#E11D48]"></span> Published</span>
+            <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-gray-200"></span> Drafts</span>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-[#1A0B0E] to-[#2D0A11] rounded-[24px] p-8 text-white flex flex-col justify-center h-[220px] relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/20 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
-          <h3 className="text-lg font-black mb-2 flex items-center gap-2">Everything's free ✨</h3>
-          <p className="text-xs text-white/70 mb-6 leading-relaxed">Every feature is unlocked for everyone — no paid plans, ever. pineprompts.com is free and ad-supported.</p>
-          <button className="self-start px-5 py-2.5 bg-white text-black text-xs font-bold rounded-full hover:bg-gray-100 transition-colors">
-            Share a prompt →
-          </button>
+        <div className="lg:col-span-1 bg-white rounded-3xl border border-gray-200 p-6 shadow-sm h-[220px] flex flex-col">
+          <div className="flex justify-between items-center mb-6">
+            <span className="font-bold text-sm text-gray-900">Saved Boards</span>
+            <span className="text-xs font-bold text-gray-500 hover:text-black cursor-pointer transition-colors">View all</span>
+          </div>
+          <div className="flex-1 flex flex-col items-center justify-center text-center">
+            <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+              <Bookmark className="w-5 h-5 text-gray-300" />
+            </div>
+            <p className="text-sm text-gray-400 font-medium">No saved prompts yet.</p>
+          </div>
+        </div>
+
+        <div className="bg-black rounded-3xl border border-gray-800 p-8 text-white flex flex-col justify-center h-[220px] relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-[#E11D48]/20 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
+          <div className="relative z-10">
+            <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-[#E11D48]" />
+              Everything's free
+            </h3>
+            <p className="text-sm text-white/60 mb-6 font-medium leading-relaxed">Every feature is unlocked for everyone — no paid plans, ever. Mira is completely free and ad-supported.</p>
+            <Link href="/submit-prompt" className="inline-block px-6 py-2.5 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-100 transition-colors">
+              Share a prompt
+            </Link>
+          </div>
         </div>
       </div>
     </div>
