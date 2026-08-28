@@ -38,34 +38,40 @@ export async function createPrompt(formData: FormData) {
   const status = formData.get('status') as string || 'draft'
   const isFeatured = formData.get('is_featured') === 'on'
   const isPremium = formData.get('is_premium') === 'on'
-  const hasVariants = formData.get('has_variants') === 'true'
+  const variantType = formData.get('variant_type') as string || 'standard'
+  const hasVariants = variantType !== 'standard'
   const tags = (formData.get('tags') as string || '').split(',').map(t => t.trim()).filter(Boolean)
 
   let mainPrompt = '';
   let mainImageUrl = '';
-  let variants: any = [];
+  let variants: any = null;
 
-  if (hasVariants) {
+  if (variantType === 'gender') {
     const malePrompt = formData.get('prompt_male') as string
     const femalePrompt = formData.get('prompt_female') as string
-    const maleImage = formData.get('image_male') as File
-    const femaleImage = formData.get('image_female') as File
-
-    const maleImageUrl = await uploadImageHelper(supabase, maleImage, title + '-male')
-    const femaleImageUrl = await uploadImageHelper(supabase, femaleImage, title + '-female')
-
-    if (!maleImageUrl || !femaleImageUrl) throw new Error('Both variant images are required')
-
+    const maleImageUrl = await uploadImageHelper(supabase, formData.get('image_male') as File, title + '-male')
+    const femaleImageUrl = await uploadImageHelper(supabase, formData.get('image_female') as File, title + '-female')
+    if (!maleImageUrl || !femaleImageUrl) throw new Error('Both gender variant images are required')
     mainPrompt = malePrompt
     mainImageUrl = maleImageUrl
     variants = [
       { gender: 'male', prompt: malePrompt, image_url: maleImageUrl },
       { gender: 'female', prompt: femalePrompt, image_url: femaleImageUrl }
     ]
+  } else if (variantType === 'creative_ads') {
+    const count = parseInt(formData.get('ad_variant_count') as string || '2')
+    variants = []
+    for (let i = 1; i <= count; i++) {
+      const adPrompt = formData.get(`prompt_ad_${i}`) as string
+      const adImageUrl = await uploadImageHelper(supabase, formData.get(`image_ad_${i}`) as File, title + `-ad-${i}`)
+      if (!adImageUrl) throw new Error(`Image for Variant ${i} is required`)
+      variants.push({ id: i, label: `Variant ${i}`, prompt: adPrompt, image_url: adImageUrl })
+    }
+    mainPrompt = variants[0].prompt
+    mainImageUrl = variants[0].image_url
   } else {
     mainPrompt = formData.get('prompt') as string
-    const imageFile = formData.get('image') as File
-    const uploadedUrl = await uploadImageHelper(supabase, imageFile, title)
+    const uploadedUrl = await uploadImageHelper(supabase, formData.get('image') as File, title)
     if (!uploadedUrl) throw new Error('Image is required')
     mainImageUrl = uploadedUrl
   }
@@ -85,6 +91,7 @@ export async function createPrompt(formData: FormData) {
     is_featured: isFeatured,
     is_premium: isPremium,
     has_variants: hasVariants,
+    variant_type: variantType,
     variants: hasVariants ? variants : null,
     created_by: user.id,
     published_at: status === 'published' ? new Date().toISOString() : null,
@@ -111,7 +118,7 @@ export async function createPrompt(formData: FormData) {
     action: 'prompt.create',
     resourceType: 'prompt',
     resourceId: newPrompt?.id,
-    after: { title, status, is_premium: isPremium, has_variants: hasVariants },
+    after: { title, status, is_premium: isPremium, variant_type: variantType },
   })
 
   revalidatePath('/admin/prompts')
@@ -125,7 +132,8 @@ export async function updatePrompt(id: string, formData: FormData) {
   const title = formData.get('title') as string
   const status = formData.get('status') as string || 'draft'
   const isPremium = formData.get('is_premium') === 'on'
-  const hasVariants = formData.get('has_variants') === 'true'
+  const variantType = formData.get('variant_type') as string || 'standard'
+  const hasVariants = variantType !== 'standard'
 
   const updates: Record<string, unknown> = {
     title,
@@ -139,19 +147,17 @@ export async function updatePrompt(id: string, formData: FormData) {
     is_featured: formData.get('is_featured') === 'on',
     is_premium: isPremium,
     has_variants: hasVariants,
+    variant_type: variantType,
     updated_at: new Date().toISOString(),
   }
 
   if (status === 'published') updates.published_at = new Date().toISOString()
 
-  if (hasVariants) {
+  if (variantType === 'gender') {
     const malePrompt = formData.get('prompt_male') as string
     const femalePrompt = formData.get('prompt_female') as string
-    const maleImage = formData.get('image_male') as File
-    const femaleImage = formData.get('image_female') as File
-
-    const maleImageUrl = await uploadImageHelper(supabase, maleImage, title + '-male')
-    const femaleImageUrl = await uploadImageHelper(supabase, femaleImage, title + '-female')
+    const maleImageUrl = await uploadImageHelper(supabase, formData.get('image_male') as File, title + '-male')
+    const femaleImageUrl = await uploadImageHelper(supabase, formData.get('image_female') as File, title + '-female')
 
     const existingVariants = before?.variants || []
     const existingMale = existingVariants.find((v: any) => v.gender === 'male')
@@ -168,10 +174,26 @@ export async function updatePrompt(id: string, formData: FormData) {
       { gender: 'male', prompt: malePrompt, image_url: finalMaleUrl },
       { gender: 'female', prompt: femalePrompt, image_url: finalFemaleUrl }
     ]
+  } else if (variantType === 'creative_ads') {
+    const count = parseInt(formData.get('ad_variant_count') as string || '2')
+    const existingVariants = before?.variant_type === 'creative_ads' ? (before?.variants || []) : []
+    const newVariants: any[] = []
+
+    for (let i = 1; i <= count; i++) {
+      const adPrompt = formData.get(`prompt_ad_${i}`) as string
+      const adImageUrl = await uploadImageHelper(supabase, formData.get(`image_ad_${i}`) as File, title + `-ad-${i}`)
+      const existingUrl = existingVariants[i - 1]?.image_url
+      const finalUrl = adImageUrl || existingUrl
+      if (!finalUrl) throw new Error(`Image for Variant ${i} is required`)
+      newVariants.push({ id: i, label: `Variant ${i}`, prompt: adPrompt, image_url: finalUrl })
+    }
+
+    updates.prompt = newVariants[0].prompt
+    updates.image_url = newVariants[0].image_url
+    updates.variants = newVariants
   } else {
     updates.prompt = formData.get('prompt') as string
-    const imageFile = formData.get('image') as File
-    const uploadedUrl = await uploadImageHelper(supabase, imageFile, title)
+    const uploadedUrl = await uploadImageHelper(supabase, formData.get('image') as File, title)
     if (uploadedUrl) updates.image_url = uploadedUrl
     updates.variants = null
   }
@@ -199,7 +221,7 @@ export async function updatePrompt(id: string, formData: FormData) {
     resourceType: 'prompt',
     resourceId: id,
     before: before ? { title: before.title, status: before.status, is_premium: before.is_premium } : undefined,
-    after: { title, status, is_premium: isPremium, has_variants: hasVariants },
+    after: { title, status, is_premium: isPremium, variant_type: variantType },
   })
 
   revalidatePath('/admin/prompts')

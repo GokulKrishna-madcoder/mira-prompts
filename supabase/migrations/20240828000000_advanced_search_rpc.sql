@@ -1,5 +1,12 @@
--- Migration: Advanced Search RPC
--- Creates a function to search across prompts, categories, tags, and variants natively
+-- Migration: Prompt Variants Engine
+-- Adds has_variants flag, JSONB variants column, and variant_type discriminator
+
+ALTER TABLE prompts ADD COLUMN IF NOT EXISTS has_variants BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE prompts ADD COLUMN IF NOT EXISTS variants JSONB DEFAULT NULL;
+ALTER TABLE prompts ADD COLUMN IF NOT EXISTS variant_type TEXT NOT NULL DEFAULT 'standard';
+
+-- Backfill existing gender variants
+UPDATE prompts SET variant_type = 'gender' WHERE has_variants = true AND variant_type = 'standard';
 
 CREATE OR REPLACE FUNCTION search_prompt_ids(search_term text)
 RETURNS TABLE (prompt_id uuid) AS $$

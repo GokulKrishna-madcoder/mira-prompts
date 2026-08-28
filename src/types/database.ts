@@ -73,6 +73,7 @@ export interface Database {
           like_count: number | null
           is_premium: boolean | null
           has_variants: boolean
+          variant_type: string
           variants: Json | null
         }
         Insert: {
@@ -100,6 +101,7 @@ export interface Database {
           like_count?: number | null
           is_premium?: boolean | null
           has_variants?: boolean
+          variant_type?: string
           variants?: Json | null
         }
         Update: {
@@ -127,6 +129,7 @@ export interface Database {
           like_count?: number | null
           is_premium?: boolean | null
           has_variants?: boolean
+          variant_type?: string
           variants?: Json | null
         }
       }

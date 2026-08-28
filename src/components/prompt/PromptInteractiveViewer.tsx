@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import CopyButton from '@/components/ui/CopyButton'
@@ -19,26 +19,17 @@ export default function PromptInteractiveViewer({
   isSaved: boolean, 
   isLiked: boolean 
 }) {
-  const hasVariants = prompt.has_variants && Array.isArray(prompt.variants) && prompt.variants.length > 0;
-  
-  // State for active variant ('male' or 'female')
-  const [activeGender, setActiveGender] = useState<'male' | 'female'>('male');
+  const variantType = prompt.variant_type || (prompt.has_variants ? 'gender' : 'standard')
+  const hasVariants = variantType !== 'standard' && Array.isArray(prompt.variants) && prompt.variants.length > 0
 
-  // Compute active details
-  const maleVariant = prompt.variants?.find((v: any) => v.gender === 'male');
-  const femaleVariant = prompt.variants?.find((v: any) => v.gender === 'female');
+  const [activeIndex, setActiveIndex] = useState(0)
 
-  let activePromptText = prompt.prompt;
-  let activeImageUrl = prompt.image_url;
+  let activePromptText = prompt.prompt
+  let activeImageUrl = prompt.image_url
 
-  if (hasVariants) {
-    if (activeGender === 'male' && maleVariant) {
-      activePromptText = maleVariant.prompt;
-      activeImageUrl = maleVariant.image_url;
-    } else if (activeGender === 'female' && femaleVariant) {
-      activePromptText = femaleVariant.prompt;
-      activeImageUrl = femaleVariant.image_url;
-    }
+  if (hasVariants && prompt.variants[activeIndex]) {
+    activePromptText = prompt.variants[activeIndex].prompt
+    activeImageUrl = prompt.variants[activeIndex].image_url
   }
 
   return (
@@ -82,7 +73,6 @@ export default function PromptInteractiveViewer({
         {/* Creator Info */}
         <div id="prompt-detail-creator" className="prompt-detail-creator flex items-center gap-3 mb-6">
           <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500 shadow-sm border border-gray-100 overflow-hidden">
-             {/* Simple Avatar Placeholder */}
              <svg viewBox="0 0 24 24" className="w-full h-full text-gray-400 bg-gray-100" fill="currentColor">
                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
              </svg>
@@ -93,27 +83,32 @@ export default function PromptInteractiveViewer({
           </div>
         </div>
 
-        {/* Gender Variants Swatches */}
+        {/* Variant Swatches */}
         {hasVariants && (
           <div className="mb-6">
-            <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-              Select Gender Variant
+            <h3 className="text-sm font-bold text-gray-900 mb-3">
+              {variantType === 'gender' ? 'Select Gender Variant' : 'Select Variant'}
             </h3>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setActiveGender('male')}
-                className={`relative px-6 py-2.5 rounded-full text-sm font-bold transition-all ${activeGender === 'male' ? 'bg-black text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-              >
-                {activeGender === 'male' && <Check className="w-4 h-4 inline-block mr-1.5 -ml-1" />}
-                Male
-              </button>
-              <button
-                onClick={() => setActiveGender('female')}
-                className={`relative px-6 py-2.5 rounded-full text-sm font-bold transition-all ${activeGender === 'female' ? 'bg-black text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-              >
-                {activeGender === 'female' && <Check className="w-4 h-4 inline-block mr-1.5 -ml-1" />}
-                Female
-              </button>
+            <div className="flex flex-wrap gap-2">
+              {prompt.variants.map((v: any, idx: number) => {
+                const isActive = activeIndex === idx
+                const label = variantType === 'gender'
+                  ? (v.gender === 'male' ? 'Male' : 'Female')
+                  : String(idx + 1)
+
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveIndex(idx)}
+                    className={`relative rounded-full text-sm font-bold transition-all ${
+                      variantType === 'gender' ? 'px-6 py-2.5' : 'w-10 h-10 flex items-center justify-center'
+                    } ${isActive ? 'bg-black text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                  >
+                    {isActive && variantType === 'gender' && <Check className="w-4 h-4 inline-block mr-1.5 -ml-1" />}
+                    {label}
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
@@ -127,7 +122,7 @@ export default function PromptInteractiveViewer({
         <div id="prompt-detail-content" className="prompt-detail-content">
           <h1 className="text-xl font-bold text-black mb-3 leading-tight">{prompt.title}</h1>
           <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px] font-medium mb-6">
-            <span className="mr-2">📌</span>
+            <span className="mr-2">ðŸ“Œ</span>
             {activePromptText}
           </div>
         </div>
@@ -152,3 +147,4 @@ export default function PromptInteractiveViewer({
     </div>
   )
 }
+
