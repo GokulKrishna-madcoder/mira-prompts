@@ -179,9 +179,6 @@ export default function SubmitPromptForm({ categories, initialData }: { categori
             onChange={(e) => setTitleLen(e.target.value.length)}
             placeholder="e.g. Cinematic Neon Portrait Generator"
             className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium"
-          /> setTitleLen(e.target.value.length)}
-            placeholder="e.g. Cinematic Neon Portrait Generator"
-            className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium"
           />
         </fieldset>
 
@@ -209,10 +206,10 @@ export default function SubmitPromptForm({ categories, initialData }: { categori
         {variantType === 'gender' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {['Male', 'Female'].map(g => (
-                            <div key={g} className="space-y-4 p-5 bg-gray-50 border border-gray-100 rounded-[20px]">
+                                          <div key={g} className="space-y-4 p-5 bg-gray-50 border border-gray-100 rounded-[20px]">
                 <h3 className="font-bold text-gray-900">{g} Variant</h3>
-                <input name={image_$(g.toLowerCase())} type="file" accept="image/*" required={!initialData?.id} className="w-full text-sm text-gray-500 file:mr-4 file:px-4 file:py-2 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black cursor-pointer" />
-                <textarea name={prompt_$(g.toLowerCase())} defaultValue={initialData?.variants?.find((v:any) => v.gender === g.toLowerCase())?.prompt} required rows={3} placeholder={$(g) prompt...} className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-black transition-all text-sm font-medium resize-y" />
+                <input name={`image_${g.toLowerCase()}`} type="file" accept="image/*" required={!initialData?.id} className="w-full text-sm text-gray-500 file:mr-4 file:px-4 file:py-2 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black cursor-pointer" />
+                <textarea name={`prompt_${g.toLowerCase()}`} defaultValue={initialData?.variants?.find((v:any) => v.gender === g.toLowerCase())?.prompt} required rows={3} placeholder={`${g} prompt...`} className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-black transition-all text-sm font-medium resize-y" />
               </div>
             ))}
           </div>
@@ -228,7 +225,7 @@ export default function SubmitPromptForm({ categories, initialData }: { categori
               </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {adVariants.map((_, idx) => (
+              {adVariants.map((_: any, idx: number) => (
                 <div key={idx} className="p-4 bg-gray-50 border border-gray-200 rounded-[18px] space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -236,13 +233,13 @@ export default function SubmitPromptForm({ categories, initialData }: { categori
                       <h4 className="font-bold text-gray-900 text-sm">Variant {idx + 1}</h4>
                     </div>
                     {adVariants.length > 2 && (
-                      <button type="button" onClick={() => setAdVariants(adVariants.filter((_, i) => i !== idx))} className="p-1 text-gray-400 hover:text-red-500 transition-colors">
+                      <button type="button" onClick={() => setAdVariants(adVariants.filter((_: any, i: number) => i !== idx))} className="p-1 text-gray-400 hover:text-red-500 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     )}
                   </div>
-                  <input name={`image_ad_${idx + 1}`} type="file" accept="image/*" required className="w-full text-sm text-gray-500 file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white cursor-pointer" />
-                  <textarea name={`prompt_ad_${idx + 1}`} required rows={2} className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-black transition-all text-sm font-medium resize-y" />
+                  <input name={`image_ad_${idx + 1}`} type="file" accept="image/*" required={!initialData?.id || !initialData?.variants?.find((v:any) => v.id === idx + 1)?.image_url} className="w-full text-sm text-gray-500 file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white cursor-pointer" />
+                  <textarea name={`prompt_ad_${idx + 1}`} defaultValue={adVariants[idx].prompt} required rows={2} className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-black transition-all text-sm font-medium resize-y" />
                 </div>
               ))}
             </div>
@@ -361,6 +358,8 @@ export default function SubmitPromptForm({ categories, initialData }: { categori
     </form>
   )
 }
+
+
 
 
 

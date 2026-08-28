@@ -381,14 +381,14 @@ export async function updatePrompt(promptId: string, formData: FormData) {
       const count = parseInt(formData.get('ad_variant_count') as string || '2')
       variants = []
       for (let i = 1; i <= count; i++) {
-        const adPrompt = formData.get(prompt_ad_) as string
+        const adPrompt = formData.get(`prompt_ad_${i}`) as string
         let adImageUrl = existing.variants?.find((v: any) => v.id === i)?.image_url
-        const newAdFile = formData.get(image_ad_) as File
+        const newAdFile = formData.get(`image_ad_${i}`) as File
         if (newAdFile && newAdFile.size > 0) {
-          adImageUrl = await uploadUserImage(supabase, newAdFile, title + -ad-)
+          adImageUrl = await uploadUserImage(supabase, newAdFile, title + `-ad-${i}`)
         }
-        if (!adImageUrl) return { error: \Image for Variant \ is required\ }
-        variants.push({ id: i, label: \Variant \\, prompt: adPrompt, image_url: adImageUrl })
+        if (!adImageUrl) return { error: `Image for Variant ${i} is required` }
+        variants.push({ id: i, label: `Variant ${i}`, prompt: adPrompt, image_url: adImageUrl })
       }
       mainPrompt = variants[0].prompt
       mainImageUrl = variants[0].image_url
