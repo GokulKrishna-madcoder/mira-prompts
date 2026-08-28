@@ -3,12 +3,14 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
 import { approveSubmission, rejectSubmission } from './actions'
+import Link from 'next/link'
+import ReviewModal from './ReviewModal'
 
 export default async function AdminSubmissionsPage() {
   const supabase = await createClient()
   const { data: prompts } = await supabase
     .from('prompts')
-    .select('id, title, slug, image_url, prompt, status, created_at, created_by, variant_type, profiles:created_by(display_name, username)')
+    .select('id, title, slug, image_url, prompt, status, created_at, created_by, variant_type, variants, model, aspect_ratio, style, source_name, source_url, profiles:created_by(display_name, username), tags:prompt_tags(tag:tags(name)), category:category_id(name)')
     .eq('status', 'pending')
     .order('created_at', { ascending: false })
 
@@ -47,16 +49,9 @@ export default async function AdminSubmissionsPage() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 shrink-0">
-                  <form action={approveSubmission.bind(null, p.id)}>
-                    <button type="submit" className="px-5 py-2.5 bg-green-500 text-white rounded-full text-sm font-bold hover:bg-green-600 transition-colors">
-                      Approve
-                    </button>
-                  </form>
-                  <form action={rejectSubmission.bind(null, p.id)}>
-                    <button type="submit" className="px-5 py-2.5 bg-red-50 text-red-500 rounded-full text-sm font-bold hover:bg-red-100 transition-colors border border-red-200">
-                      Reject
-                    </button>
-                  </form>
+                  <Link href={`?review=${p.id}`} className="px-5 py-2.5 bg-black text-white rounded-full text-sm font-bold hover:bg-gray-800 transition-colors">
+                    Review
+                  </Link>
                 </div>
               </div>
             )
@@ -69,7 +64,10 @@ export default async function AdminSubmissionsPage() {
           <p className="text-gray-500 text-sm">All caught up! New user submissions will appear here.</p>
         </div>
       )}
+
+      {prompts && prompts.length > 0 && (
+        <ReviewModal prompts={prompts} approveAction={approveSubmission} rejectAction={rejectSubmission} />
+      )}
     </div>
   )
 }
-

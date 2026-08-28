@@ -7,7 +7,7 @@ export default async function PromptDetail({ slug }: { slug: string }) {
 
   const { data: prompt } = await supabase
     .from('prompts')
-    .select('*, category:categories(name)')
+        .select('*, category:categories(name), profiles:created_by(display_name, username, avatar_url)')
     .eq('slug', slug)
     .single()
 
@@ -29,3 +29,4 @@ export default async function PromptDetail({ slug }: { slug: string }) {
     <PromptInteractiveViewer prompt={prompt} isSaved={isSaved} isLiked={isLiked} />
   )
 }
+
