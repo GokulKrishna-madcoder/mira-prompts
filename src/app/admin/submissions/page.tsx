@@ -8,7 +8,7 @@ export default async function AdminSubmissionsPage() {
   const supabase = await createClient()
   const { data: prompts } = await supabase
     .from('prompts')
-    .select('id, title, slug, image_url, prompt, status, created_at, created_by, variant_type, profiles:created_by(display_name, email)')
+    .select('id, title, slug, image_url, prompt, status, created_at, created_by, variant_type, profiles:created_by(display_name, username)')
     .eq('status', 'pending')
     .order('created_at', { ascending: false })
 
@@ -39,7 +39,7 @@ export default async function AdminSubmissionsPage() {
                   <h3 className="text-base font-bold text-black truncate">{p.title}</h3>
                   <p className="text-sm text-gray-500 mt-1 line-clamp-2">{p.prompt}</p>
                   <div className="flex items-center gap-3 mt-3 text-xs text-gray-400">
-                    <span>By: {profile?.display_name || profile?.email || 'Unknown'}</span>
+                    <span>By: {profile?.display_name || profile?.username || 'Unknown'}</span>
                     <span>Type: {p.variant_type || 'standard'}</span>
                     <span>{new Date(p.created_at).toLocaleDateString()}</span>
                   </div>
@@ -72,3 +72,4 @@ export default async function AdminSubmissionsPage() {
     </div>
   )
 }
+
