@@ -1,4 +1,4 @@
-﻿import { Metadata } from 'next'
+import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import SubmitPromptForm from '@/components/prompt/SubmitPromptForm'
@@ -29,7 +29,7 @@ export default async function SubmitPromptPage() {
         </div>
         <SubmitPromptForm categories={categories || []} />
       </div>
-      
+      <Footer />
     </main>
   )
 }
