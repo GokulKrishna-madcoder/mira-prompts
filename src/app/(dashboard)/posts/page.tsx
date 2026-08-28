@@ -1,9 +1,10 @@
-﻿import { Metadata } from 'next'
+import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import Footer from '@/components/layout/Footer'
+import PostActions from '@/components/prompt/PostActions'
 
 export const metadata: Metadata = {
   title: 'My Prompts',
@@ -85,10 +86,13 @@ export default async function MyPromptsPage({
         {prompts && prompts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {prompts.map(p => (
-              <Link key={p.id} href={`/prompts/${p.slug}`} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow group">
+              <Link key={p.id} href={`/prompts/${p.slug}`} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow group relative block">
                 {p.image_url && (
                   <div className="relative h-44 bg-gray-100 overflow-hidden">
                     <Image src={p.image_url} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+                    <div className="absolute top-3 right-3 z-10">
+                      <PostActions promptId={p.id} slug={p.slug} />
+                    </div>
                   </div>
                 )}
                 <div className="p-4">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { submitPrompt } from '@/lib/user-actions'
+import { submitPrompt, updatePrompt } from '@/lib/user-actions'
 import { Plus, Trash2, X, Upload, Image as ImageIcon } from 'lucide-react'
 
 const AI_TOOLS = ['ChatGPT', 'Claude', 'Gemini', 'Grok', 'Midjourney', 'DALL-E', 'Stable Diffusion', 'Lovable']
@@ -33,15 +33,21 @@ const convertToWebP = (file: File): Promise<File> => {
 
 type VariantType = 'standard' | 'gender' | 'creative_ads'
 
-export default function SubmitPromptForm({ categories }: { categories: { id: string; name: string }[] }) {
+export default function SubmitPromptForm({ categories, initialData }: { categories: { id: string; name: string }[], initialData?: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [variantType, setVariantType] = useState<VariantType>('standard')
-  const [adVariants, setAdVariants] = useState([{ prompt: '' }, { prompt: '' }])
-  const [selectedTools, setSelectedTools] = useState<string[]>([])
-  const [tags, setTags] = useState<string[]>([])
+  const [variantType, setVariantType] = useState<VariantType>(initialData?.variant_type || 'standard')
+  const [adVariants, setAdVariants] = useState(
+    initialData?.variant_type === 'creative_ads' && initialData?.variants?.length > 0
+      ? initialData.variants.map((v: any) => ({ prompt: v.prompt }))
+      : [{ prompt: '' }, { prompt: '' }]
+  )
+    const [selectedTools, setSelectedTools] = useState<string[]>(
+    initialData?.ai_tool && AI_TOOLS.includes(initialData.ai_tool) ? [initialData.ai_tool] : []
+  )
+  const [tags, setTags] = useState<string[]>(initialData?.tags || [])
   const [tagInput, setTagInput] = useState('')
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [titleLen, setTitleLen] = useState(0)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.image_url || null)
+  const [titleLen, setTitleLen] = useState(initialData?.title?.length || 0)
   const [showNewCategory, setShowNewCategory] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dropRef = useRef<HTMLDivElement>(null)
@@ -106,7 +112,9 @@ export default function SubmitPromptForm({ categories }: { categories: { id: str
         formData.set('ad_variant_count', String(adVariants.length))
       }
 
-      const res = await submitPrompt(formData)
+            const res = initialData?.id 
+        ? await updatePrompt(initialData.id, formData)
+        : await submitPrompt(formData)
       if (res?.error) {
         alert(res.error)
       } else {
@@ -163,11 +171,15 @@ export default function SubmitPromptForm({ categories }: { categories: { id: str
             <label className="text-sm font-semibold text-gray-700">Title <span className="text-red-500">*</span></label>
             <span className={`text-xs font-medium ${titleLen > 80 ? 'text-red-500' : 'text-gray-400'}`}>{titleLen}/80</span>
           </div>
-          <input
+                    <input
             name="title"
             required
             maxLength={80}
+            defaultValue={initialData?.title}
             onChange={(e) => setTitleLen(e.target.value.length)}
+            placeholder="e.g. Cinematic Neon Portrait Generator"
+            className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium"
+          /> setTitleLen(e.target.value.length)}
             placeholder="e.g. Cinematic Neon Portrait Generator"
             className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium"
           />
@@ -189,7 +201,7 @@ export default function SubmitPromptForm({ categories }: { categories: { id: str
         {variantType === 'standard' && (
           <fieldset className="space-y-2">
             <label className="text-sm font-semibold text-gray-700">Prompt Text <span className="text-red-500">*</span></label>
-            <textarea name="prompt" required rows={5} placeholder="Write your prompt here..." className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium resize-y leading-relaxed" />
+                        <textarea name="prompt" defaultValue={initialData?.prompt} required rows={5} placeholder="Write your prompt here..." className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium resize-y leading-relaxed" />
           </fieldset>
         )}
 
@@ -197,10 +209,10 @@ export default function SubmitPromptForm({ categories }: { categories: { id: str
         {variantType === 'gender' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {['Male', 'Female'].map(g => (
-              <div key={g} className="space-y-4 p-5 bg-gray-50 border border-gray-100 rounded-[20px]">
+                            <div key={g} className="space-y-4 p-5 bg-gray-50 border border-gray-100 rounded-[20px]">
                 <h3 className="font-bold text-gray-900">{g} Variant</h3>
-                <input name={`image_${g.toLowerCase()}`} type="file" accept="image/*" required className="w-full text-sm text-gray-500 file:mr-4 file:px-4 file:py-2 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black cursor-pointer" />
-                <textarea name={`prompt_${g.toLowerCase()}`} required rows={3} placeholder={`${g} prompt...`} className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-black transition-all text-sm font-medium resize-y" />
+                <input name={image_$(g.toLowerCase())} type="file" accept="image/*" required={!initialData?.id} className="w-full text-sm text-gray-500 file:mr-4 file:px-4 file:py-2 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black cursor-pointer" />
+                <textarea name={prompt_$(g.toLowerCase())} defaultValue={initialData?.variants?.find((v:any) => v.gender === g.toLowerCase())?.prompt} required rows={3} placeholder={$(g) prompt...} className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-black transition-all text-sm font-medium resize-y" />
               </div>
             ))}
           </div>
@@ -248,7 +260,7 @@ export default function SubmitPromptForm({ categories }: { categories: { id: str
           {showNewCategory ? (
             <input name="new_category" placeholder="New category name" className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium" />
           ) : (
-            <select name="category_id" className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium appearance-none">
+                        <select name="category_id" defaultValue={initialData?.category_id || ""} className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium appearance-none">
               <option value="">Select a category</option>
               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
@@ -277,7 +289,7 @@ export default function SubmitPromptForm({ categories }: { categories: { id: str
           </div>
           {selectedTools.length === 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-              <input name="custom_tool_name" placeholder="Custom tool name" className="px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white text-sm font-medium" />
+                            <input name="custom_tool_name" defaultValue={!AI_TOOLS.includes(initialData?.ai_tool) ? initialData?.ai_tool : ''} placeholder="Custom tool name" className="px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white text-sm font-medium" />
               <input name="custom_tool_url" type="url" placeholder="Tool URL (optional)" className="px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white text-sm font-medium" />
             </div>
           )}
@@ -287,11 +299,11 @@ export default function SubmitPromptForm({ categories }: { categories: { id: str
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <fieldset className="space-y-2">
             <label className="text-sm font-semibold text-gray-700">Style</label>
-            <input name="style" placeholder="e.g. Cinematic, Anime" className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium" />
+                        <input name="style" defaultValue={initialData?.style} placeholder="e.g. Cinematic, Anime" className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium" />
           </fieldset>
           <fieldset className="space-y-2">
             <label className="text-sm font-semibold text-gray-700">Aspect Ratio</label>
-            <input name="aspect_ratio" placeholder="e.g. 16:9, 1:1" className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium" />
+                        <input name="aspect_ratio" defaultValue={initialData?.aspect_ratio} placeholder="e.g. 16:9, 1:1" className="w-full px-5 py-3.5 border border-gray-200 rounded-2xl bg-gray-50 focus:outline-none focus:border-black focus:bg-white transition-all text-sm font-medium" />
           </fieldset>
         </div>
 
@@ -337,15 +349,28 @@ export default function SubmitPromptForm({ categories }: { categories: { id: str
           >
             Save Draft
           </button>
-          <button
+                    <button
             type="submit"
             disabled={isSubmitting}
-            className="px-8 py-3.5 bg-black text-white rounded-full text-sm font-bold hover:bg-gray-800 disabled:opacity-50 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform duration-200"
+            className="flex-1 px-8 py-4 bg-black text-white font-bold rounded-full hover:bg-gray-800 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50"
           >
-            {isSubmitting ? 'Submitting...' : 'Submit for Review'}
+            {isSubmitting ? (initialData?.id ? 'Updating...' : 'Submitting...') : (initialData?.id ? 'Update Prompt' : 'Submit for review')}
           </button>
         </div>
       </div>
     </form>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
