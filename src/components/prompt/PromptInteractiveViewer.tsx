@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import CopyButton from '@/components/ui/CopyButton'
@@ -122,7 +122,7 @@ export default function PromptInteractiveViewer({
         <div id="prompt-detail-content" className="prompt-detail-content">
           <h1 className="text-xl font-bold text-black mb-3 leading-tight">{prompt.title}</h1>
           <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px] font-medium mb-6">
-            <span className="mr-2">ðŸ“Œ</span>
+            <span className="mr-2" role="img" aria-label="pin">&#128204;</span>
             {activePromptText}
           </div>
         </div>
