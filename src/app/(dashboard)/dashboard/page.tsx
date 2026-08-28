@@ -197,11 +197,13 @@ export default async function DashboardOverview() {
           <div className="relative z-10">
             <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-[#E11D48]" />
-              Everything's free
+              Become a Top Creator
             </h3>
-            <p className="text-sm text-white/60 mb-6 font-medium leading-relaxed">Every feature is unlocked for everyone — no paid plans, ever. Mira is completely free and ad-supported.</p>
+            <p className="text-sm text-white/60 mb-6 font-medium leading-relaxed">
+              Boost your engagement by adding multiple variants (like Gender or Creative Ads) to your prompts. High-quality submissions get featured!
+            </p>
             <Link href="/submit-prompt" className="inline-block px-6 py-2.5 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-100 transition-colors">
-              Share a prompt
+              Submit a masterpiece
             </Link>
           </div>
         </div>

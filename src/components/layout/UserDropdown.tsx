@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { LogOut, User, FileText, LayoutDashboard } from 'lucide-react'
+import { LogOut, User, FileText, LayoutDashboard, Shield } from 'lucide-react'
 
 export default function UserDropdown({ 
   initial, 
@@ -76,10 +76,14 @@ export default function UserDropdown({
           <div className="py-1">
             {isAdmin && (
               <Link href="/admin" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                <LayoutDashboard className="w-4 h-4 text-gray-400" />
+                <Shield className="w-4 h-4 text-gray-400" />
                 Admin Dashboard
               </Link>
             )}
+            <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+              <LayoutDashboard className="w-4 h-4 text-gray-400" />
+              Dashboard
+            </Link>
             <Link href="/posts" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
               <FileText className="w-4 h-4 text-gray-400" />
               My Posts
