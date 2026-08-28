@@ -17,14 +17,16 @@ export default async function TopBar({ showDesktopLogo = false }: { showDesktopL
   let displayName = 'User'
   let email = ''
   let isAdmin = false
+  let avatarUrl = null
 
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('last_notification_read_at, display_name, role').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('last_notification_read_at, display_name, role, avatar_url').eq('id', user.id).single()
     userLastRead = profile?.last_notification_read_at || null
     displayName = profile?.display_name || user.email?.split('@')[0] || 'User'
     initial = displayName.charAt(0).toUpperCase()
     email = user.email || ''
     isAdmin = profile?.role === 'admin' || profile?.role === 'editor'
+    avatarUrl = profile?.avatar_url || null
   }
 
   return (
@@ -46,8 +48,8 @@ export default async function TopBar({ showDesktopLogo = false }: { showDesktopL
           <Image 
             src="/brand/logo.png" 
             alt="Mira Logo" 
-            width={100} 
-            height={36} 
+            width={80} 
+            height={28} 
             className="object-contain"
             unoptimized
           />
@@ -61,8 +63,8 @@ export default async function TopBar({ showDesktopLogo = false }: { showDesktopL
       <div id="topbar-actions" className="topbar-actions flex items-center gap-2 shrink-0">
         {user ? (
           <>
-            <Link href="/submit-prompt" className="hidden md:flex items-center gap-1.5 px-4 py-2.5 bg-black text-white rounded-full text-sm font-bold hover:bg-gray-800 transition-colors">
-              + Create
+            <Link href="/submit-prompt" className="hidden md:flex items-center gap-2 px-4 py-2 bg-black text-white text-sm font-bold rounded-full hover:bg-gray-800 transition-colors">
+              <span className="text-lg leading-none mb-[2px]">+</span> Create
             </Link>
             <NotificationsPopover userLastRead={userLastRead} />
             <FeedbackModal />
@@ -72,6 +74,7 @@ export default async function TopBar({ showDesktopLogo = false }: { showDesktopL
               displayName={displayName} 
               email={email}
               isAdmin={isAdmin}
+              avatarUrl={avatarUrl}
             />
           </>
         ) : (

@@ -11,13 +11,15 @@ export default function UserDropdown({
   gradientClass, 
   displayName, 
   email,
-  isAdmin
+  isAdmin,
+  avatarUrl
 }: { 
   initial: string
   gradientClass: string
   displayName: string
   email: string
   isAdmin: boolean
+  avatarUrl?: string | null
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -42,9 +44,13 @@ export default function UserDropdown({
     <div ref={ref} className="relative hidden md:block">
       <button
         onClick={() => setOpen(!open)}
-        className={`w-10 h-10 rounded-full overflow-hidden flex items-center justify-center font-bold text-white hover:ring-2 hover:ring-gray-300 transition-all ${gradientClass}`}
+        className={`w-10 h-10 rounded-full overflow-hidden flex items-center justify-center font-bold text-white hover:ring-2 hover:ring-gray-300 transition-all ${!avatarUrl ? gradientClass : 'bg-white'}`}
       >
-        {initial}
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+        ) : (
+          initial
+        )}
       </button>
 
       {open && (
@@ -52,10 +58,14 @@ export default function UserDropdown({
           {/* User Info Header */}
           <div className="px-4 py-3 border-b border-gray-100">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm ${gradientClass}`}>
-                {initial}
+              <div className={`w-10 h-10 rounded-full flex items-center overflow-hidden justify-center font-bold text-white text-sm ${!avatarUrl ? gradientClass : 'bg-white'}`}>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                ) : (
+                  initial
+                )}
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="font-semibold text-sm text-gray-900 truncate">{displayName}</p>
                 <p className="text-xs text-gray-500 truncate">{email}</p>
               </div>
@@ -67,24 +77,27 @@ export default function UserDropdown({
             {isAdmin && (
               <Link href="/admin" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                 <LayoutDashboard className="w-4 h-4 text-gray-400" />
-                Dashboard
+                Admin Dashboard
               </Link>
             )}
-            <Link href="/my-prompts" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+            <Link href="/posts" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
               <FileText className="w-4 h-4 text-gray-400" />
-              My Prompts
+              My Posts
             </Link>
-            <Link href="/settings" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+            <Link href="/dashboard?modal=profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
               <User className="w-4 h-4 text-gray-400" />
-              Profile
+              Profile Settings
             </Link>
           </div>
 
           {/* Logout */}
-          <div className="border-t border-gray-100 pt-1">
-            <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors w-full text-left">
+          <div className="border-t border-gray-100 py-1 mt-1">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+            >
               <LogOut className="w-4 h-4" />
-              Log out
+              Sign out
             </button>
           </div>
         </div>

@@ -25,6 +25,18 @@ export default async function DashboardOverview() {
 
   const recentPrompts = prompts?.slice(0, 4) || []
 
+  const { data: savedBoardsData } = await supabase
+    .from('prompt_saves')
+    .select(`
+      id,
+      prompt:prompts ( id, title, status )
+    `)
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(3)
+
+  const savedBoards = savedBoardsData?.map((s: any) => s.prompt) || []
+
   // Calculate content mix percentage
   const publishedPercentage = totalPrompts > 0 ? Math.round((publishedPrompts / totalPrompts) * 100) : 0
 
@@ -142,7 +154,7 @@ export default async function DashboardOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm h-[220px] flex flex-col items-center justify-center">
           <span className="font-bold text-sm text-gray-900 self-start w-full mb-4">Content Mix</span>
-          <div className="relative w-28 h-28 rounded-full border-[12px] border-gray-100 flex items-center justify-center" style={{ borderTopColor: '#E11D48', transform: `rotate(${publishedPercentage * 3.6}deg)`}}>
+          <div className="relative w-28 h-28 shrink-0 aspect-square rounded-full border-[12px] border-gray-100 flex items-center justify-center" style={{ borderTopColor: '#E11D48', transform: `rotate(${publishedPercentage * 3.6}deg)`}}>
             <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ transform: `rotate(-${publishedPercentage * 3.6}deg)` }}>
               <span className="text-2xl font-black text-gray-900">{publishedPercentage}%</span>
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Published</span>
@@ -157,13 +169,26 @@ export default async function DashboardOverview() {
         <div className="lg:col-span-1 bg-white rounded-3xl border border-gray-200 p-6 shadow-sm h-[220px] flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <span className="font-bold text-sm text-gray-900">Saved Boards</span>
-            <span className="text-xs font-bold text-gray-500 hover:text-black cursor-pointer transition-colors">View all</span>
+            <Link href="/saved" className="text-xs font-bold text-gray-500 hover:text-black cursor-pointer transition-colors">View all</Link>
           </div>
-          <div className="flex-1 flex flex-col items-center justify-center text-center">
-            <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
-              <Bookmark className="w-5 h-5 text-gray-300" />
-            </div>
-            <p className="text-sm text-gray-400 font-medium">No saved prompts yet.</p>
+          <div className="flex-1 flex flex-col text-left overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {savedBoards.length > 0 ? (
+              <ul className="w-full space-y-1">
+                {savedBoards.map((p: any) => (
+                  <li key={p.id} className="flex justify-between items-center p-3 hover:bg-gray-50 rounded-xl transition-colors border border-transparent hover:border-gray-100 cursor-pointer">
+                    <span className="text-sm font-semibold text-gray-800 truncate pr-4">{p.title}</span>
+                    <Bookmark className="w-4 h-4 text-gray-400 shrink-0" />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center">
+                <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+                  <Bookmark className="w-5 h-5 text-gray-300" />
+                </div>
+                <p className="text-sm text-gray-400 font-medium">No saved prompts yet.</p>
+              </div>
+            )}
           </div>
         </div>
 

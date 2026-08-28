@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Home, Compass, Bookmark } from 'lucide-react'
+import { Home, Compass, Bookmark, Plus } from 'lucide-react'
 import SettingsPopover from '@/components/ui/SettingsPopover'
 
 export default function Sidebar() {
@@ -25,6 +25,7 @@ export default function Sidebar() {
       <nav id="sidebar-nav" className="sidebar-nav flex flex-col gap-4 flex-1">
         <SidebarIcon id="nav-home" href="/" icon={<Home className="w-6 h-6" strokeWidth={2.5} />} active={pathname === '/'} />
         <SidebarIcon id="nav-explore" href="/explore" icon={<Compass className="w-6 h-6" strokeWidth={2.5} />} active={pathname === '/explore'} />
+        <SidebarIcon id="nav-create" href="/submit-prompt" icon={<Plus className="w-6 h-6" strokeWidth={3} />} active={pathname === '/submit-prompt'} isAction />
         <SidebarIcon id="nav-saved" href="/saved" icon={<Bookmark className="w-6 h-6" strokeWidth={2.5} />} active={pathname === '/saved'} />
       </nav>
 
@@ -35,16 +36,18 @@ export default function Sidebar() {
   )
 }
 
-function SidebarIcon({ href, icon, id, active }: { href: string; icon: React.ReactNode; id: string; active?: boolean }) {
+function SidebarIcon({ href, icon, id, active, isAction }: { href: string; icon: React.ReactNode; id: string; active?: boolean; isAction?: boolean }) {
+  const baseClasses = isAction
+    ? "bg-[#E11D48] text-white hover:bg-red-700 shadow-sm"
+    : active 
+      ? "bg-black text-white shadow-md transform scale-105" 
+      : "text-gray-500 hover:bg-gray-100 hover:text-black"
+
   return (
     <Link 
       id={id} 
       href={href} 
-      className={`sidebar-icon w-12 h-12 flex items-center justify-center rounded-full transition-all ${
-        active 
-          ? 'bg-black text-white shadow-md transform scale-105' 
-          : 'text-gray-500 hover:bg-gray-100 hover:text-black'
-      }`}
+      className={`sidebar-icon w-12 h-12 flex items-center justify-center rounded-full transition-all ${baseClasses}`}
     >
       {icon}
     </Link>

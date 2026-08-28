@@ -39,7 +39,7 @@ export default function SettingsPopover() {
           
           {/* Header */}
           <div className="flex items-center justify-between px-5 pt-4 pb-2">
-            <h3 className="font-bold text-xl text-black">Settings & Support</h3>
+            <h3 className="font-bold text-xl text-black">Preferences & Support</h3>
             <button 
               onClick={() => setOpen(false)} 
               className="p-1.5 hover:bg-gray-100 rounded-full text-gray-500 hover:text-black transition-colors"
@@ -51,11 +51,11 @@ export default function SettingsPopover() {
           {/* Menu Items */}
           <div className="flex flex-col px-3 pb-3">
             <Link 
-              href="/settings" 
+              href="/preferences" 
               onClick={() => setOpen(false)} 
               className="px-3 py-3 rounded-xl hover:bg-gray-100 text-black font-semibold text-[15px] transition-colors"
             >
-              Settings
+              Preferences
             </Link>
             
             <div className="my-2 h-px bg-gray-100 mx-2" />
