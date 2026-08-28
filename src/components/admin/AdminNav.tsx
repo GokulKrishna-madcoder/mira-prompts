@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, FileText, PlusCircle, FolderOpen, Tag, Users, TrendingUp, MessageSquare, ShieldAlert, Webhook } from 'lucide-react'
+import { LayoutDashboard, FileText, PlusCircle, FolderOpen, Tag, Users, TrendingUp, MessageSquare, ShieldAlert, Webhook, Inbox } from 'lucide-react'
 
 const navItems = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard },
   { href: '/admin/prompts', label: 'Prompts', icon: FileText },
   { href: '/admin/prompts/new', label: 'New Prompt', icon: PlusCircle },
+  { href: '/admin/submissions', label: 'Submissions', icon: Inbox },
   { href: '/admin/categories', label: 'Categories', icon: FolderOpen },
   { href: '/admin/tags', label: 'Tags', icon: Tag },
   { href: '/admin/members', label: 'Members', icon: Users },
@@ -24,7 +25,7 @@ export default function AdminNav({ role }: { role: string }) {
   const allowedItems = navItems.filter(item => {
     if (role === 'admin') return true
     if (role === 'editor') {
-      return ['/admin/prompts', '/admin/prompts/new', '/admin/categories', '/admin/tags'].includes(item.href)
+      return ['/admin/prompts', '/admin/prompts/new', '/admin/submissions', '/admin/categories', '/admin/tags'].includes(item.href)
     }
     return false
   })

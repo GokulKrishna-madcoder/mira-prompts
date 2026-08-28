@@ -4,18 +4,9 @@ import Image from 'next/image'
 import SearchBar from './SearchBar'
 import FeedbackModal from '@/components/ui/FeedbackModal'
 import NotificationsPopover from '@/components/ui/NotificationsPopover'
-
-const getAvatarGradient = (letter: string) => {
-  const gradients = [
-    'bg-gradient-to-br from-blue-700 to-blue-950',
-    'bg-gradient-to-br from-emerald-700 to-emerald-950',
-    'bg-gradient-to-br from-purple-700 to-purple-950',
-    'bg-gradient-to-br from-rose-700 to-rose-950',
-    'bg-gradient-to-br from-amber-700 to-amber-950'
-  ]
-  if (!letter) return gradients[0]
-  return gradients[letter.charCodeAt(0) % gradients.length]
-}
+import UserDropdown from './UserDropdown'
+import { getAvatarGradient } from '@/lib/avatar'
+import MobileDashboardToggle from '@/components/dashboard/MobileDashboardToggle'
 
 export default async function TopBar() {
   const supabase = await createClient()
@@ -23,15 +14,22 @@ export default async function TopBar() {
   
   let userLastRead = null
   let initial = 'U'
+  let displayName = 'User'
+  let email = ''
+  let isAdmin = false
 
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('last_notification_read_at, display_name').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('last_notification_read_at, display_name, role').eq('id', user.id).single()
     userLastRead = profile?.last_notification_read_at || null
-    initial = (profile?.display_name || user.email || 'U').charAt(0).toUpperCase()
+    displayName = profile?.display_name || user.email?.split('@')[0] || 'User'
+    initial = displayName.charAt(0).toUpperCase()
+    email = user.email || ''
+    isAdmin = profile?.role === 'admin' || profile?.role === 'editor'
   }
 
   return (
-    <header id="topbar" className="topbar h-[80px] shrink-0 flex items-center px-4 md:px-8 gap-2 bg-[var(--color-background)] z-30 sticky top-0 w-full">
+    <header id="topbar" className="topbar h-[80px] shrink-0 flex items-center px-4 md:px-8 gap-2 bg-[var(--color-background)] z-30 sticky top-0 w-full border-b border-gray-100">
+      <MobileDashboardToggle />
       <Link href="/" className="md:hidden shrink-0 flex items-center hover:opacity-80 transition-opacity">
         <Image 
           src="/brand/mobilevlogo.png" 
@@ -47,11 +45,18 @@ export default async function TopBar() {
       <div id="topbar-actions" className="topbar-actions flex items-center gap-2 shrink-0">
         {user ? (
           <>
+            <Link href="/submit-prompt" className="hidden md:flex items-center gap-1.5 px-4 py-2.5 bg-black text-white rounded-full text-sm font-bold hover:bg-gray-800 transition-colors">
+              + Create
+            </Link>
             <NotificationsPopover userLastRead={userLastRead} />
             <FeedbackModal />
-            <Link id="user-avatar" href="/settings" className={`user-avatar hidden md:flex w-10 h-10 ml-2 rounded-full overflow-hidden items-center justify-center font-bold text-white hover:ring-2 hover:ring-gray-300 transition-all ${getAvatarGradient(initial)}`}>
-              {initial}
-            </Link>
+            <UserDropdown 
+              initial={initial} 
+              gradientClass={getAvatarGradient(initial)} 
+              displayName={displayName} 
+              email={email}
+              isAdmin={isAdmin}
+            />
           </>
         ) : (
           <div id="auth-buttons" className="auth-buttons hidden md:flex items-center gap-2 ml-2">
@@ -63,3 +68,4 @@ export default async function TopBar() {
     </header>
   )
 }
+
