@@ -193,110 +193,116 @@ async function uploadUserImage(supabase: any, file: File | null, title: string) 
 }
 
 export async function submitPrompt(formData: FormData) {
-  const userSupabase = await createClient()
-  const { data: { user } } = await userSupabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
+  try {
+    const userSupabase = await createClient()
+    const { data: { user } } = await userSupabase.auth.getUser()
+    if (!user) return { error: 'Not authenticated' }
 
-  const supabase = createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+    const supabase = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
 
-  const title = formData.get('title') as string
-  const isDraft = formData.get('action') === 'draft'
-  const status = isDraft ? 'draft' : 'pending'
-  const variantType = formData.get('variant_type') as string || 'standard'
-  const hasVariants = variantType !== 'standard'
-  const tags = (formData.get('tags') as string || '').split(',').map(t => t.trim()).filter(Boolean)
+    const title = formData.get('title') as string
+    const isDraft = formData.get('action') === 'draft'
+    const status = isDraft ? 'draft' : 'pending'
+    const variantType = formData.get('variant_type') as string || 'standard'
+    const hasVariants = variantType !== 'standard'
+    const tags = (formData.get('tags') as string || '').split(',').map(t => t.trim()).filter(Boolean)
 
-  if (!title) throw new Error('Title is required')
-  if (tags.length === 0 && !isDraft) throw new Error('At least one tag is required')
-  if (tags.length > 5) throw new Error('Maximum 5 tags allowed')
+    if (!title) return { error: 'Title is required' }
+    if (tags.length === 0 && !isDraft) return { error: 'At least one tag is required' }
+    if (tags.length > 5) return { error: 'Maximum 5 tags allowed' }
 
-  let mainPrompt = ''
-  let mainImageUrl = ''
-  let variants: any = null
+    let mainPrompt = ''
+    let mainImageUrl = ''
+    let variants: any = null
 
-  if (variantType === 'gender') {
-    const malePrompt = formData.get('prompt_male') as string
-    const femalePrompt = formData.get('prompt_female') as string
-    const maleImageUrl = await uploadUserImage(supabase, formData.get('image_male') as File, title + '-male')
-    const femaleImageUrl = await uploadUserImage(supabase, formData.get('image_female') as File, title + '-female')
-    if (!maleImageUrl || !femaleImageUrl) throw new Error('Both gender variant images are required')
-    mainPrompt = malePrompt
-    mainImageUrl = maleImageUrl
-    variants = [
-      { gender: 'male', prompt: malePrompt, image_url: maleImageUrl },
-      { gender: 'female', prompt: femalePrompt, image_url: femaleImageUrl }
-    ]
-  } else if (variantType === 'creative_ads') {
-    const count = parseInt(formData.get('ad_variant_count') as string || '2')
-    variants = []
-    for (let i = 1; i <= count; i++) {
-      const adPrompt = formData.get(`prompt_ad_${i}`) as string
-      const adImageUrl = await uploadUserImage(supabase, formData.get(`image_ad_${i}`) as File, title + `-ad-${i}`)
-      if (!adImageUrl) throw new Error(`Image for Variant ${i} is required`)
-      variants.push({ id: i, label: `Variant ${i}`, prompt: adPrompt, image_url: adImageUrl })
-    }
-    mainPrompt = variants[0].prompt
-    mainImageUrl = variants[0].image_url
-  } else {
-    mainPrompt = formData.get('prompt') as string
-    const uploadedUrl = await uploadUserImage(supabase, formData.get('image') as File, title)
-    if (!uploadedUrl) throw new Error('Image is required')
-    mainImageUrl = uploadedUrl
-  }
-
-  const aiTool = formData.get('ai_tool') as string || null
-  const customToolName = formData.get('custom_tool_name') as string || null
-  const customToolUrl = formData.get('custom_tool_url') as string || null
-
-  const { data: newPrompt, error } = await supabase.from('prompts').insert({
-    title,
-    slug: slugify(title) + '-' + Date.now().toString(36),
-    prompt: mainPrompt,
-    image_url: mainImageUrl,
-    category_id: (formData.get('category_id') as string) || null,
-    model: formData.get('model') as string || null,
-    aspect_ratio: formData.get('aspect_ratio') as string || null,
-    style: formData.get('style') as string || null,
-    source_name: aiTool || customToolName || null,
-    source_url: customToolUrl || null,
-    status,
-    is_featured: false,
-    is_premium: false,
-    has_variants: hasVariants,
-    variant_type: variantType,
-    variants: hasVariants ? variants : null,
-    created_by: user.id,
-    published_at: null,
-  }).select('id').single()
-
-  if (error) throw new Error(error.message)
-
-  if (tags.length > 0 && newPrompt) {
-    for (const tagName of tags) {
-      const tagSlug = slugify(tagName)
-      let { data: tag } = await supabase.from('tags').select('id').eq('slug', tagSlug).single()
-      if (!tag) {
-        const { data: newTag } = await supabase.from('tags').insert({ name: tagName, slug: tagSlug }).select('id').single()
-        tag = newTag
+    if (variantType === 'gender') {
+      const malePrompt = formData.get('prompt_male') as string
+      const femalePrompt = formData.get('prompt_female') as string
+      const maleImageUrl = await uploadUserImage(supabase, formData.get('image_male') as File, title + '-male')
+      const femaleImageUrl = await uploadUserImage(supabase, formData.get('image_female') as File, title + '-female')
+      if (!maleImageUrl || !femaleImageUrl) return { error: 'Both gender variant images are required' }
+      mainPrompt = malePrompt
+      mainImageUrl = maleImageUrl
+      variants = [
+        { gender: 'male', prompt: malePrompt, image_url: maleImageUrl },
+        { gender: 'female', prompt: femalePrompt, image_url: femaleImageUrl }
+      ]
+    } else if (variantType === 'creative_ads') {
+      const count = parseInt(formData.get('ad_variant_count') as string || '2')
+      variants = []
+      for (let i = 1; i <= count; i++) {
+        const adPrompt = formData.get(`prompt_ad_${i}`) as string
+        const adImageUrl = await uploadUserImage(supabase, formData.get(`image_ad_${i}`) as File, title + `-ad-${i}`)
+        if (!adImageUrl) return { error: `Image for Variant ${i} is required` }
+        variants.push({ id: i, label: `Variant ${i}`, prompt: adPrompt, image_url: adImageUrl })
       }
-      if (tag) {
-        await supabase.from('prompt_tags').insert({ prompt_id: newPrompt.id, tag_id: tag.id })
+      mainPrompt = variants[0].prompt
+      mainImageUrl = variants[0].image_url
+    } else {
+      mainPrompt = formData.get('prompt') as string
+      const uploadedUrl = await uploadUserImage(supabase, formData.get('image') as File, title)
+      if (!uploadedUrl) return { error: 'Image is required' }
+      mainImageUrl = uploadedUrl
+    }
+
+    const aiTool = formData.get('ai_tool') as string || null
+    const customToolName = formData.get('custom_tool_name') as string || null
+    const customToolUrl = formData.get('custom_tool_url') as string || null
+    const categoryId = (formData.get('category_id') as string) || null
+
+    const { data: newPrompt, error } = await supabase.from('prompts').insert({
+      title,
+      slug: slugify(title) + '-' + Date.now().toString(36),
+      prompt: mainPrompt,
+      image_url: mainImageUrl,
+      category_id: categoryId === '' ? null : categoryId,
+      model: formData.get('model') as string || null,
+      aspect_ratio: formData.get('aspect_ratio') as string || null,
+      style: formData.get('style') as string || null,
+      source_name: aiTool || customToolName || null,
+      source_url: customToolUrl || null,
+      status,
+      is_featured: false,
+      is_premium: false,
+      has_variants: hasVariants,
+      variant_type: variantType,
+      variants: hasVariants ? variants : null,
+      created_by: user.id,
+      published_at: null,
+    }).select('id').single()
+
+    if (error) return { error: error.message }
+
+    if (tags.length > 0 && newPrompt) {
+      for (const tagName of tags) {
+        const tagSlug = slugify(tagName)
+        let { data: tag } = await supabase.from('tags').select('id').eq('slug', tagSlug).single()
+        if (!tag) {
+          const { data: newTag } = await supabase.from('tags').insert({ name: tagName, slug: tagSlug }).select('id').single()
+          tag = newTag
+        }
+        if (tag) {
+          await supabase.from('prompt_tags').insert({ prompt_id: newPrompt.id, tag_id: tag.id })
+        }
       }
     }
-  }
 
-  const newCategoryName = formData.get('new_category') as string
-  if (newCategoryName && !formData.get('category_id')) {
-    const catSlug = slugify(newCategoryName)
-    const { data: newCat } = await supabase.from('categories').insert({ name: newCategoryName, slug: catSlug }).select('id').single()
-    if (newCat) {
-      await supabase.from('prompts').update({ category_id: newCat.id }).eq('id', newPrompt.id)
+    const newCategoryName = formData.get('new_category') as string
+    if (newCategoryName && !categoryId) {
+      const catSlug = slugify(newCategoryName)
+      const { data: newCat } = await supabase.from('categories').insert({ name: newCategoryName, slug: catSlug }).select('id').single()
+      if (newCat) {
+        await supabase.from('prompts').update({ category_id: newCat.id }).eq('id', newPrompt.id)
+      }
     }
-  }
 
-  revalidatePath('/posts')
-  redirect('/posts')
+    revalidatePath('/posts')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Submit Prompt Error:', err)
+    return { error: err.message || 'An unexpected error occurred' }
+  }
 }

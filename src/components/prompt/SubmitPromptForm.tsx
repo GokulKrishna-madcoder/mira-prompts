@@ -106,10 +106,14 @@ export default function SubmitPromptForm({ categories }: { categories: { id: str
         formData.set('ad_variant_count', String(adVariants.length))
       }
 
-      await submitPrompt(formData)
+      const res = await submitPrompt(formData)
+      if (res?.error) {
+        alert(res.error)
+      } else {
+        window.location.href = '/posts' // Use window.location to ensure fresh data load and avoid router cache issues if needed, or we can just import router.
+      }
     } catch (err: any) {
-      if (err?.message?.includes('NEXT_REDIRECT') || err?.digest?.includes('NEXT_REDIRECT')) throw err
-      alert(err.message || 'An error occurred')
+      alert(err.message || 'An unexpected error occurred')
     } finally {
       setIsSubmitting(false)
     }
