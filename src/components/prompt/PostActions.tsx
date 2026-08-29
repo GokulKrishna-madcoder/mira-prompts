@@ -24,7 +24,7 @@ export default function PostActions({ promptId, slug }: { promptId: string, slug
   }
 
   return (
-    <div className="relative" onMouseLeave={() => setOpen(false)}>
+    <div className="relative">
       <button 
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(!open) }}
         className="w-8 h-8 rounded-full flex items-center justify-center bg-white/80 backdrop-blur border border-gray-200 text-gray-700 hover:bg-white hover:text-black transition-colors"
@@ -33,24 +33,31 @@ export default function PostActions({ promptId, slug }: { promptId: string, slug
       </button>
 
       {open && (
-        <div className="absolute right-0 top-10 w-32 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20 animate-in fade-in zoom-in-95">
-          <Link 
-            href={`/posts/${promptId}/edit`}
-            onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors w-full text-left"
-          >
-            <Edit className="w-4 h-4" />
-            Edit
-          </Link>
-          <button 
-            onClick={handleDelete}
-            disabled={isPending}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left disabled:opacity-50"
-          >
-            <Trash2 className="w-4 h-4" />
-            Delete
-          </button>
-        </div>
+        <>
+          {/* Invisible overlay to handle click-away */}
+          <div 
+            className="fixed inset-0 z-10" 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(false) }} 
+          />
+          <div className="absolute right-0 top-10 w-32 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20 animate-in fade-in zoom-in-95">
+            <Link 
+              href={`/posts/${promptId}/edit`}
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors w-full text-left relative z-20"
+            >
+              <Edit className="w-4 h-4" />
+              Edit
+            </Link>
+            <button 
+              onClick={handleDelete}
+              disabled={isPending}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left disabled:opacity-50 relative z-20"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete
+            </button>
+          </div>
+        </>
       )}
     </div>
   )
