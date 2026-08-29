@@ -32,7 +32,7 @@ export default async function AdminSubmissionsPage() {
                 {/* Image preview */}
                 {p.image_url && (
                   <div className="relative w-full md:w-48 h-36 rounded-xl overflow-hidden bg-gray-100 shrink-0">
-                    <Image src={p.image_url} alt={p.title} fill className="object-cover" unoptimized />
+                    <Image src={p.image_url} alt={p.title} fill className="object-cover" />
                   </div>
                 )}
 
@@ -71,3 +71,4 @@ export default async function AdminSubmissionsPage() {
     </div>
   )
 }
+

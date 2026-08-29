@@ -45,7 +45,6 @@ export default function MasonryGrid({ prompts, savedIds = [], isLoggedIn = false
                 height={700}
                 className="prompt-card-img w-full h-auto object-cover"
                 priority={index < 4}
-                unoptimized
               />
 
               {isLoggedIn && (
@@ -95,4 +94,5 @@ export default function MasonryGrid({ prompts, savedIds = [], isLoggedIn = false
     </div>
   )
 }
+
 

@@ -137,7 +137,6 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
                 fill 
                 className="object-cover"
                 priority
-                unoptimized
               />
               {/* Dark overlay for text readability */}
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
@@ -196,4 +195,5 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
     </main>
   )
 }
+
 

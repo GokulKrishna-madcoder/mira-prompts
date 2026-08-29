@@ -89,7 +89,7 @@ export default async function MyPromptsPage({
               <Link key={p.id} href={`/prompts/${p.slug}`} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow group relative block">
                 {p.image_url && (
                   <div className="relative h-44 bg-gray-100 overflow-hidden">
-                    <Image src={p.image_url} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+                    <Image src={p.image_url} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                     <div className="absolute top-3 right-3 z-10">
                       <PostActions promptId={p.id} slug={p.slug} />
                     </div>
@@ -126,3 +126,4 @@ export default async function MyPromptsPage({
     </main>
   )
 }
+

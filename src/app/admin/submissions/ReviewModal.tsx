@@ -56,7 +56,7 @@ export default function ReviewModal({ prompts, approveAction, rejectAction }: { 
             {/* Left: Image */}
             <div className="md:w-1/2 space-y-4 shrink-0">
               <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-gray-100 border border-gray-100">
-                <Image src={prompt.image_url} alt={prompt.title} fill className="object-cover" unoptimized />
+                <Image src={prompt.image_url} alt={prompt.title} fill className="object-cover" />
               </div>
 
               {/* Variants Grid */}
@@ -67,7 +67,7 @@ export default function ReviewModal({ prompts, approveAction, rejectAction }: { 
                     {prompt.variants.map((v: any, idx: number) => (
                       <div key={idx} className="space-y-2">
                         <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
-                          {v.image_url && <Image src={v.image_url} alt="Variant" fill className="object-cover" unoptimized />}
+                          {v.image_url && <Image src={v.image_url} alt="Variant" fill className="object-cover" />}
                         </div>
                         <p className="text-xs font-medium text-gray-600 line-clamp-2" title={v.prompt}>{v.prompt}</p>
                       </div>
@@ -156,3 +156,4 @@ export default function ReviewModal({ prompts, approveAction, rejectAction }: { 
     </Modal>
   )
 }
+

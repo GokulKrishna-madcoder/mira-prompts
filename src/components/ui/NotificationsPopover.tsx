@@ -83,7 +83,7 @@ export default function NotificationsPopover({ userLastRead }: { userLastRead: s
                   <Link href={`/prompts/${n.slug}`} key={n.id} onClick={() => setIsOpen(false)} className="flex gap-4 p-4 hover:bg-gray-50 transition-colors">
                     {n.image_url ? (
                       <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 relative bg-gray-100">
-                        <Image src={n.image_url} alt="" fill className="object-cover" unoptimized />
+                        <Image src={n.image_url} alt="" fill className="object-cover" />
                       </div>
                     ) : (
                       <div className="w-12 h-12 rounded-xl bg-gray-100 shrink-0" />
@@ -104,3 +104,4 @@ export default function NotificationsPopover({ userLastRead }: { userLastRead: s
     </div>
   )
 }
+

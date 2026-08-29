@@ -45,7 +45,7 @@ export default async function NotificationsPage() {
               <Link href={`/prompts/${n.slug}`} key={n.id} className="flex gap-4 p-6 hover:bg-gray-50 transition-colors">
                 {n.image_url ? (
                   <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 relative bg-gray-100 border border-gray-200 shadow-sm">
-                    <Image src={n.image_url} alt={n.title} fill className="object-cover" unoptimized />
+                    <Image src={n.image_url} alt={n.title} fill className="object-cover" />
                   </div>
                 ) : (
                   <div className="w-16 h-16 rounded-2xl bg-gray-100 shrink-0 border border-gray-200 shadow-sm" />
@@ -81,3 +81,4 @@ export default async function NotificationsPage() {
     </div>
   )
 }
+

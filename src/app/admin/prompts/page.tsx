@@ -31,7 +31,7 @@ export default async function AdminPromptsPage() {
             {/* Image */}
             {p.image_url && (
               <div className="admin-prompt-card-img relative h-48 bg-gray-100 overflow-hidden">
-                <Image src={p.image_url} alt={p.title} fill className="object-cover" unoptimized />
+                <Image src={p.image_url} alt={p.title} fill className="object-cover" />
                 <div className="admin-prompt-card-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <Link href={`/admin/prompts/${p.id}/edit`} className="admin-prompt-btn-edit px-4 py-2 bg-white text-black text-xs font-semibold rounded-full hover:bg-gray-100 transition-colors flex items-center gap-1.5">
                     <Pencil className="w-3.5 h-3.5" /> Edit
@@ -85,3 +85,4 @@ export default async function AdminPromptsPage() {
     </div>
   )
 }
+
