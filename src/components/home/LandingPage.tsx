@@ -52,14 +52,14 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
 
       {/* ─── NAVBAR ─── */}
       <nav className="sticky top-0 z-[110] bg-white/80 backdrop-blur-xl border-b border-gray-100">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between px-5 py-4 sm:py-5 min-h-[80px]">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between px-5 h-16">
           <Link href="/" className="flex items-center">
             <Image 
               src="/brand/miralandingpage.png" 
               alt="Mira Prompts" 
-              width={320} 
-              height={64} 
-              className="h-[64px] w-auto object-contain" 
+              width={160} 
+              height={40} 
+              className="h-[32px] md:h-[36px] w-auto object-contain" 
             />
           </Link>
           <div className="flex items-center gap-3">
