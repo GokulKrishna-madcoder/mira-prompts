@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { ArrowLeft, Unplug } from 'lucide-react'
-import Sidebar from @/components/layout/Sidebar
-import TopBar from @/components/layout/TopBar
-import MobileNav from @/components/layout/MobileNav
-import Footer from @/components/layout/Footer
+import Sidebar from '@/components/layout/Sidebar'
+import TopBar from '@/components/layout/TopBar'
+import MobileNav from '@/components/layout/MobileNav'
+import Footer from '@/components/layout/Footer'
 
 export default function NotFound() {
   return (
