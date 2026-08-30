@@ -15,9 +15,11 @@ export default async function PublicLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   let userInitial: string | undefined
+  let userAvatarUrl: string | undefined
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('display_name, avatar_url').eq('id', user.id).single()
     userInitial = (profile?.display_name || user.email || 'U').charAt(0).toUpperCase()
+    userAvatarUrl = profile?.avatar_url || undefined
   }
 
   return (
@@ -28,9 +30,9 @@ export default async function PublicLayout({
         <div id="content-area" className="content-area flex-1 overflow-y-auto relative pb-20">
           {children}
         </div>
+        {modal}
       </div>
-      {modal}
-      <MobileNav userInitial={userInitial} />
+      <MobileNav userInitial={userInitial} userAvatarUrl={userAvatarUrl} />
     </div>
   )
 }
