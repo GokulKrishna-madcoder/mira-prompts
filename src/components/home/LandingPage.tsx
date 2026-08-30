@@ -41,7 +41,7 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
   const columns = splitIntoColumns(tripled, 5)
 
   return (
-    <div className="fixed inset-0 z-[100] min-h-screen flex flex-col bg-white overflow-y-auto overflow-x-hidden">
+    <div className="fixed inset-0 z-[100] min-h-screen bg-white overflow-y-auto overflow-x-hidden">
 
       {/* ─── NAVBAR ─── */}
       <nav className="sticky top-0 z-[110] bg-white/80 backdrop-blur-xl border-b border-gray-100">
@@ -65,7 +65,7 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
       </nav>
 
       {/* ─── HERO + WATERFALL ─── */}
-      <section className="relative flex-1">
+      <section className="relative min-h-[90vh] flex flex-col">
 
         {/* Waterfall Grid Background */}
         <div className="absolute inset-0 overflow-hidden">
