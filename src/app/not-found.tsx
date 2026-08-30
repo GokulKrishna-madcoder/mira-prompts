@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeft, Unplug } from 'lucide-react'
+import { ArrowLeft, Unplug, Compass } from 'lucide-react'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import MobileNav from '@/components/layout/MobileNav'
@@ -35,10 +35,17 @@ export default function NotFound() {
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <Link 
                 href="/" 
-                className="group flex items-center justify-center gap-2 bg-black text-white px-8 py-4 rounded-full font-semibold hover:bg-gray-900 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-xl w-full sm:w-auto"
+                className="group flex items-center justify-center gap-2 bg-red-500 text-white px-8 py-4 rounded-full font-semibold hover:bg-red-600 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-xl w-full sm:w-auto"
               >
                 <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 Go back home
+              </Link>
+              <Link 
+                href="/explore" 
+                className="group flex items-center justify-center gap-2 bg-white text-black border border-gray-200 px-8 py-4 rounded-full font-semibold hover:bg-gray-50 hover:scale-105 active:scale-95 transition-all shadow-sm w-full sm:w-auto"
+              >
+                <Compass className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                Explore Prompts
               </Link>
             </div>
           </div>
@@ -52,3 +59,5 @@ export default function NotFound() {
     </div>
   )
 }
+
+
