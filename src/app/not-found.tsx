@@ -4,8 +4,21 @@ import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import MobileNav from '@/components/layout/MobileNav'
 import Footer from '@/components/layout/Footer'
+import { createClient } from '@/lib/supabase/server'
 
-export default function NotFound() {
+export default async function NotFound() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  let userInitial: string | undefined
+  let userAvatarUrl: string | undefined
+  
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('display_name, avatar_url').eq('id', user.id).single()
+    userInitial = (profile?.display_name || user.email || 'U').charAt(0).toUpperCase()
+    userAvatarUrl = profile?.avatar_url || undefined
+  }
+
   return (
     <div id="app-shell" className="app-shell flex w-full min-h-screen bg-[var(--color-background)]">
       <Sidebar />
@@ -55,7 +68,7 @@ export default function NotFound() {
         </div>
       </div>
       
-      <MobileNav />
+      <MobileNav userInitial={userInitial} userAvatarUrl={userAvatarUrl} />
     </div>
   )
 }

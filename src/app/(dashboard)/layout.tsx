@@ -33,7 +33,7 @@ export default async function DashboardLayout({
       <Suspense fallback={null}>
         <ProfileModal profile={profile} email={user.email || ''} />
       </Suspense>
-      <MobileNav userInitial={userInitial} />
+      <MobileNav userInitial={userInitial} userAvatarUrl={profile?.avatar_url || undefined} />
     </div>
   )
 }
