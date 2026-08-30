@@ -46,7 +46,7 @@ export default function ProfileModal({ profile, email }: { profile: any, email: 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-[32px] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative">
+      <div className="bg-white rounded-[32px] w-full max-w-2xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] shadow-2xl relative">
         <div className="sticky top-0 bg-white/80 backdrop-blur px-8 py-5 border-b border-gray-100 flex items-center justify-between z-10">
           <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
           <button onClick={closeModal} className="p-2 bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition-colors">
@@ -127,3 +127,4 @@ function UserIcon(props: any) {
     </svg>
   )
 }
+

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Compass, Bookmark, Settings, ExternalLink, User } from 'lucide-react'
+import { Home, Compass, Plus, Bookmark, Settings, ExternalLink, User } from 'lucide-react'
 
 const getAvatarGradient = (letter: string) => {
   const gradients = [
@@ -59,6 +59,7 @@ export default function MobileNav({ userInitial }: { userInitial?: string }) {
       <div className="flex items-center justify-around h-16 relative">
         <MobileNavIcon href="/" icon={<Home className="w-6 h-6" />} label="Home" active={pathname === '/'} />
         <MobileNavIcon href="/explore" icon={<Compass className="w-6 h-6" />} label="Explore" active={pathname === '/explore'} />
+        <MobileNavIcon href="/submit-prompt" icon={<Plus className="w-6 h-6" strokeWidth={3} />} label="Create" active={pathname === '/submit-prompt'} />
         <MobileNavIcon href="/saved" icon={<Bookmark className="w-6 h-6" />} label="Saved" active={pathname === '/saved'} />
         
         <button
@@ -94,3 +95,4 @@ function MobileNavIcon({ href, icon, label, active }: { href: string; icon: Reac
     </Link>
   )
 }
+
