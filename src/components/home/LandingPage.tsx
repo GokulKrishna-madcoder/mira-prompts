@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Search, Sparkles } from 'lucide-react'
 import Footer from '@/components/layout/Footer'
 
 type PromptPreview = {
@@ -126,6 +127,67 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
           </div>
 
           <p className="text-xs text-gray-400 mt-6">Already used by creators and designers worldwide.</p>
+        </div>
+      </section>
+
+      {/* ─── FEATURE HIGHLIGHT SECTION ─── */}
+      <section className="relative z-10 bg-white py-24 px-6 overflow-hidden">
+        <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+          
+          {/* Visual Column */}
+          <div className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-square bg-[#F0F0F0] rounded-[40px] flex items-center justify-center p-4 md:p-8 overflow-hidden">
+            
+            {/* Dynamic Overlapping Images */}
+            {prompts.length >= 2 && (
+              <div className="relative w-full h-full">
+                <div className="absolute top-4 left-4 right-16 bottom-16 rounded-[24px] overflow-hidden shadow-2xl rotate-[-2deg] transition-transform hover:rotate-0 duration-500">
+                  <Image 
+                    src={prompts[0].image_url} 
+                    alt="Prompt visual 1" 
+                    fill 
+                    className="object-cover"
+                  />
+                </div>
+                <div className="absolute top-20 left-24 right-4 bottom-4 rounded-[24px] overflow-hidden shadow-2xl rotate-[3deg] transition-transform hover:rotate-0 duration-500">
+                  <Image 
+                    src={prompts[1].image_url} 
+                    alt="Prompt visual 2" 
+                    fill 
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Floating UI Tags */}
+            <div className="absolute top-12 left-8 md:left-12 bg-white shadow-xl rounded-full px-5 py-3 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+              <Search className="w-4 h-4 text-black" strokeWidth={3} />
+              <span className="text-black font-bold text-sm">Cinematic lighting</span>
+            </div>
+
+            <div className="absolute bottom-16 right-8 md:right-12 bg-white shadow-xl rounded-full px-5 py-3 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
+              <Sparkles className="w-4 h-4 text-[#E60023]" fill="currentColor" />
+              <span className="text-black font-bold text-sm">Photorealistic</span>
+            </div>
+            
+          </div>
+
+          {/* Content Column */}
+          <div className="flex flex-col items-start text-left">
+            <h2 className="text-4xl md:text-5xl font-black text-black tracking-tight leading-[1.1]">
+              Find the exact prompt for your vision
+            </h2>
+            <p className="text-xl text-gray-500 mt-6 leading-relaxed max-w-md">
+              Stop guessing. Browse thousands of curated AI image prompts and copy them directly into Midjourney, DALL·E, or Stable Diffusion with a single click.
+            </p>
+            <Link 
+              href="/signup" 
+              className="mt-8 bg-[#E60023] text-white font-bold text-lg px-8 py-4 rounded-full hover:bg-red-600 hover:scale-105 active:scale-95 transition-all shadow-md"
+            >
+              Join Mira Prompts
+            </Link>
+          </div>
+
         </div>
       </section>
 
