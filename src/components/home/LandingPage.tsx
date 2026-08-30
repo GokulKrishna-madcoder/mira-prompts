@@ -55,11 +55,11 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
         <div className="max-w-[1400px] mx-auto flex items-center justify-between px-5 py-4 sm:py-5 min-h-[80px]">
           <Link href="/" className="flex items-center">
             <Image 
-              src="/brand/MIRA%20LANDLOGO.png" 
+              src="/brand/miralandingpage.png" 
               alt="Mira Prompts" 
               width={320} 
-              height={72} 
-              className="h-12 sm:h-[64px] lg:h-[72px] w-auto object-contain" 
+              height={64} 
+              className="h-[64px] w-auto object-contain" 
             />
           </Link>
           <div className="flex items-center gap-3">
