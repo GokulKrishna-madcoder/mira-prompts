@@ -53,9 +53,14 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
       {/* ─── NAVBAR ─── */}
       <nav className="sticky top-0 z-[110] bg-white/80 backdrop-blur-xl border-b border-gray-100">
         <div className="max-w-[1400px] mx-auto flex items-center justify-between px-5 h-16">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/brand/logo.png" alt="Mira" width={36} height={36} className="w-9 h-9 rounded-xl" />
-            <span className="text-lg font-bold tracking-tight text-black hidden sm:inline">Mira Prompts</span>
+          <Link href="/" className="flex items-center">
+            <Image 
+              src="/brand/MIRA%20LANDLOGO.png" 
+              alt="Mira Prompts" 
+              width={160} 
+              height={36} 
+              className="h-7 sm:h-9 w-auto object-contain" 
+            />
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/about" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors hidden sm:inline-block px-3 py-2">
@@ -230,10 +235,6 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
               <div
                 key={colIdx}
                 className={`flex-1 flex flex-col gap-3 ${colIdx > 2 ? 'hidden lg:flex' : ''} ${colIdx > 1 ? 'hidden md:flex' : ''}`}
-                style={{
-                  animation: `waterfall-scroll ${30 + colIdx * 5}s linear infinite`,
-                  animationDirection: colIdx % 2 !== 0 ? 'normal' : 'reverse',
-                }}
               >
                 {col.map((p, i) => (
                   <div key={`${p.id}-bg-${i}`} className="rounded-2xl overflow-hidden bg-gray-800 flex-shrink-0">
