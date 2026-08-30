@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
 const sortOptions = [
@@ -41,10 +41,12 @@ export default function SortDropdown() {
       <button
         id="sort-dropdown-btn"
         onClick={() => setOpen(!open)}
-        className="sort-dropdown-btn flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+        className="sort-dropdown-btn flex items-center justify-center gap-1.5 w-10 h-10 md:w-auto md:h-auto md:px-4 md:py-2 bg-white border border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+        aria-label="Sort options"
       >
-        {activeLabel}
-        <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <SlidersHorizontal className="w-4 h-4 md:hidden" />
+        <span className="hidden md:inline">{activeLabel}</span>
+        <ChevronDown className={`w-4 h-4 transition-transform hidden md:block ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (

@@ -124,9 +124,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
         </div>
       )}
       {!q && (
-        <div className="flex items-center justify-between px-4 md:px-8">
-          <CategoryTabs categories={categories || []} />
-          <SortDropdown />
+        <div className="sticky top-0 z-20 bg-[var(--color-background)]/95 backdrop-blur-md pt-2 pb-4 mb-4 border-b border-gray-100 md:border-transparent">
+          <div className="flex items-center justify-between px-4 md:px-8 gap-4">
+            <div className="flex-1 min-w-0">
+              <CategoryTabs categories={categories || []} />
+            </div>
+            <div className="shrink-0 flex items-center">
+              <SortDropdown />
+            </div>
+          </div>
         </div>
       )}
       <div id="home-masonry-wrapper" className="home-masonry-wrapper mt-2">
