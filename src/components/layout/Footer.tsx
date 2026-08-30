@@ -48,7 +48,7 @@ export default function Footer() {
                 </svg>
               </Link>
               <a 
-                href="mailto:hello@miraprompts.com" 
+                href="mailto:mirapromts@gmail.com" 
                 className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-colors"
                 aria-label="Email"
               >
@@ -99,7 +99,9 @@ export default function Footer() {
       {/* Massive Typography Centerpiece */}
       <div className="w-full px-4 pt-8 pb-6 md:pt-12 md:pb-10">
         <h1 className="text-[11vw] md:text-[13vw] font-black tracking-tighter leading-[0.85] text-white select-none text-center w-full lowercase whitespace-nowrap">
-          mira prompts
+          <Link href="/" className="text-white no-underline hover:text-white cursor-pointer">
+            mira prompts
+          </Link>
         </h1>
       </div>
 
