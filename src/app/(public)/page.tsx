@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import MasonryGrid from '@/components/ui/MasonryGrid'
 import CategoryTabs from '@/components/ui/CategoryTabs'
 import SortDropdown from '@/components/ui/SortDropdown'
+import LandingPage from '@/components/home/LandingPage'
 import type { PromptCard } from '@/types/prompt'
 
 export const metadata: Metadata = {
@@ -24,7 +25,19 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
   const { category, q, sort } = await searchParams
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Categories for tabs
+  // ─── LANDING PAGE FOR LOGGED-OUT USERS ───
+  if (!user) {
+    const { data: landingPrompts } = await supabase
+      .from('prompts')
+      .select('id, title, image_url')
+      .eq('status', 'published')
+      .order('view_count', { ascending: false })
+      .limit(30)
+
+    return <LandingPage prompts={landingPrompts || []} />
+  }
+
+  // ─── LOGGED-IN FEED (existing logic) ───
   const { data: categories } = await supabase
     .from('categories')
     .select('id, name, slug')
@@ -33,7 +46,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
   let prompts: PromptCard[] | null = null
 
   if (sort === 'trending') {
-    // Use trending scores for trending sort
     const { data: trendingScores } = await supabase
       .from('prompt_trending_scores')
       .select('prompt_id, score')
@@ -50,7 +62,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
         .in('id', promptIds)
 
       if (trendingPrompts) {
-        // Maintain trending order and attach scores
         const scoreMap = new Map(trendingScores.map(t => [t.prompt_id, t.score]))
         const promptMap = new Map(trendingPrompts.map(p => [p.id, p]))
         prompts = trendingScores
@@ -64,7 +75,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     }
   }
 
-  // Fallback to regular query if not trending or no trending data
   if (!prompts) {
     let query = supabase
       .from('prompts')
@@ -78,7 +88,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     if (q) {
       const { data: matchedIds } = await supabase.rpc('search_prompt_ids', { search_term: q })
       const ids = matchedIds?.map((m: any) => m.prompt_id) || []
-      
       if (ids.length > 0) {
         query = query.in('id', ids)
       } else {
@@ -98,7 +107,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     ? prompts.filter(p => p.category !== null)
     : prompts || []
 
-  // Get user's saved prompt IDs
   let savedIds: string[] = []
   if (user) {
     const { data: saves } = await supabase
@@ -127,4 +135,3 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     </main>
   )
 }
-
