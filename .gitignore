@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Supabase Local
+supabase/.temp/
+
+# Internal AI Plans
+AGENTS.md
+CLAUDE.md
+MIRA_P0_P1_IMPLEMENTATION_PLAN.md
+premium_architecture_plan.md
+implementation_plan_*.md
