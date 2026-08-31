@@ -82,7 +82,7 @@ export default function PromptInteractiveViewer({
             )}
           </div>
           <div>
-            <p className="font-semibold text-sm text-gray-900">{prompt.profiles?.display_name || prompt.profiles?.username || prompt.source_name || 'Prompt Creator'}</p>
+            <p className="font-semibold text-sm text-gray-900">{prompt.profiles?.display_name || prompt.profiles?.username || 'Prompt Creator'}</p>
             <p className="text-xs text-gray-500">{prompt.view_count || 0} views</p>
           </div>
         </div>
@@ -117,34 +117,40 @@ export default function PromptInteractiveViewer({
           </div>
         )}
 
+        {/* Details Section */}
+        <div className="mb-8">
+          <h3 className="text-sm font-semibold text-black mb-3">Details</h3>
+          <div className="flex flex-wrap gap-2 text-sm">
+            {prompt.category && (
+              <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full font-semibold">{prompt.category.name}</span>
+            )}
+            {prompt.source_name && (
+              <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full font-semibold">Tool: {prompt.source_name}</span>
+            )}
+            {prompt.model && (
+              <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full font-semibold">Model: {prompt.model}</span>
+            )}
+            {prompt.style && (
+              <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full font-semibold">Style: {prompt.style}</span>
+            )}
+            {prompt.aspect_ratio && (
+              <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full font-semibold">AR: {prompt.aspect_ratio}</span>
+            )}
+          </div>
+        </div>
+
         {/* Prompt Actions & Description */}
         <div className="mb-8 w-full" id="prompt-detail-copy-action">
           <CopyButton text={activePromptText || ''} id={prompt.id} variant="massive" />
         </div>
 
         {/* Description Section */}
-        <div id="prompt-detail-content" className="prompt-detail-content">
+        <div id="prompt-detail-content" className="prompt-detail-content pb-4 md:pb-0">
           <h1 className="text-xl font-bold text-black mb-3 leading-tight">{prompt.title}</h1>
-          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px] font-medium mb-6">
+          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px] font-medium">
             <span className="mr-2" role="img" aria-label="pin">&#128204;</span>
             {activePromptText}
           </div>
-        </div>
-
-        <h3 className="text-sm font-semibold text-black mb-3 mt-4">Details</h3>
-        <div className="flex flex-wrap gap-2 text-sm pb-4 md:pb-0">
-          {prompt.category && (
-            <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full font-semibold">{prompt.category.name}</span>
-          )}
-          {prompt.model && (
-            <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full font-semibold">Model: {prompt.model}</span>
-          )}
-          {prompt.style && (
-            <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full font-semibold">Style: {prompt.style}</span>
-          )}
-          {prompt.aspect_ratio && (
-            <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full font-semibold">AR: {prompt.aspect_ratio}</span>
-          )}
         </div>
 
       </div>
