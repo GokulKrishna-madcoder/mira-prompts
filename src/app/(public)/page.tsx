@@ -9,12 +9,6 @@ import type { PromptCard } from '@/types/prompt'
 export const metadata: Metadata = {
   title: 'Mira Prompts — Curated AI Image Prompts',
   description: 'Discover, copy, and save beautifully curated AI image prompts for Midjourney, DALL-E, and Stable Diffusion. Browse trending prompts by category.',
-  openGraph: {
-    title: 'Mira Prompts — Curated AI Image Prompts',
-    description: 'Discover, copy, and save beautifully curated AI image prompts for Midjourney, DALL-E, and Stable Diffusion.',
-    url: 'https://mira-prompts.vercel.app',
-    type: 'website',
-  },
   alternates: {
     canonical: 'https://mira-prompts.vercel.app',
   },

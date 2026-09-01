@@ -98,11 +98,11 @@ export default function Footer() {
 
       {/* Massive Typography Centerpiece */}
       <div className="w-full px-4 pt-8 pb-6 md:pt-12 md:pb-10">
-        <h1 className="text-[11vw] md:text-[13vw] font-black tracking-tighter leading-[0.85] text-white select-none text-center w-full lowercase whitespace-nowrap">
+        <div className="text-[11vw] md:text-[13vw] font-black tracking-tighter leading-[0.85] text-white select-none text-center w-full lowercase whitespace-nowrap">
           <Link href="/" className="text-white no-underline hover:text-white cursor-pointer">
             mira prompts
           </Link>
-        </h1>
+        </div>
       </div>
 
       {/* Bottom copyright */}
