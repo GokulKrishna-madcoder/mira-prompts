@@ -120,7 +120,7 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
           </h1>
 
           <p className="text-gray-500 text-lg md:text-xl max-w-xl mt-6 leading-relaxed">
-            Discover, copy, and save beautifully curated AI image prompts for Midjourney, DALL·E, and more.
+            The Pinterest of AI Prompts. Discover, copy, and save beautifully curated AI image prompts for Midjourney, DALL-E, and Stable Diffusion in a stunning visual gallery.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 mt-10">

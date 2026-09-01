@@ -11,10 +11,11 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   metadataBase: new URL('https://mira-prompts.vercel.app'),
   title: {
-    default: "Mira Prompts",
+    default: "Mira Prompts | The Pinterest of AI Prompts",
     template: "%s | Mira Prompts"
   },
-  description: "Discover, copy, and save beautifully curated AI image prompts.",
+  description: "Mira Prompts is the ultimate Pinterest for AI prompts. Discover, copy, and save beautifully curated AI image prompts for Midjourney, DALL-E, and Stable Diffusion in a stunning visual masonry grid.",
+  keywords: ["Pinterest for prompts", "Pinterest of prompts", "Pinterest like website for prompts", "AI image prompt gallery", "visual prompt discovery", "Midjourney prompts", "DALL-E prompts"],
   verification: {
     google: '8Q2AOZ6mk8oEHybDHJREJ6ptORoFhuJpF1bEW0flg-A'
   },
@@ -51,8 +52,9 @@ export default function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Mira Prompts',
+    alternateName: 'Pinterest for Prompts',
     url: 'https://mira-prompts.vercel.app',
-    description: 'Discover, copy, and save beautifully curated AI image prompts.',
+    description: 'Mira Prompts is the ultimate Pinterest for AI prompts. Discover, copy, and save beautifully curated AI image prompts for Midjourney, DALL-E, and Stable Diffusion in a stunning visual masonry grid.',
   }
 
   return (
