@@ -23,18 +23,11 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://mira-prompts.vercel.app',
     siteName: 'Mira Prompts',
-    images: [{
-      url: '/brand/preview_1_91x1.jpg',
-      width: 1200,
-      height: 630,
-      alt: 'Mira Prompts',
-    }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Mira Prompts',
     description: 'Discover, copy, and save beautifully curated AI image prompts.',
-    images: ['/brand/preview_1_91x1.jpg'],
   },
   manifest: "/manifest.json",
   icons: {
