@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import Script from "next/script"
 import NextTopLoader from 'nextjs-toploader';
 import CookieBanner from '@/components/ui/CookieBanner';
+import { Analytics } from '@vercel/analytics/next';
 import "./globals.css"
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
@@ -74,6 +75,7 @@ export default function RootLayout({
         <NextTopLoader color="#ef4444" height={3} showSpinner={false} />
         {children}
         <CookieBanner />
+        <Analytics />
 
         {process.env.NODE_ENV === 'production' && (
           <>
