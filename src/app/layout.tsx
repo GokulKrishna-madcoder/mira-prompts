@@ -64,11 +64,13 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex bg-[var(--color-background)] text-[var(--color-text)]" suppressHydrationWarning>
+      <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+      </head>
+      <body className="min-h-full flex bg-[var(--color-background)] text-[var(--color-text)]" suppressHydrationWarning>
         <NextTopLoader color="#ef4444" height={3} showSpinner={false} />
         {children}
         <CookieBanner />
