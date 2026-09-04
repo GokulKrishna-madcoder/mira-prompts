@@ -218,6 +218,9 @@ export async function submitPrompt(formData: FormData) {
     let mainImageUrl = ''
     let variants: any = null
 
+    // Extract optional cover image if provided explicitly
+    const uploadedCoverUrl = await uploadUserImage(supabase, formData.get('image') as File, title + '-cover')
+
     if (variantType === 'gender') {
       const malePrompt = formData.get('prompt_male') as string
       const femalePrompt = formData.get('prompt_female') as string
@@ -225,7 +228,7 @@ export async function submitPrompt(formData: FormData) {
       const femaleImageUrl = await uploadUserImage(supabase, formData.get('image_female') as File, title + '-female')
       if (!maleImageUrl || !femaleImageUrl) return { error: 'Both gender variant images are required' }
       mainPrompt = malePrompt
-      mainImageUrl = maleImageUrl
+      mainImageUrl = uploadedCoverUrl || maleImageUrl
       variants = [
         { gender: 'male', prompt: malePrompt, image_url: maleImageUrl },
         { gender: 'female', prompt: femalePrompt, image_url: femaleImageUrl }
@@ -240,12 +243,11 @@ export async function submitPrompt(formData: FormData) {
         variants.push({ id: i, label: `Variant ${i}`, prompt: adPrompt, image_url: adImageUrl })
       }
       mainPrompt = variants[0].prompt
-      mainImageUrl = variants[0].image_url
+      mainImageUrl = uploadedCoverUrl || variants[0].image_url
     } else {
       mainPrompt = formData.get('prompt') as string
-      const uploadedUrl = await uploadUserImage(supabase, formData.get('image') as File, title)
-      if (!uploadedUrl) return { error: 'Image is required' }
-      mainImageUrl = uploadedUrl
+      mainImageUrl = uploadedCoverUrl || ''
+      if (!mainImageUrl) return { error: 'Image is required' }
     }
 
     const aiTool = formData.get('ai_tool') as string || null
@@ -359,6 +361,12 @@ export async function updatePrompt(promptId: string, formData: FormData) {
     let mainImageUrl = existing.image_url
     let variants: any = existing.variants
 
+    const newCoverFile = formData.get('image') as File
+    let uploadedCoverUrl = null
+    if (newCoverFile && newCoverFile.size > 0) {
+      uploadedCoverUrl = await uploadUserImage(supabase, newCoverFile, title + '-cover')
+    }
+
     if (variantType === 'gender') {
       const malePrompt = formData.get('prompt_male') as string
       const femalePrompt = formData.get('prompt_female') as string
@@ -372,7 +380,11 @@ export async function updatePrompt(promptId: string, formData: FormData) {
 
       if (!maleImageUrl || !femaleImageUrl) return { error: 'Both gender variant images are required' }
       mainPrompt = malePrompt
-      mainImageUrl = maleImageUrl
+      mainImageUrl = uploadedCoverUrl || existing.image_url || maleImageUrl
+      if (!uploadedCoverUrl && existing.image_url !== maleImageUrl && existing.variant_type !== 'gender') {
+          mainImageUrl = maleImageUrl // Reset if switching to gender without cover
+      }
+
       variants = [
         { gender: 'male', prompt: malePrompt, image_url: maleImageUrl },
         { gender: 'female', prompt: femalePrompt, image_url: femaleImageUrl }
@@ -391,13 +403,11 @@ export async function updatePrompt(promptId: string, formData: FormData) {
         variants.push({ id: i, label: `Variant ${i}`, prompt: adPrompt, image_url: adImageUrl })
       }
       mainPrompt = variants[0].prompt
-      mainImageUrl = variants[0].image_url
+      mainImageUrl = uploadedCoverUrl || existing.image_url || variants[0].image_url
     } else {
       mainPrompt = formData.get('prompt') as string
-      const newImageFile = formData.get('image') as File
-      if (newImageFile && newImageFile.size > 0) {
-        const uploadedUrl = await uploadUserImage(supabase, newImageFile, title)
-        if (uploadedUrl) mainImageUrl = uploadedUrl
+      if (uploadedCoverUrl) {
+        mainImageUrl = uploadedCoverUrl
       }
     }
 
