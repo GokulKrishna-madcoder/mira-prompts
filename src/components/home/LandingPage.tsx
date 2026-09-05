@@ -127,13 +127,13 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
             <div className="pointer-events-auto flex flex-wrap items-center gap-4">
               <Link
                 href="/signup"
-                className="bg-red-500 text-white font-bold text-lg px-8 py-3.5 rounded-full hover:bg-red-600 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-xl"
+                className="bg-red-500 text-white font-bold text-base md:text-lg px-6 md:px-8 py-3 md:py-3.5 rounded-full hover:bg-red-600 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-xl"
               >
                 Start Exploring — It&apos;s Free
               </Link>
               <Link
                 href="/login"
-                className="text-white font-semibold text-lg px-8 py-3.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:scale-105 active:scale-95 transition-all"
+                className="text-white font-semibold text-base md:text-lg px-6 md:px-8 py-3 md:py-3.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:scale-105 active:scale-95 transition-all"
               >
                 Log in
               </Link>
@@ -263,7 +263,7 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
                     className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none" 
                     style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} 
                   />
-                  <h3 className="relative z-10 text-white font-bold text-2xl md:text-3xl tracking-tight drop-shadow-md">
+                  <h3 className="relative z-10 text-white font-bold text-lg md:text-xl tracking-wide drop-shadow-sm">
                     {item.title}
                   </h3>
                 </div>
