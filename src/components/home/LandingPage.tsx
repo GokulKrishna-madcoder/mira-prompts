@@ -163,27 +163,27 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
           {/* Visual Column */}
           <div className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-square bg-[#F0F0F0] rounded-[40px] flex items-center justify-center p-4 md:p-8 overflow-hidden">
             
-            {/* Dynamic Overlapping Images */}
-            {prompts.length >= 2 && (
-              <div className="relative w-full h-full">
-                <div className="absolute top-4 left-4 right-16 bottom-16 rounded-[24px] overflow-hidden shadow-2xl rotate-[-2deg] transition-transform hover:rotate-0 duration-500">
-                  <Image 
-                    src={prompts[0].image_url} 
-                    alt="Prompt visual 1" 
-                    fill 
-                    className="object-cover"
-                  />
-                </div>
-                <div className="absolute top-20 left-24 right-4 bottom-4 rounded-[24px] overflow-hidden shadow-2xl rotate-[3deg] transition-transform hover:rotate-0 duration-500">
-                  <Image 
-                    src={prompts[1].image_url} 
-                    alt="Prompt visual 2" 
-                    fill 
-                    className="object-cover"
-                  />
-                </div>
+            {/* Static Overlapping Images */}
+            <div className="relative w-full h-full">
+              {/* Bottom Card */}
+              <div className="absolute top-4 left-4 right-16 bottom-16 rounded-[24px] overflow-hidden shadow-2xl rotate-[-2deg] transition-transform hover:rotate-0 duration-500 z-10">
+                <Image 
+                  src="/homepage/content-area/content-area-2.png" 
+                  alt="Content area bottom visual" 
+                  fill 
+                  className="object-cover"
+                />
               </div>
-            )}
+              {/* Top Card */}
+              <div className="absolute top-20 left-24 right-4 bottom-4 rounded-[24px] overflow-hidden shadow-2xl rotate-[3deg] transition-transform hover:rotate-0 duration-500 z-20">
+                <Image 
+                  src="/homepage/content-area/content-area-1.png" 
+                  alt="Content area top visual" 
+                  fill 
+                  className="object-cover"
+                />
+              </div>
+            </div>
 
             {/* Floating UI Tags */}
             <div className="absolute top-12 left-8 md:left-12 bg-white shadow-xl rounded-full px-5 py-3 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
