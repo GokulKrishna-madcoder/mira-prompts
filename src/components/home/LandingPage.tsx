@@ -1,13 +1,12 @@
 'use client'
 
-import { useState, useEffect, useActionState } from 'react'
+import { useState, useEffect, useRef, useActionState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Search, Sparkles, Loader2 } from 'lucide-react'
 import { signUp } from '@/lib/auth-actions'
 import Footer from '@/components/layout/Footer'
 import HeroRipple from '@/components/home/hero/HeroRipple'
-import TopBarScrollEffect from '@/components/home/TopBarScrollEffect'
 
 type PromptPreview = {
   id: string
@@ -29,16 +28,46 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
     null
   )
 
+  // Theme-aware TopBar state
+  const [navTheme, setNavTheme] = useState<'dark' | 'light'>('dark')
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const root = scrollRef.current
+    if (!root) return
+    const sections = root.querySelectorAll('section[data-theme]')
+    if (sections.length === 0) return
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const theme = entry.target.getAttribute('data-theme')
+          setNavTheme(theme === 'dark' ? 'dark' : 'light')
+        }
+      })
+    }, {
+      root,
+      rootMargin: '-60px 0px -90% 0px',
+      threshold: 0,
+    })
+
+    sections.forEach(s => observer.observe(s))
+    return () => observer.disconnect()
+  }, [])
+
   // Columns for the signup section background grid
   const tripled = [...prompts, ...prompts, ...prompts]
   const columns = splitIntoColumns(tripled, 5)
 
   return (
-    <div className="fixed inset-0 z-[100] min-h-screen bg-white overflow-y-auto overflow-x-hidden">
+    <div ref={scrollRef} className="fixed inset-0 z-[100] min-h-screen bg-white overflow-y-auto overflow-x-hidden">
 
       {/* ─── NAVBAR ─── */}
-      <nav id="landing-nav" className="fixed top-0 w-full z-[110] bg-white/80 backdrop-blur-xl border-b border-gray-100 transition-colors duration-300">
-        <TopBarScrollEffect />
+      <nav id="landing-nav" className={`fixed top-0 w-full z-[110] transition-all duration-300 ${
+        navTheme === 'dark'
+          ? 'bg-transparent border-transparent'
+          : 'bg-white/80 backdrop-blur-xl border-b border-gray-100'
+      }`}>
         <div className="max-w-[1400px] mx-auto flex items-center justify-between px-5 h-16">
           <Link href="/" className="flex items-center">
             <Image 
@@ -46,14 +75,20 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
               alt="Mira Prompts" 
               width={160} 
               height={40} 
-              className="h-[32px] md:h-[36px] w-auto object-contain" 
+              className={`h-[32px] md:h-[36px] w-auto object-contain transition-all duration-300 ${
+                navTheme === 'dark' ? 'brightness-0 invert' : ''
+              }`}
             />
           </Link>
           <div className="flex items-center gap-3">
-            <Link href="/about" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors hidden sm:inline-block px-3 py-2">
+            <Link href="/about" className={`text-sm font-semibold transition-colors hidden sm:inline-block px-3 py-2 ${
+              navTheme === 'dark' ? 'text-white/90 hover:text-white' : 'text-gray-600 hover:text-black'
+            }`}>
               About
             </Link>
-            <Link href="/login" className="text-sm font-semibold text-gray-700 hover:text-black transition-colors px-4 py-2.5 rounded-full hover:bg-gray-100">
+            <Link href="/login" className={`text-sm font-semibold transition-colors px-4 py-2.5 rounded-full ${
+              navTheme === 'dark' ? 'text-white/90 hover:text-white hover:bg-white/10' : 'text-gray-700 hover:text-black hover:bg-gray-100'
+            }`}>
               Log in
             </Link>
             <Link href="/signup" className="text-sm font-bold text-white bg-red-500 hover:bg-red-600 px-5 py-2.5 rounded-full hover:scale-105 active:scale-95 transition-all shadow-sm">
