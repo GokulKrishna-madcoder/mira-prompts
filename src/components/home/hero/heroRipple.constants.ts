@@ -9,24 +9,21 @@ export const HERO_SLIDES: HeroRippleSlide[] = Array.from({ length: 10 }, (_, i) 
   alt: `Hero background ${i + 1}`,
 }))
 
-/** Shader uniform defaults — sourced from the Ideogram bundle */
+/** Shader uniform defaults — LOCKED per user specification */
 export const SHADER_CONFIG = {
-  sigma: 0.15,
+  sigma: 0.17,
   waveFreq: 5,
   pushAmt: 0.08,
-  caStrength: 0.005,
+  caStrength: 0.000,
   glow: 0,
-  noiseWarp: 1,
+  noiseWarp: 2.50,
 } as const
 
 /** GSAP transition defaults */
 export const TRANSITION_CONFIG = {
-  duration: 3.5,       // seconds (1.4 / 0.4 from source)
-  ease: 'power2.inOut',
-  autoplayDelay: 1000, // ms between slides
-  pinchStrength: 0,
-  pinchInDuration: 0,
-  pinchOutDuration: 0.4,
+  duration: 2.6,
+  ease: 'power2.out',
+  autoplayDelay: 1800,
 } as const
 
 /** Max device pixel ratio to prevent GPU overload on retina */

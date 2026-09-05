@@ -70,7 +70,7 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
         <HeroRipple />
 
         {/* Hero Content — Ideogram Style */}
-        <div className="relative z-10 flex flex-col justify-end h-full w-full max-w-[1400px] mx-auto px-8 pb-32 pt-40 flex-1">
+        <div className="relative z-10 pointer-events-none flex flex-col justify-end h-full w-full max-w-[1400px] mx-auto px-8 pb-32 pt-40 flex-1">
           <div className="max-w-2xl">
             {/* Small Label */}
             <h3 className="text-white/80 font-bold text-xs uppercase tracking-[0.2em] mb-4 drop-shadow-md">
@@ -88,7 +88,7 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="pointer-events-auto flex flex-wrap items-center gap-4">
               <Link
                 href="/signup"
                 className="bg-red-500 text-white font-bold text-lg px-8 py-3.5 rounded-full hover:bg-red-600 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-xl"
