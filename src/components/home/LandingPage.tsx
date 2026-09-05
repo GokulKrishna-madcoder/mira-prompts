@@ -3,7 +3,8 @@
 import { useState, useEffect, useActionState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Search, Sparkles, Loader2 } from 'lucide-react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { Search, Sparkles, Loader2, Compass, Layers, Cpu } from 'lucide-react'
 import { signUp } from '@/lib/auth-actions'
 import Footer from '@/components/layout/Footer'
 
@@ -11,13 +12,6 @@ type PromptPreview = {
   id: string
   image_url: string
   title: string
-}
-
-// Split prompts into columns for the waterfall effect
-function splitIntoColumns(items: PromptPreview[], cols: number): PromptPreview[][] {
-  const columns: PromptPreview[][] = Array.from({ length: cols }, () => [])
-  items.forEach((item, i) => columns[i % cols].push(item))
-  return columns
 }
 
 // Cycling words for the hero headline
@@ -42,10 +36,6 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
     const interval = setInterval(() => setWordIdx(i => (i + 1) % cycleWords.length), 2400)
     return () => clearInterval(interval)
   }, [])
-
-  // Triple the prompts for seamless infinite scroll
-  const tripled = [...prompts, ...prompts, ...prompts]
-  const columns = splitIntoColumns(tripled, 5)
 
   return (
     <div className="fixed inset-0 z-[100] min-h-screen bg-white overflow-y-auto overflow-x-hidden">
@@ -76,70 +66,152 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
         </div>
       </nav>
 
-      {/* ─── HERO + WATERFALL ─── */}
-      <section className="relative min-h-[90vh] flex flex-col">
-
-        {/* Waterfall Grid Background */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="flex gap-3 px-3 h-full">
-            {columns.map((col, colIdx) => (
-              <div
-                key={colIdx}
-                className={`flex-1 flex flex-col gap-3 ${colIdx > 2 ? 'hidden lg:flex' : ''} ${colIdx > 1 ? 'hidden md:flex' : ''}`}
-                style={{
-                  animation: `waterfall-scroll ${20 + colIdx * 4}s linear infinite`,
-                  animationDirection: colIdx % 2 === 0 ? 'normal' : 'reverse',
-                }}
-              >
-                {col.map((p, i) => (
-                  <div key={`${p.id}-${i}`} className="rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
-                    <Image
-                      src={p.image_url}
-                      alt={p.title}
-                      width={300}
-                      height={400}
-                      className="w-full h-auto object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-          {/* Gradient Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white via-white/80 to-white/40" />
-          <div className="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-white to-transparent" />
+       {/* 🚀 ANIMATED HERO SECTION 🚀 */}
+      <section className="relative min-h-[90vh] flex flex-col bg-slate-950 overflow-hidden">
+        {/* Volumetric Lighting */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div 
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }} 
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-violet-600/30 rounded-full blur-[120px] mix-blend-screen"
+          />
+          <motion.div 
+            animate={{ scale: [1, 1.5, 1], opacity: [0.2, 0.4, 0.2] }} 
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute bottom-1/4 right-1/4 w-[700px] h-[700px] bg-cyan-600/20 rounded-full blur-[150px] mix-blend-screen"
+          />
+          <motion.div 
+            animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.5, 0.2] }} 
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/20 rounded-full blur-[150px] mix-blend-screen"
+          />
         </div>
 
+        {/* Ambient Particles */}
+        <div className="absolute inset-0 pointer-events-none">
+          {Array.from({ length: 40 }).map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ 
+                y: "100vh", 
+                x: `${Math.random() * 100}vw`,
+                opacity: 0,
+                scale: Math.random() * 0.5 + 0.5
+              }}
+              animate={{ 
+                y: "-10vh",
+                opacity: [0, 0.8, 0],
+              }}
+              transition={{ 
+                duration: Math.random() * 10 + 10, 
+                repeat: Infinity,
+                delay: Math.random() * 5,
+                ease: "linear" 
+              }}
+              className="absolute w-1.5 h-1.5 rounded-full bg-cyan-200/60 blur-[1px]"
+            />
+          ))}
+        </div>
+
+        {/* Floating Holographic Cards */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <motion.div 
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 20, repeat: Infinity, repeatType: 'reverse', ease: "linear" }}
+            className="relative w-full max-w-[1200px] h-full"
+          >
+            {/* Left Card */}
+            <motion.div 
+              animate={{ y: [0, -30, 0], rotate: [0, -5, 0] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[20%] left-[5%] md:left-[10%] w-[200px] md:w-[280px] p-4 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-[0_0_30px_rgba(139,92,246,0.2)] hidden sm:block"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-violet-500/20 rounded-lg">
+                  <Compass className="w-5 h-5 text-violet-300" />
+                </div>
+                <div className="text-violet-200 font-medium text-sm">Exploration</div>
+              </div>
+              <div className="h-24 rounded-xl bg-gradient-to-br from-violet-500/20 to-transparent border border-white/5 mb-3" />
+              <div className="h-3 w-3/4 bg-white/10 rounded-full mb-2" />
+              <div className="h-3 w-1/2 bg-white/10 rounded-full" />
+            </motion.div>
+
+            {/* Right Card */}
+            <motion.div 
+              animate={{ y: [0, 40, 0], rotate: [0, 5, 0] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute bottom-[20%] right-[5%] md:right-[10%] w-[220px] md:w-[320px] p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.2)] hidden md:block"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-cyan-500/20 rounded-lg">
+                  <Layers className="w-6 h-6 text-cyan-300" />
+                </div>
+                <div className="text-cyan-200 font-medium text-sm">Structure Generation</div>
+              </div>
+              <div className="h-32 rounded-xl bg-gradient-to-br from-cyan-500/20 to-transparent border border-white/5 mb-4 relative overflow-hidden">
+                 <motion.div 
+                    animate={{ x: ["-100%", "200%"] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent skew-x-12"
+                 />
+              </div>
+              <div className="flex gap-2">
+                 <div className="h-2 flex-1 bg-white/10 rounded-full" />
+                 <div className="h-2 flex-1 bg-white/10 rounded-full" />
+                 <div className="h-2 flex-1 bg-white/10 rounded-full" />
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Bottom Fade out to match the white section below */}
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent z-20 pointer-events-none" />
+
         {/* Hero Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 pt-24 sm:pt-32 md:pt-40 pb-16">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-black leading-[1.1] max-w-4xl">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="relative z-10 flex flex-col items-center justify-center text-center px-6 pt-32 sm:pt-40 md:pt-48 pb-32 flex-1"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8">
+            <Sparkles className="w-4 h-4 text-cyan-400" />
+            <span className="text-sm font-medium text-cyan-100 tracking-wide">The Next Generation of AI Prompts</span>
+          </div>
+          
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] max-w-4xl drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
             Get your next
-            <span className="block text-red-500 mt-1 transition-all duration-500" key={wordIdx}>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-fuchsia-400 mt-2 transition-all duration-500 filter drop-shadow-[0_0_20px_rgba(139,92,246,0.4)]" key={wordIdx}>
               {cycleWords[wordIdx]}
             </span>
           </h1>
 
-          <p className="text-gray-500 text-lg md:text-xl max-w-xl mt-6 leading-relaxed">
-            The Pinterest of AI Prompts. Discover, copy, and save beautifully curated AI image prompts for Midjourney, DALL-E, and Stable Diffusion in a stunning visual gallery.
+          <p className="text-slate-300 text-lg md:text-xl max-w-xl mt-8 leading-relaxed font-light">
+            Discover, copy, and save beautifully curated AI image prompts for Midjourney, DALL-E, and Stable Diffusion in a stunning visual gallery.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 mt-10">
+          <div className="flex flex-col sm:flex-row items-center gap-4 mt-12">
             <Link
               href="/signup"
-              className="bg-red-500 text-white font-bold text-lg px-10 py-4 rounded-full hover:bg-red-600 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-xl"
+              className="group relative px-10 py-4 rounded-full bg-white text-slate-950 font-bold text-lg hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(255,255,255,0.3)]"
             >
-              Start Exploring — It&apos;s Free
+              Start Exploring
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 rounded-full border-2 border-dashed border-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity" 
+              />
             </Link>
             <Link
               href="/login"
-              className="text-gray-700 font-semibold text-lg px-8 py-4 rounded-full border border-gray-200 bg-white hover:bg-gray-50 hover:scale-105 active:scale-95 transition-all"
+              className="text-white font-semibold text-lg px-8 py-4 rounded-full border border-white/20 bg-white/5 backdrop-blur-md hover:bg-white/10 hover:scale-105 active:scale-95 transition-all"
             >
               Log in
             </Link>
           </div>
-
-          <p className="text-xs text-gray-400 mt-6">Already used by creators and designers worldwide.</p>
-        </div>
+        </motion.div>
       </section>
 
       {/* ─── FEATURE HIGHLIGHT SECTION ─── */}
