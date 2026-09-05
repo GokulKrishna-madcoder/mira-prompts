@@ -23,7 +23,7 @@ export const SHADER_CONFIG = {
 export const TRANSITION_CONFIG = {
   duration: 3.5,       // seconds (1.4 / 0.4 from source)
   ease: 'power2.inOut',
-  autoplayDelay: 3500, // ms between slides
+  autoplayDelay: 1000, // ms between slides
   pinchStrength: 0.3,
   pinchInDuration: 0.1,
   pinchOutDuration: 0.4,
