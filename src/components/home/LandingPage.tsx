@@ -231,14 +231,53 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
-              { emoji: '✦', title: 'Curated Quality', desc: 'Every prompt is hand-picked and tested for stunning AI image results.' },
-              { emoji: '⚡', title: 'One-Click Copy', desc: 'Find a prompt you love, click copy, and paste it directly into your AI tool.' },
-              { emoji: '♡', title: 'Save & Organize', desc: 'Build your personal collection of favorite prompts for quick access later.' },
+              {
+                title: 'Curated Quality',
+                subtitle: 'Hand-picked and tested for stunning results.',
+                desc: 'We rigorously test every prompt across multiple AI models to ensure you get professional-grade images.',
+                gradient: 'from-[#E60023] via-[#FF3366] to-[#FF8C42]',
+                cta: 'Browse collection',
+                href: '/explore'
+              },
+              {
+                title: 'One-Click Copy',
+                subtitle: 'From inspiration to generation instantly.',
+                desc: 'Find a prompt you love, click to copy the parameters, and paste it directly into your AI tool.',
+                gradient: 'from-[#4F46E5] via-[#E60023] to-[#EC4899]',
+                cta: 'Try it now',
+                href: '/signup'
+              },
+              {
+                title: 'Save & Organize',
+                subtitle: 'Your personal creative library.',
+                desc: 'Build and manage your own collections of favorite prompts. Keep your workflow organized.',
+                gradient: 'from-[#F472B6] via-[#D8B4FE] to-[#7DD3FC]',
+                cta: 'Create account',
+                href: '/signup'
+              },
             ].map(item => (
-              <div key={item.title} className="text-center flex flex-col items-center">
-                <span className="text-4xl mb-5">{item.emoji}</span>
-                <h3 className="text-xl font-bold text-black mb-2">{item.title}</h3>
-                <p className="text-gray-500 leading-relaxed max-w-xs">{item.desc}</p>
+              <div key={item.title} className="flex flex-col text-left group">
+                <div className="relative w-full aspect-[4/3] rounded-[32px] overflow-hidden mb-8 flex items-center justify-center">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-90 transition-transform duration-700 group-hover:scale-105`} />
+                  <div 
+                    className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none" 
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} 
+                  />
+                  <h3 className="relative z-10 text-white font-bold text-2xl md:text-3xl tracking-tight drop-shadow-md">
+                    {item.title}
+                  </h3>
+                </div>
+                <h4 className="text-xl font-bold text-black mb-3 leading-snug tracking-tight">
+                  {item.subtitle}
+                </h4>
+                <p className="text-gray-500 leading-relaxed mb-6">
+                  {item.desc}
+                </p>
+                <div className="mt-auto">
+                  <Link href={item.href} className="inline-block text-sm font-bold bg-black text-white px-5 py-2.5 rounded-full hover:bg-gray-800 transition-colors">
+                    {item.cta}
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
