@@ -84,13 +84,16 @@ void main() {
   float noiseLarge = fbm(p * 4.0 + vec2(u_progress * 1.0, u_progress * 0.5), 4);
   float noiseSmall = fbm(p * 12.0 + vec2(u_progress * 2.0, -u_progress * 1.5), 3);
 
-  float warpedDist = normDist
-    + (noiseLarge - 0.5) * 0.3 * u_noiseWarp
-    + (noiseSmall - 0.5) * 0.1 * u_noiseWarp;
+  // Fade out noise near the origin so the wave starts as a soft, clean circle
+  float centerFade = smoothstep(0.0, 0.18, normDist);
+  float noise = (noiseLarge - 0.5) * 0.3 * u_noiseWarp + (noiseSmall - 0.5) * 0.1 * u_noiseWarp;
+
+  float warpedDist = normDist + noise * centerFade;
 
   // ── Traveling wave ──
   float coverage = 1.6; // extends past 1.0 so wave reaches all corners
-  float waveFront = u_progress * coverage;
+  // Start with a soft initial radius (0.04) and expand immediately
+  float waveFront = 0.04 + u_progress * (coverage - 0.04);
   float delta = warpedDist - waveFront;
 
   float sigma = u_sigma;
@@ -98,8 +101,9 @@ void main() {
   float ripples = max(0.0, cos(delta * u_waveFreq));
   float envelope = baseEnvelope * ripples;
 
-  // Gate: kill residual after transition ends
-  envelope *= smoothstep(1.0, 0.95, u_progress);
+  // Gate: Smooth entrance fade-in so the ring doesn't exist at progress = 0
+  // and exit gate to kill residual at the end
+  envelope *= smoothstep(0.0, 0.04, u_progress) * smoothstep(1.0, 0.95, u_progress);
 
   // ── UV displacement ──
   vec2 dir = (dist > 0.001) ? normalize(p) : vec2(0.0);
@@ -135,10 +139,13 @@ void main() {
 
   // ── A/B reveal mask ──
   float feather = 0.08;
-  float reveal = smoothstep(waveFront - feather + (noiseLarge - 0.5) * 0.15,
-                            waveFront + feather + (noiseLarge - 0.5) * 0.15,
-                            warpedDist);
-  reveal = 1.0 - reveal; // invert: revealed area = 1
+  float revealMask = smoothstep(waveFront - feather + (noiseLarge - 0.5) * 0.15 * centerFade,
+                                waveFront + feather + (noiseLarge - 0.5) * 0.15 * centerFade,
+                                warpedDist);
+  float reveal = 1.0 - revealMask; // invert: revealed area = 1
+  
+  // Gate reveal to strictly 0.0 at progress = 0 to prevent bleed during IDLE
+  reveal *= smoothstep(0.0, 0.02, u_progress);
 
   // Swap logic: u_swap flips which texture is "current" vs "target"
   vec4 base   = mix(colorA, colorB, u_swap);
