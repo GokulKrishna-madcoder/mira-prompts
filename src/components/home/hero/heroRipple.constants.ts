@@ -13,8 +13,8 @@ export const HERO_SLIDES: HeroRippleSlide[] = Array.from({ length: 10 }, (_, i) 
 export const SHADER_CONFIG = {
   sigma: 0.15,
   waveFreq: 5,
-  pushAmt: 0.145,
-  caStrength: 0.02,
+  pushAmt: 0.08,
+  caStrength: 0.005,
   glow: 0,
   noiseWarp: 1,
 } as const
@@ -24,8 +24,8 @@ export const TRANSITION_CONFIG = {
   duration: 3.5,       // seconds (1.4 / 0.4 from source)
   ease: 'power2.inOut',
   autoplayDelay: 1000, // ms between slides
-  pinchStrength: 0.3,
-  pinchInDuration: 0.1,
+  pinchStrength: 0,
+  pinchInDuration: 0,
   pinchOutDuration: 0.4,
 } as const
 

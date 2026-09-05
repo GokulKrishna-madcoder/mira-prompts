@@ -30,7 +30,6 @@ uniform float u_caStrength;
 uniform float u_glow;
 uniform float u_noiseWarp;
 uniform float u_swap;
-uniform float u_pinch;
 
 // ── Noise: hash → value noise → FBM ──
 
@@ -102,25 +101,13 @@ void main() {
   // Gate: kill residual after transition ends
   envelope *= smoothstep(1.0, 0.95, u_progress);
 
-  // ── Pinch ──
-  float pinchSigma = 0.10;
-  float pinchG = exp(-dist * dist / (2.0 * pinchSigma * pinchSigma));
-
-  // Edge fade to prevent boundary artifacts
-  float edgeFade = smoothstep(0.0, 0.05, uv.x) * smoothstep(1.0, 0.95, uv.x)
-                 * smoothstep(0.0, 0.05, uv.y) * smoothstep(1.0, 0.95, uv.y);
-  pinchG *= edgeFade;
-
   // ── UV displacement ──
   vec2 dir = (dist > 0.001) ? normalize(p) : vec2(0.0);
   float pushAmt = envelope * u_pushAmt;
-  vec2 pinchDisp = dir * pinchG * u_pinch * (-0.15); // inward pull
 
   vec2 uvOffset = dir * pushAmt;
   // Un-correct the aspect on x before applying to UV space
   uvOffset.x /= aspect;
-  pinchDisp.x /= aspect;
-  uvOffset += pinchDisp;
 
   // ── Chromatic aberration ──
   float caStr = envelope * u_caStrength;

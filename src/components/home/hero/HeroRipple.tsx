@@ -22,13 +22,13 @@ export default function HeroRipple() {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rendererRef = useRef<RippleRenderer | null>(null)
-  const stateRef = useRef<RippleState>({ progress: 0, cx: 0.5, cy: 0.5, swap: 0, pinch: 0 })
+  const stateRef = useRef<RippleState>({ progress: 0, cx: 0.5, cy: 0.5, swap: 0 })
   const phaseRef = useRef<TransitionPhase>('IDLE')
   const currentIdxRef = useRef(0)
   const swapFlagRef = useRef(0) // toggles 0 ↔ 1 to flip A/B roles
   const autoplayRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const tweenRef = useRef<gsap.core.Tween | null>(null)
-  const pinchTweenRef = useRef<gsap.core.Tween | null>(null)
+
   const rafRef = useRef<number>(0)
   const imagesRef = useRef<HTMLImageElement[]>([])
   const [webglFailed, setWebglFailed] = useState(false)
@@ -44,8 +44,8 @@ export default function HeroRipple() {
     }
   }, [])
 
-  // ── Trigger a slide transition ──
-  const triggerTransition = useCallback((cx: number, cy: number, withPinch: boolean) => {
+  // ── Transition Logic ──
+  const triggerTransition = useCallback((cx: number, cy: number) => {
     const r = rendererRef.current
     if (!r || !r.ok || phaseRef.current !== 'IDLE') return
 
@@ -80,7 +80,7 @@ export default function HeroRipple() {
           swapFlagRef.current = swapFlagRef.current === 0 ? 1 : 0
           stateRef.current.swap = swapFlagRef.current
           stateRef.current.progress = 0
-          stateRef.current.pinch = 0
+          
           currentIdxRef.current = nextIdx
           phaseRef.current = 'IDLE'
 
@@ -92,23 +92,6 @@ export default function HeroRipple() {
           scheduleAutoplay()
         }
       })
-
-      // Pinch impulse on interactive clicks
-      if (withPinch) {
-        stateRef.current.pinch = 0
-        pinchTweenRef.current = gsap.to(stateRef.current, {
-          pinch: TRANSITION_CONFIG.pinchStrength,
-          duration: TRANSITION_CONFIG.pinchInDuration,
-          ease: 'power2.out',
-          onComplete: () => {
-            gsap.to(stateRef.current, {
-              pinch: 0,
-              duration: TRANSITION_CONFIG.pinchOutDuration,
-              ease: 'power2.inOut',
-            })
-          }
-        })
-      }
     }
 
     // Use cached image if available, otherwise load
@@ -132,7 +115,7 @@ export default function HeroRipple() {
     if (autoplayRef.current) clearTimeout(autoplayRef.current)
     autoplayRef.current = setTimeout(() => {
       if (phaseRef.current === 'IDLE' && !document.hidden) {
-        triggerTransition(0.5, 0.5, false)
+        triggerTransition(0.5, 0.5)
       }
     }, TRANSITION_CONFIG.autoplayDelay)
   }, [triggerTransition])
@@ -149,7 +132,7 @@ export default function HeroRipple() {
     const cx = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
     const cy = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height))
 
-    triggerTransition(cx, cy, true)
+    triggerTransition(cx, cy)
   }, [triggerTransition])
 
   // ── Initialise ──
@@ -187,7 +170,7 @@ export default function HeroRipple() {
       renderer.uploadTexture(1, imgB)
 
       // Render initial frame (texture A visible)
-      stateRef.current = { progress: 0, cx: 0.5, cy: 0.5, swap: 0, pinch: 0 }
+      stateRef.current = { progress: 0, cx: 0.5, cy: 0.5, swap: 0 }
       renderer.render(stateRef.current)
 
       // Start autoplay
@@ -230,7 +213,7 @@ export default function HeroRipple() {
     const onMotionChange = (e: MediaQueryListEvent) => {
       if (e.matches) {
         tweenRef.current?.kill()
-        pinchTweenRef.current?.kill()
+
         cancelAnimationFrame(rafRef.current)
         if (autoplayRef.current) clearTimeout(autoplayRef.current)
         renderer.destroy()
@@ -243,7 +226,7 @@ export default function HeroRipple() {
     // ── Cleanup ──
     return () => {
       tweenRef.current?.kill()
-      pinchTweenRef.current?.kill()
+
       cancelAnimationFrame(rafRef.current)
       if (autoplayRef.current) clearTimeout(autoplayRef.current)
       ro.disconnect()

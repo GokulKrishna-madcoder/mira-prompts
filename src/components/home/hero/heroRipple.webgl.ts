@@ -8,7 +8,6 @@ export interface RippleState {
   cx: number
   cy: number
   swap: number
-  pinch: number
 }
 
 export interface RippleRenderer {
@@ -134,7 +133,6 @@ export function createRippleRenderer(canvas: HTMLCanvasElement): RippleRenderer 
     glow: gl.getUniformLocation(program, 'u_glow'),
     noiseWarp: gl.getUniformLocation(program, 'u_noiseWarp'),
     swap: gl.getUniformLocation(program, 'u_swap'),
-    pinch: gl.getUniformLocation(program, 'u_pinch'),
   }
 
   // Bind samplers once
@@ -150,8 +148,10 @@ export function createRippleRenderer(canvas: HTMLCanvasElement): RippleRenderer 
   gl.uniform1f(loc.noiseWarp, SHADER_CONFIG.noiseWarp)
 
   // ── Public API ──
+  let isDestroyed = false
 
   function uploadTexture(slot: 0 | 1, image: HTMLImageElement) {
+    if (isDestroyed) return
     const unit = slot === 0 ? gl.TEXTURE0 : gl.TEXTURE1
     gl.activeTexture(unit)
     gl.bindTexture(gl.TEXTURE_2D, textures[slot])
@@ -160,16 +160,18 @@ export function createRippleRenderer(canvas: HTMLCanvasElement): RippleRenderer 
   }
 
   function render(state: RippleState) {
+    if (isDestroyed) return
+    gl.useProgram(program) // Ensure program is active (crucial for Fast Refresh)
     gl.viewport(0, 0, canvas.width, canvas.height)
     gl.uniform2f(loc.resolution, canvas.width, canvas.height)
     gl.uniform2f(loc.center, state.cx, state.cy)
     gl.uniform1f(loc.progress, state.progress)
     gl.uniform1f(loc.swap, state.swap)
-    gl.uniform1f(loc.pinch, state.pinch)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
   }
 
   function resize() {
+    if (isDestroyed) return
     const parent = canvas.parentElement
     if (!parent) return
     const rect = parent.getBoundingClientRect()
@@ -182,6 +184,8 @@ export function createRippleRenderer(canvas: HTMLCanvasElement): RippleRenderer 
   }
 
   function destroy() {
+    if (isDestroyed) return
+    isDestroyed = true
     gl.deleteBuffer(buf)
     gl.deleteTexture(textures[0])
     gl.deleteTexture(textures[1])

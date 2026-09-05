@@ -7,21 +7,13 @@ import { Search, Sparkles, Loader2 } from 'lucide-react'
 import { signUp } from '@/lib/auth-actions'
 import Footer from '@/components/layout/Footer'
 import HeroRipple from '@/components/home/hero/HeroRipple'
+import TopBarScrollEffect from '@/components/home/TopBarScrollEffect'
 
 type PromptPreview = {
   id: string
   image_url: string
   title: string
 }
-
-// Cycling words for the hero headline
-const cycleWords = [
-  'Midjourney prompt',
-  'portrait masterpiece',
-  'creative concept',
-  'cinematic scene',
-  'viral AI image',
-]
 
 // Split prompts into columns for waterfall grids
 function splitIntoColumns(items: PromptPreview[], cols: number): PromptPreview[][] {
@@ -31,18 +23,11 @@ function splitIntoColumns(items: PromptPreview[], cols: number): PromptPreview[]
 }
 
 export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
-  const [wordIdx, setWordIdx] = useState(0)
-
   // Signup Form State
   const [signupState, signupAction, signupPending] = useActionState(
     async (_prev: any, formData: FormData) => await signUp(formData) ?? null,
     null
   )
-
-  useEffect(() => {
-    const interval = setInterval(() => setWordIdx(i => (i + 1) % cycleWords.length), 2400)
-    return () => clearInterval(interval)
-  }, [])
 
   // Columns for the signup section background grid
   const tripled = [...prompts, ...prompts, ...prompts]
@@ -52,7 +37,8 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
     <div className="fixed inset-0 z-[100] min-h-screen bg-white overflow-y-auto overflow-x-hidden">
 
       {/* ─── NAVBAR ─── */}
-      <nav className="sticky top-0 z-[110] bg-white/80 backdrop-blur-xl border-b border-gray-100">
+      <nav id="landing-nav" className="fixed top-0 w-full z-[110] bg-white/80 backdrop-blur-xl border-b border-gray-100 transition-colors duration-300">
+        <TopBarScrollEffect />
         <div className="max-w-[1400px] mx-auto flex items-center justify-between px-5 h-16">
           <Link href="/" className="flex items-center">
             <Image 
@@ -78,45 +64,100 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
       </nav>
 
       {/* ─── HERO + WEBGL RIPPLE ─── */}
-      <section className="relative min-h-[90vh] flex flex-col">
+      <section data-theme="dark" className="relative min-h-[90vh] flex flex-col">
 
         {/* WebGL Background with gradient overlay built-in */}
         <HeroRipple />
 
-        {/* Hero Content — sits above the gradient overlay */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 pt-24 sm:pt-32 md:pt-40 pb-16 flex-1">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] max-w-4xl drop-shadow-lg">
-            Get your next
-            <span className="block text-red-400 mt-1 transition-all duration-500 drop-shadow-lg" key={wordIdx}>
-              {cycleWords[wordIdx]}
-            </span>
-          </h1>
+        {/* Hero Content — Ideogram Style */}
+        <div className="relative z-10 flex flex-col justify-end h-full w-full max-w-[1400px] mx-auto px-8 pb-32 pt-40 flex-1">
+          <div className="max-w-2xl">
+            {/* Small Label */}
+            <h3 className="text-white/80 font-bold text-xs uppercase tracking-[0.2em] mb-4 drop-shadow-md">
+              MIRA PROMPTS 1.0
+            </h3>
 
-          <p className="text-white/80 text-lg md:text-xl max-w-xl mt-6 leading-relaxed drop-shadow-md">
-            The Pinterest of AI Prompts. Discover, copy, and save beautifully curated AI image prompts for Midjourney, DALL-E, and Stable Diffusion in a stunning visual gallery.
-          </p>
+            {/* Serif Headline */}
+            <h1 className="text-5xl sm:text-6xl md:text-[64px] font-serif text-white leading-[1.05] tracking-tight drop-shadow-xl mb-6">
+              The ultimate library for visual intelligence.
+            </h1>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 mt-10">
-            <Link
-              href="/signup"
-              className="bg-red-500 text-white font-bold text-lg px-10 py-4 rounded-full hover:bg-red-600 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-xl"
-            >
-              Start Exploring — It&apos;s Free
-            </Link>
-            <Link
-              href="/login"
-              className="text-white font-semibold text-lg px-8 py-4 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:scale-105 active:scale-95 transition-all"
-            >
-              Log in
-            </Link>
+            {/* Subtitle */}
+            <p className="text-white/90 text-sm md:text-base leading-relaxed mb-10 font-medium drop-shadow-md max-w-xl">
+              Curated excellence. Crystal-clear results. Reliable generation. A library made for creators who need inspiration to hold up beyond the prompt box.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap items-center gap-4">
+              <Link
+                href="/signup"
+                className="bg-red-500 text-white font-bold text-lg px-8 py-3.5 rounded-full hover:bg-red-600 hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-xl"
+              >
+                Start Exploring — It&apos;s Free
+              </Link>
+              <Link
+                href="/login"
+                className="text-white font-semibold text-lg px-8 py-3.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:scale-105 active:scale-95 transition-all"
+              >
+                Log in
+              </Link>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <p className="text-xs text-white/50 mt-6">Already used by creators and designers worldwide.</p>
+      {/* ─── AI TOOLS MARQUEE ─── */}
+      <section data-theme="light" className="relative z-10 overflow-hidden bg-white py-10 border-b border-gray-100">
+        <div className="max-w-[1400px] mx-auto px-8">
+          <div className="md:flex md:flex-row md:items-center md:justify-between">
+            <p className="text-gray-500 text-sm md:text-base font-medium tracking-wide mb-6 md:mb-0 text-center md:text-left md:w-1/4">
+              Prompts for the world&apos;s best AI Image generation tools
+            </p>
+            <div className="overflow-hidden md:w-3/4 md:flex md:justify-end">
+              <div className="flex whitespace-nowrap animate-marquee md:animate-none md:flex-wrap md:justify-end md:gap-x-12">
+              {[
+                '/marquee-svg/midjourney.svg',
+                '/marquee-svg/dall-e-openai-mono.svg',
+                '/marquee-svg/gemini.svg',
+                '/marquee-svg/openai-chatgpt.svg',
+                '/marquee-svg/canva-wordmark-dark.svg',
+              ].map((src, i) => (
+                <Image
+                  key={`${src}-${i}`}
+                  src={src}
+                  alt={src.split('/').pop()?.replace('.svg', '') || 'AI Tool'}
+                  width={120}
+                  height={40}
+                  className="inline-flex items-center h-8 md:h-10 mx-6 md:mx-0 opacity-60 hover:opacity-100 transition-opacity object-contain"
+                  style={{ objectFit: 'contain', filter: 'brightness(0)' }}
+                />
+              ))}
+              {/* Duplicate set for mobile continuous scroll, hidden on desktop */}
+              {[
+                '/marquee-svg/midjourney.svg',
+                '/marquee-svg/dall-e-openai-mono.svg',
+                '/marquee-svg/gemini.svg',
+                '/marquee-svg/openai-chatgpt.svg',
+                '/marquee-svg/canva-wordmark-dark.svg',
+              ].map((src, i) => (
+                <Image
+                  key={`${src}-${i}-dup`}
+                  src={src}
+                  alt={src.split('/').pop()?.replace('.svg', '') || 'AI Tool'}
+                  width={120}
+                  height={40}
+                  className="inline-flex items-center h-8 md:h-10 mx-6 md:mx-0 opacity-60 hover:opacity-100 transition-opacity object-contain md:hidden"
+                  style={{ objectFit: 'contain', filter: 'brightness(0)' }}
+                />
+              ))}
+            </div>
+          </div>
+          </div>
         </div>
       </section>
 
       {/* ─── FEATURE HIGHLIGHT SECTION ─── */}
-      <section className="relative z-10 bg-white py-24 px-6 overflow-hidden">
+      <section data-theme="light" className="relative z-10 bg-white py-24 px-6 overflow-hidden">
         <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
           
           {/* Visual Column */}
@@ -177,7 +218,7 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
       </section>
 
       {/* ─── VALUE PROPS ─── */}
-      <section className="relative z-10 bg-white py-20 px-6">
+      <section data-theme="light" className="relative z-10 bg-white py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-black text-center text-black tracking-tight mb-16">
             Why creators love Mira Prompts
@@ -199,7 +240,7 @@ export default function LandingPage({ prompts }: { prompts: PromptPreview[] }) {
       </section>
 
       {/* ─── INLINE SIGNUP SECTION (PINTEREST STYLE) ─── */}
-      <section className="relative z-10 min-h-[90vh] flex items-center justify-center overflow-hidden bg-black">
+      <section data-theme="dark" className="relative z-10 min-h-[90vh] flex items-center justify-center overflow-hidden bg-black">
         
         {/* Aesthetic Background Grid with Dark Overlay */}
         <div className="absolute inset-0 overflow-hidden opacity-50 select-none pointer-events-none">
