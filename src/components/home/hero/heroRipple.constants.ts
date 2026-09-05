@@ -21,8 +21,8 @@ export const SHADER_CONFIG = {
 
 /** GSAP transition defaults */
 export const TRANSITION_CONFIG = {
-  duration: 2.6,
-  ease: 'power2.out',
+  duration: 3.5,
+  ease: 'linear',
   autoplayDelay: 1800,
 } as const
 
