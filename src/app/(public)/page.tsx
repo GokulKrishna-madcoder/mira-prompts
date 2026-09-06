@@ -4,6 +4,7 @@ import MasonryGrid from '@/components/ui/MasonryGrid'
 import CategoryTabs from '@/components/ui/CategoryTabs'
 import SortDropdown from '@/components/ui/SortDropdown'
 import LandingPage from '@/components/home/LandingPage'
+import FirstPromptModal from '@/components/onboarding/FirstPromptModal'
 import type { PromptCard } from '@/types/prompt'
 
 export const metadata: Metadata = {
@@ -112,6 +113,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
 
   return (
     <main id="home-main" className="home-main w-full mx-auto pb-10">
+      <FirstPromptModal userId={user.id} />
       {q && (
         <div id="search-results-header" className="search-results-header px-4 md:px-8 pt-4 pb-2">
           <p className="search-results-text text-gray-500 text-sm">Results for &quot;<span className="search-results-query font-semibold text-black">{q}</span>&quot;</p>
