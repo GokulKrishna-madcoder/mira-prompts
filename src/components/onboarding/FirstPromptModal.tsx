@@ -57,7 +57,7 @@ export default function FirstPromptModal({ userId }: { userId: string }) {
             </button>
 
             {/* Hero Image */}
-            <div className="relative w-[92%] mx-auto mt-8 h-56 sm:h-64 md:h-80 rounded-2xl overflow-hidden">
+            <div className="relative w-[100%] h-[calc(var(--spacing)*100)] overflow-hidden">
               <Image
                 src="/popup/popup-image.png"
                 alt="Create your first prompt"
