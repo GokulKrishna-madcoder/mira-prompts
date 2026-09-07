@@ -47,7 +47,7 @@ export default function UserDropdown({
         className={`w-10 h-10 rounded-full overflow-hidden flex items-center justify-center font-bold text-white hover:ring-2 hover:ring-gray-300 transition-all ${!avatarUrl ? gradientClass : 'bg-white'}`}
       >
         {avatarUrl ? (
-          <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+          <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
         ) : (
           initial
         )}
@@ -60,7 +60,7 @@ export default function UserDropdown({
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full flex items-center overflow-hidden justify-center font-bold text-white text-sm ${!avatarUrl ? gradientClass : 'bg-white'}`}>
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                  <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
                   initial
                 )}

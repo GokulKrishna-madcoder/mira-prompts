@@ -3,6 +3,7 @@ import TopBar from "@/components/layout/TopBar"
 import MobileNav from "@/components/layout/MobileNav"
 
 import { createClient } from "@/lib/supabase/server"
+import { resolveUserAvatar, resolveDisplayName } from "@/lib/avatar"
 
 export default async function PublicLayout({
   children,
@@ -18,8 +19,9 @@ export default async function PublicLayout({
   let userAvatarUrl: string | undefined
   if (user) {
     const { data: profile } = await supabase.from('profiles').select('display_name, avatar_url').eq('id', user.id).single()
-    userInitial = (profile?.display_name || user.email || 'U').charAt(0).toUpperCase()
-    userAvatarUrl = profile?.avatar_url || undefined
+    const displayName = resolveDisplayName(profile, user)
+    userInitial = displayName.charAt(0).toUpperCase()
+    userAvatarUrl = resolveUserAvatar(profile, user) || undefined
   }
 
   return (

@@ -5,7 +5,7 @@ import SearchBar from './SearchBar'
 import FeedbackModal from '@/components/ui/FeedbackModal'
 import NotificationsPopover from '@/components/ui/NotificationsPopover'
 import UserDropdown from './UserDropdown'
-import { getAvatarGradient } from '@/lib/avatar'
+import { getAvatarGradient, resolveUserAvatar, resolveDisplayName } from '@/lib/avatar'
 import MobileDashboardToggle from '@/components/dashboard/MobileDashboardToggle'
 
 export default async function TopBar({ showDesktopLogo = false }: { showDesktopLogo?: boolean }) {
@@ -22,11 +22,11 @@ export default async function TopBar({ showDesktopLogo = false }: { showDesktopL
   if (user) {
     const { data: profile } = await supabase.from('profiles').select('last_notification_read_at, display_name, role, avatar_url').eq('id', user.id).single()
     userLastRead = profile?.last_notification_read_at || null
-    displayName = profile?.display_name || user.email?.split('@')[0] || 'User'
+    displayName = resolveDisplayName(profile, user)
     initial = displayName.charAt(0).toUpperCase()
     email = user.email || ''
     isAdmin = profile?.role === 'admin' || profile?.role === 'editor'
-    avatarUrl = profile?.avatar_url || null
+    avatarUrl = resolveUserAvatar(profile, user)
   }
 
   return (

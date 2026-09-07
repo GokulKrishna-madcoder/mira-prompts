@@ -6,12 +6,12 @@ import { X, Upload, Camera } from 'lucide-react'
 import { updateProfile } from '@/lib/user-actions'
 import { getAvatarGradient } from '@/lib/avatar'
 
-export default function ProfileModal({ profile, email }: { profile: any, email: string }) {
+export default function ProfileModal({ profile, email, avatarUrl }: { profile: any, email: string, avatarUrl?: string | null }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const isOpen = searchParams.get('modal') === 'profile'
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [avatarPreview, setAvatarPreview] = useState(profile?.avatar_url || null)
+  const [avatarPreview, setAvatarPreview] = useState(avatarUrl || profile?.avatar_url || null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   if (!isOpen) return null
@@ -60,7 +60,7 @@ export default function ProfileModal({ profile, email }: { profile: any, email: 
             <div className="relative group cursor-pointer" onClick={() => fileRef.current?.click()}>
               <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden flex items-center justify-center">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
                   <div className={`w-full h-full text-white flex items-center justify-center text-4xl font-bold ${getAvatarGradient(userInitial)}`}>
                     {userInitial}

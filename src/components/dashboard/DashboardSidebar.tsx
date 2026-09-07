@@ -1,13 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { LayoutDashboard, FileText, PlusCircle, Bookmark, Bell, User, Shield, Settings, X, Home } from 'lucide-react'
 import { getAvatarGradient } from '@/lib/avatar'
 
-export default function DashboardSidebar({ profile, email, userInitial }: { profile: any, email: string, userInitial: string }) {
+export default function DashboardSidebar({ profile, email, userInitial, avatarUrl }: { profile: any, email: string, userInitial: string, avatarUrl?: string | null }) {
+  const resolvedAvatar = avatarUrl || profile?.avatar_url || null
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -67,9 +67,9 @@ export default function DashboardSidebar({ profile, email, userInitial }: { prof
 
         {/* Profile Header */}
       <div className="flex flex-col items-center pt-6 pb-6 border-b border-gray-200 px-6">
-        {profile?.avatar_url ? (
-          <div className="w-16 h-16 rounded-full overflow-hidden mb-3 shadow-sm border-2 border-white">
-            <Image src={profile.avatar_url} alt="Avatar" width={64} height={64} className="w-full h-full object-cover" />
+        {resolvedAvatar ? (
+          <div className="w-16 h-16 rounded-full overflow-hidden mb-3 shadow-sm border-2 border-white bg-white">
+            <img src={resolvedAvatar} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
           </div>
         ) : (
           <div className={`w-16 h-16 rounded-full text-white flex items-center justify-center text-2xl font-bold mb-3 shadow-sm border-2 border-white ${getAvatarGradient(userInitial)}`}>

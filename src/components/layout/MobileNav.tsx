@@ -113,7 +113,7 @@ export default function MobileNav({ userInitial, userAvatarUrl }: { userInitial?
           {userInitial ? (
             <div className={`w-6 h-6 rounded-full overflow-hidden flex items-center justify-center font-bold text-white text-[10px] ${!userAvatarUrl ? getAvatarGradient(userInitial) : 'bg-white'}`}>
               {userAvatarUrl ? (
-                <img src={userAvatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                <img src={userAvatarUrl} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               ) : (
                 userInitial
               )}
