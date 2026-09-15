@@ -4,6 +4,7 @@ import { Eye, Copy } from 'lucide-react'
 import SaveButton from './SaveButton'
 import CardMenuDropdown from './CardMenuDropdown'
 import TrendingBadge from './TrendingBadge'
+import HoverSlideshow from './HoverSlideshow'
 import type { PromptCard } from '@/types/prompt'
 
 function fmt(n: number): string {
@@ -33,35 +34,30 @@ export default function MasonryGrid({ prompts, savedIds = [], isLoggedIn = false
   return (
     <div id="masonry-grid" className="masonry-grid columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 px-4 md:px-8 space-y-4 w-full">
       {prompts.map((p, index) => {
-        const hoverVariant = p.has_variants && Array.isArray(p.variants)
-          ? p.variants.find((v: any) => v.image_url && v.image_url !== p.image_url)
-          : null;
-
         return (
         <div key={p.id} id={`card-${p.id}`} className="prompt-card break-inside-avoid relative group cursor-zoom-in">
           <Link href={`/prompts/${p.slug}`} className="prompt-card-link block">
             <div className="prompt-card-image relative rounded-[16px] overflow-hidden bg-gray-100">
               <div className="prompt-card-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10" />
 
-              {/* Variant hover crossfade */}
-              {hoverVariant && (
+              {/* Variant hover crossfade / Slideshow */}
+              {p.has_variants && Array.isArray(p.variants) && p.variants.length > 0 ? (
+                <HoverSlideshow
+                  coverImage={p.image_url}
+                  variants={p.variants}
+                  alt={p.title}
+                  priority={index < 4}
+                />
+              ) : (
                 <Image
-                  src={hoverVariant.image_url}
-                  alt={`${p.title} variant`}
+                  src={p.image_url}
+                  alt={p.title}
                   width={500}
                   height={700}
-                  className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-[1]"
+                  className="prompt-card-img w-full h-auto object-cover relative z-0"
+                  priority={index < 4}
                 />
               )}
-
-              <Image
-                src={p.image_url}
-                alt={p.title}
-                width={500}
-                height={700}
-                className="prompt-card-img w-full h-auto object-cover relative z-0"
-                priority={index < 4}
-              />
 
               {isLoggedIn && (
                 <div className="prompt-card-save absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
