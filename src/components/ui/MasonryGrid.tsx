@@ -32,16 +32,21 @@ export default function MasonryGrid({ prompts, savedIds = [], isLoggedIn = false
 
   return (
     <div id="masonry-grid" className="masonry-grid columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 px-4 md:px-8 space-y-4 w-full">
-      {prompts.map((p, index) => (
+      {prompts.map((p, index) => {
+        const hoverVariant = p.has_variants && Array.isArray(p.variants)
+          ? p.variants.find((v: any) => v.image_url && v.image_url !== p.image_url)
+          : null;
+
+        return (
         <div key={p.id} id={`card-${p.id}`} className="prompt-card break-inside-avoid relative group cursor-zoom-in">
           <Link href={`/prompts/${p.slug}`} className="prompt-card-link block">
             <div className="prompt-card-image relative rounded-[16px] overflow-hidden bg-gray-100">
               <div className="prompt-card-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10" />
 
               {/* Variant hover crossfade */}
-              {p.has_variants && Array.isArray(p.variants) && p.variants.length > 0 && p.variants[0].image_url && (
+              {hoverVariant && (
                 <Image
-                  src={p.variants[0].image_url}
+                  src={hoverVariant.image_url}
                   alt={`${p.title} variant`}
                   width={500}
                   height={700}
@@ -101,7 +106,7 @@ export default function MasonryGrid({ prompts, savedIds = [], isLoggedIn = false
             <CardMenuDropdown slug={p.slug} imageUrl={p.image_url} />
           </div>
         </div>
-      ))}
+      ); })}
     </div>
   )
 }
