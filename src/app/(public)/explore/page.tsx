@@ -77,7 +77,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
       const promptIds = trendingScores.map(t => t.prompt_id)
       const { data: trendingPrompts } = await supabase
         .from('prompts')
-        .select('id, title, slug, image_url, view_count, copy_count, is_premium, category:categories(slug)')
+        .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
         .eq('status', 'published')
         .in('id', promptIds)
 
@@ -100,7 +100,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
     const sortField = tab === 'popular' ? 'view_count' : 'created_at'
     const { data } = await supabase
       .from('prompts')
-      .select('id, title, slug, image_url, view_count, copy_count, is_premium, category:categories(slug)')
+      .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
       .eq('status', 'published')
       .order(sortField, { ascending: false })
       .limit(30)

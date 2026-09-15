@@ -38,12 +38,23 @@ export default function MasonryGrid({ prompts, savedIds = [], isLoggedIn = false
             <div className="prompt-card-image relative rounded-[16px] overflow-hidden bg-gray-100">
               <div className="prompt-card-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10" />
 
+              {/* Variant hover crossfade */}
+              {p.has_variants && Array.isArray(p.variants) && p.variants.length > 0 && p.variants[0].image_url && (
+                <Image
+                  src={p.variants[0].image_url}
+                  alt={`${p.title} variant`}
+                  width={500}
+                  height={700}
+                  className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-[1]"
+                />
+              )}
+
               <Image
                 src={p.image_url}
                 alt={p.title}
                 width={500}
                 height={700}
-                className="prompt-card-img w-full h-auto object-cover"
+                className="prompt-card-img w-full h-auto object-cover relative z-0"
                 priority={index < 4}
               />
 

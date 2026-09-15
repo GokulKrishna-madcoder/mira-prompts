@@ -41,6 +41,10 @@ export default function PromptInteractiveViewer({
         <ExpandableImage 
           src={activeImageUrl} 
           alt={prompt.title} 
+          onPrev={hasVariants ? () => setActiveIndex(i => Math.max(0, i - 1)) : undefined}
+          onNext={hasVariants ? () => setActiveIndex(i => Math.min(prompt.variants.length - 1, i + 1)) : undefined}
+          hasPrev={hasVariants && activeIndex > 0}
+          hasNext={hasVariants && activeIndex < prompt.variants.length - 1}
           actionButtons={
             <div className="flex items-center gap-3">
               <div className="bg-white/90 rounded-full shadow-lg hover:bg-white transition-colors">

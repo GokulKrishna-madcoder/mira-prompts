@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mira Prompts - SEO Current State Audit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #FAFAFA; color: #111827; }
+        .mira-red { color: #E60023; }
+        .bg-mira-red { background-color: #E60023; }
+        .card { background: white; border-radius: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); border: 1px solid #F3F4F6; }
+        .badge-success { background: #DCFCE7; color: #166534; }
+        .badge-warning { background: #FEF3C7; color: #92400E; }
+        .badge-danger { background: #FEE2E2; color: #991B1B; }
+        .badge-neutral { background: #F3F4F6; color: #374151; }
+    </style>
+</head>
+<body class="antialiased pb-20">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-mira-red flex items-center justify-center text-white font-bold text-xl">M</div>
+                <h1 class="font-bold text-xl tracking-tight">Mira Prompts <span class="text-gray-400 font-medium">| SEO Audit</span></h1>
+            </div>
+            <div class="text-sm font-semibold text-gray-500 bg-gray-100 px-4 py-2 rounded-full">Current State Documentation</div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 mt-12 space-y-12">
+        
+        <!-- Executive Summary -->
+        <section>
+            <h2 class="text-3xl font-black mb-4">Executive Summary</h2>
+            <p class="text-gray-600 leading-relaxed text-lg mb-6">
+                This document outlines the current technical SEO, architectural, and content state of the Mira Prompts Next.js platform. It maps out what exists, what is missing, and areas where the current implementation creates bottlenecks for search engine crawlers like Googlebot. 
+                <br><br><span class="font-semibold text-mira-red">Note:</span> This is a purely descriptive audit for strategic analysis. No fixes have been suggested or applied.
+            </p>
+        </section>
+
+        <!-- 1. Database & Content Entities -->
+        <section class="card p-8">
+            <h3 class="text-2xl font-bold mb-6 border-b border-gray-100 pb-4">1. Content Structure & Entities</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gray-50 p-4 rounded-2xl text-center">
+                    <div class="text-3xl font-black text-black">57</div>
+                    <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Prompts</div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-2xl text-center">
+                    <div class="text-3xl font-black text-black">19</div>
+                    <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Categories</div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-2xl text-center">
+                    <div class="text-3xl font-black text-black">289</div>
+                    <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Tags</div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-2xl text-center">
+                    <div class="text-3xl font-black text-gray-300">0</div>
+                    <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Guides</div>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex gap-4 p-4 rounded-xl bg-white border border-gray-100">
+                    <div class="shrink-0 pt-1"><span class="badge-success px-2 py-1 rounded text-xs font-bold">EXISTS</span></div>
+                    <div>
+                        <strong class="text-gray-900 block">Prompts, Categories, and Tags</strong>
+                        <p class="text-sm text-gray-600 mt-1">These are treated as first-class entities in the database and have dedicated dynamic route pages.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 p-4 rounded-xl bg-white border border-gray-100">
+                    <div class="shrink-0 pt-1"><span class="badge-warning px-2 py-1 rounded text-xs font-bold">WEAK</span></div>
+                    <div>
+                        <strong class="text-gray-900 block">AI Tools & Styles</strong>
+                        <p class="text-sm text-gray-600 mt-1">AI Tools (Midjourney, DALL-E) and Styles (Cinematic, Anime) exist only as text metadata/labels on individual prompts. They do not have dedicated SEO-friendly landing pages or aggregation routes.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 p-4 rounded-xl bg-white border border-gray-100">
+                    <div class="shrink-0 pt-1"><span class="badge-danger px-2 py-1 rounded text-xs font-bold">MISSING</span></div>
+                    <div>
+                        <strong class="text-gray-900 block">Guides & Long-form Content</strong>
+                        <p class="text-sm text-gray-600 mt-1">There are no blog posts, guides, or informational articles on how to write prompts.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Routes & URLs -->
+        <section class="card p-8">
+            <h3 class="text-2xl font-bold mb-6 border-b border-gray-100 pb-4">2. Pages & Routing Architecture</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h4 class="font-bold text-gray-900 mb-3 flex items-center gap-2">🟢 Publicly Accessible</h4>
+                    <ul class="space-y-2 text-sm text-gray-600 font-mono">
+                        <li>/ <span class="font-sans text-xs text-gray-400 ml-2">(Homepage/Landing)</span></li>
+                        <li>/explore</li>
+                        <li>/prompts/[slug]</li>
+                        <li>/categories/[slug]</li>
+                        <li>/tags/[slug]</li>
+                        <li>/about, /pricing, /privacy, /terms</li>
+                        <li>/login, /signup, /forgot-password</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-900 mb-3 flex items-center gap-2">🔴 Private / Admin</h4>
+                    <ul class="space-y-2 text-sm text-gray-600 font-mono">
+                        <li>/dashboard, /saved, /posts</li>
+                        <li>/profile, /preferences, /security</li>
+                        <li>/admin/* <span class="font-sans text-xs text-gray-400 ml-2">(12+ sub-routes)</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Internal Linking & Crawlability -->
+        <section class="card p-8">
+            <h3 class="text-2xl font-bold mb-6 border-b border-gray-100 pb-4">3. Internal Linking & Crawlability</h3>
+            
+            <div class="p-5 bg-red-50 border border-red-100 rounded-xl mb-6">
+                <h4 class="font-bold text-red-900 mb-2">CRITICAL BOTTLENECK: The Logged-Out Homepage</h4>
+                <p class="text-sm text-red-800">
+                    Googlebot navigates the web unauthenticated. Currently, unauthenticated users hit <code class="bg-red-100 px-1 rounded">LandingPage.tsx</code>. While this page is visually stunning (waterfall grids, physical interactive cards), <strong>it contains ZERO <code>&lt;a href&gt;</code> tags linking to individual prompts.</strong> The visuals are purely decorative. 
+                    <br><br>
+                    To crawl deeper, bots must rely strictly on the <code>/explore</code> CTA button. The homepage fails to distribute page rank directly to important categories or top prompts.
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex gap-4 p-4 rounded-xl bg-white border border-gray-100">
+                    <div class="shrink-0 pt-1"><span class="badge-danger px-2 py-1 rounded text-xs font-bold">ORPHAN PAGES</span></div>
+                    <div>
+                        <strong class="text-gray-900 block">Tag Pages (/tags/[slug])</strong>
+                        <p class="text-sm text-gray-600 mt-1">There are 289 tags in the database with valid dynamic routes. However, the <code>PromptInteractiveViewer.tsx</code> does not display or link out to these tags. Unless they are indexed via the XML sitemap, they are completely orphaned from the site architecture.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 p-4 rounded-xl bg-white border border-gray-100">
+                    <div class="shrink-0 pt-1"><span class="badge-success px-2 py-1 rounded text-xs font-bold">STRONG</span></div>
+                    <div>
+                        <strong class="text-gray-900 block">Explore & Category Pages</strong>
+                        <p class="text-sm text-gray-600 mt-1">The <code>/explore</code> page and <code>/categories/[slug]</code> pages use a Server-Side Rendered <code>MasonryGrid</code> that properly utilizes Next.js <code>&lt;Link&gt;</code> components. Once a bot reaches these pages, it can seamlessly crawl the prompt inventory.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. On-Page SEO & Metadata -->
+        <section class="card p-8">
+            <h3 class="text-2xl font-bold mb-6 border-b border-gray-100 pb-4">4. On-Page SEO & Metadata</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-5 border border-gray-100 rounded-xl bg-gray-50">
+                    <h4 class="font-bold text-gray-900 mb-3">Prompts (/prompts/[slug])</h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>✅ <strong>Title:</strong> Prompt Title</li>
+                        <li>✅ <strong>Meta Desc:</strong> First 150 chars of prompt text</li>
+                        <li>✅ <strong>Canonical:</strong> Self-referencing</li>
+                        <li>✅ <strong>OpenGraph/Twitter:</strong> Uses prompt image</li>
+                        <li>✅ <strong>Schema:</strong> <code>ImageObject</code> + <code>BreadcrumbList</code></li>
+                        <li>✅ <strong>H1:</strong> Present on title</li>
+                        <li>✅ <strong>Alt Text:</strong> Present on images</li>
+                    </ul>
+                </div>
+                <div class="p-5 border border-gray-100 rounded-xl bg-gray-50">
+                    <h4 class="font-bold text-gray-900 mb-3">Categories (/categories/[slug])</h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>✅ <strong>Title:</strong> "{Category} Prompts"</li>
+                        <li>✅ <strong>Meta Desc:</strong> Custom desc or fallback</li>
+                        <li>✅ <strong>Canonical:</strong> Self-referencing</li>
+                        <li>✅ <strong>Schema:</strong> <code>CollectionPage</code> + <code>BreadcrumbList</code></li>
+                        <li>✅ <strong>H1:</strong> Present</li>
+                        <li>❌ <strong>SEO Text:</strong> Only a brief sub-headline description; lacks deep content.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Technical SEO (Sitemaps & Rendering) -->
+        <section class="card p-8">
+            <h3 class="text-2xl font-bold mb-6 border-b border-gray-100 pb-4">5. Sitemaps & Technical Rendering</h3>
+            <div class="space-y-4">
+                <div class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-500">✅</span>
+                    <div>
+                        <strong class="text-gray-900">robots.txt</strong>
+                        <p class="text-sm text-gray-600">Correctly allows <code>/</code>, blocks <code>/admin/</code>, <code>/saved/</code>, <code>/settings/</code>, and points to the sitemap.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-500">✅</span>
+                    <div>
+                        <strong class="text-gray-900">sitemap.xml</strong>
+                        <p class="text-sm text-gray-600">Dynamically generated via <code>src/app/sitemap.ts</code>. Includes all static routes, plus dynamically maps published prompts, categories, and tags.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-500">✅</span>
+                    <div>
+                        <strong class="text-gray-900">Server-Side Rendering (SSR)</strong>
+                        <p class="text-sm text-gray-600">The application utilizes Next.js Server Components deeply. Text, metadata, structured data, and links are fully present in the initial HTML payload (No client-side JavaScript execution required for bots to read content).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Search Engine Sitelink Readiness -->
+        <section class="card p-8">
+            <h3 class="text-2xl font-bold mb-6 border-b border-gray-100 pb-4">6. Sitelink & Google Understanding</h3>
+            <p class="text-gray-600 mb-6 text-sm">
+                Google awards sitelinks based on a site's hierarchical structure and the flow of PageRank from the homepage to major category hubs.
+            </p>
+            <div class="p-5 bg-gray-50 border border-gray-200 rounded-xl space-y-3 text-sm text-gray-700">
+                <p><strong>Current State Analysis:</strong></p>
+                <ul class="list-disc pl-5 space-y-2">
+                    <li><strong>Weak Signal:</strong> Because the logged-out homepage acts as an aesthetic landing page without direct HTML links to Categories or Prompts, Google cannot easily infer the site structure from the root domain.</li>
+                    <li><strong>Missed Search Intent:</strong> Users search heavily for <em>"Midjourney Prompts"</em> or <em>"ChatGPT Prompts"</em>. Because tools are just text labels—and not dedicated category pages—Google cannot rank Mira Prompts for these high-volume tool-specific keywords.</li>
+                    <li><strong>Category Depth:</strong> Categories exist, but they are only one layer deep and rely strictly on the <code>/explore</code> page to pass link equity.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 7. Structure Diagram -->
+        <section class="card p-8">
+            <h3 class="text-2xl font-bold mb-6 border-b border-gray-100 pb-4">Current Crawl Architecture</h3>
+            <div class="bg-gray-50 p-6 rounded-xl overflow-x-auto text-sm font-mono text-gray-600">
+<pre>
+[Homepage /] (Logged Out)
+  ├── <span class="text-gray-400">Decorative UI Images (No links)</span>
+  ├── /about
+  ├── /login & /signup
+  └── /explore <span class="text-mira-red font-bold">&lt;-- Only path to content</span>
+        │
+        ├── /categories/[slug]
+        │     └── /prompts/[slug]
+        │
+        └── /prompts/[slug] (Trending/Popular)
+              ├── Breadcrumb back to Category
+              └── <span class="text-red-500 font-bold">[!] ORPHANED: Tags are not linked from prompt UI</span>
+
+[sitemap.xml] <span class="text-blue-500 font-bold">&lt;-- Secondary Bot path</span>
+  ├── /prompts/* (57 pages)
+  ├── /categories/* (19 pages)
+  └── /tags/* (289 pages - <span class="text-gray-400">Bots only find these here</span>)
+</pre>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>

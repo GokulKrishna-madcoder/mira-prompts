@@ -7,5 +7,7 @@ export type PromptCard = {
   copy_count?: number
   is_premium?: boolean
   trending_score?: number
+  has_variants?: boolean
+  variants?: { image_url: string; prompt?: string; gender?: string }[]
   category?: { slug?: string; name?: string } | null
 }

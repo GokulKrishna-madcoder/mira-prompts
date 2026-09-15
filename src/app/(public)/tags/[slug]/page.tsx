@@ -66,7 +66,7 @@ export default async function TagPage({ params }: Props) {
   if (promptIds.length > 0) {
     const { data } = await supabase
       .from('prompts')
-      .select('id, title, slug, image_url, view_count, copy_count, is_premium, category:categories(slug)')
+      .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
       .eq('status', 'published')
       .in('id', promptIds)
       .order('created_at', { ascending: false })

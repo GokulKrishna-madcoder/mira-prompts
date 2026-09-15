@@ -52,7 +52,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
       const promptIds = trendingScores.map(t => t.prompt_id)
       const { data: trendingPrompts } = await supabase
         .from('prompts')
-        .select('id, title, slug, image_url, view_count, copy_count, is_premium, category:categories(slug)')
+        .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
         .eq('status', 'published')
         .in('id', promptIds)
 
@@ -73,7 +73,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
   if (!prompts) {
     let query = supabase
       .from('prompts')
-      .select('id, title, slug, image_url, view_count, copy_count, is_premium, category:categories(slug)')
+      .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
       .eq('status', 'published')
       .limit(60)
 

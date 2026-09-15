@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero WebGL Ripple Background Animation — Architectural & Technical Documentation</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  
+  <!-- KaTeX for Math Equations -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <!-- Prism.js for Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-glsl.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-tsx.min.js"></script>
+
+  <!-- Mermaid.js for Architecture Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });</script>
+
+  <style>
+    :root {
+      --bg: #090a10;
+      --card-bg: #10131e;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-purple: #8b5cf6;
+      --accent-amber: #f59e0b;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #090a10; }
+    ::-webkit-scrollbar-thumb { background: #222638; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #353b54; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    .hero-banner {
+      position: relative;
+      padding: 80px 0 60px;
+      border-bottom: 1px solid var(--card-border);
+      background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #93c5fd;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .lead {
+      font-size: 1.18rem;
+      color: var(--text-muted);
+      max-width: 860px;
+      line-height: 1.8;
+      margin-bottom: 36px;
+    }
+
+    /* Stat Cards */
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+      box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.6);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* Sections */
+    section {
+      padding: 60px 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .section-title {
+      font-size: 1.95rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      max-width: 880px;
+    }
+
+    /* Interactive Simulator */
+    .interactive-panel {
+      background: #0d0f18;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 20px 50px -10px var(--accent-glow);
+      margin: 30px 0 40px;
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      cursor: crosshair;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .canvas-overlay-hint {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-item label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .control-item label span.val {
+      color: #60a5fa;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #3b82f6;
+      height: 6px;
+      background: #1e2235;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary { background: #3b82f6; color: #fff; }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+
+    /* Math Cards */
+    .math-card {
+      background: #0f121d;
+      border-left: 4px solid var(--accent);
+      border-radius: 0 14px 14px 0;
+      padding: 22px 26px;
+      margin: 24px 0;
+      border-top: 1px solid var(--card-border);
+      border-right: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .math-card h4 {
+      color: #60a5fa;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Code Blocks */
+    pre[class*="language-"] {
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: #0d0f18 !important;
+      margin: 18px 0 !important;
+      font-size: 13.5px !important;
+      line-height: 1.65 !important;
+    }
+
+    .code-filename {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: #181c2b;
+      border: 1px solid var(--card-border);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-top: 24px;
+    }
+
+    /* Tabs */
+    .tab-nav {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 18px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover { color: #fff; }
+    .tab-btn.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* Tables */
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 14px;
+    }
+
+    .spec-table th, .spec-table td {
+      padding: 14px 16px;
+      border: 1px solid var(--card-border);
+      text-align: left;
+    }
+
+    .spec-table th { background: #141724; color: #fff; font-weight: 600; }
+    .spec-table tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+
+    /* Layout TOC */
+    .layout-with-toc {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .layout-with-toc { grid-template-columns: 1fr; }
+      .toc-sidebar { display: none; }
+    }
+
+    .toc-sidebar {
+      position: sticky;
+      top: 30px;
+      background: #0f121d;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px;
+      font-size: 13px;
+    }
+
+    .toc-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 14px;
+    }
+
+    .toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toc-list a {
+      color: #cbd5e1;
+      text-decoration: none;
+      display: block;
+      padding: 5px 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .toc-list a:hover {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      padding-left: 12px;
+    }
+
+    .mermaid-box {
+      background: #0d0f18;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 24px;
+      margin: 24px 0;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="hero-banner">
+    <div class="container">
+      <div class="badge-pill">
+        <span>⚡</span> Complete Engineering Specification & Study Guide
+      </div>
+      <h1>Hero WebGL Ripple Background Animation</h1>
+      <p class="lead">
+        A deep architectural dissection of the Ideogram-inspired fluid ripple background transition. Explores how custom GLSL shaders, Fractal Brownian Motion, traveling Gaussian wave packets, chromatic dispersion, and zero-idle React/GSAP orchestration create an organic optical effect.
+      </p>
+
+      <div class="grid-cards">
+        <div class="card">
+          <div class="card-title"><span class="card-icon">🌊</span> FBM Liquid Turbulence</div>
+          <p style="font-size: 13.5px; color: var(--text-muted);">
+            Dual-frequency octave noise dynamically perturbs radial distance vectors into fluid, organic ripples.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-icon">🌈</span> Chromatic Dispersion</div>
+          <p style="font-size: 13.5px; color: var(--text-muted);">
+            Wavelength-dependent RGB texture sampling offsets mimic physical prism refraction along wave crests.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-icon">🔄</span> Ping-Pong Texture Slots</div>
+          <p style="font-size: 13.5px; color: var(--text-muted);">
+            Two dedicated GPU texture units (Slot 0 ↔ Slot 1) alternate seamlessly via uniform toggle with zero VRAM reallocations.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-icon">🔋</span> Zero-Idle CPU & GPU</div>
+          <p style="font-size: 13.5px; color: var(--text-muted);">
+            Render loop (<code>requestAnimationFrame</code>) runs strictly during the 3.5s transition and sleeps completely when steady.
+          </p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="container" style="padding-top: 40px; padding-bottom: 80px;">
+    <div class="layout-with-toc">
+      
+      <!-- Sticky Sidebar TOC -->
+      <aside class="toc-sidebar">
+        <div class="toc-title">Documentation Guide</div>
+        <ul class="toc-list">
+          <li><a href="#live-playground">0. Live Interactive Simulator</a></li>
+          <li><a href="#architecture-overview">1. High-Level Architecture</a></li>
+          <li><a href="#shader-math">2. Shader & Mathematical Physics</a></li>
+          <li><a href="#react-lifecycle">3. React & GSAP Orchestration</a></li>
+          <li><a href="#webgl-engine">4. WebGL Engine & Reliability</a></li>
+          <li><a href="#source-code">5. Full Source Code Walkthrough</a></li>
+          <li><a href="#tuning-guide">6. Parameter Tuning Cheat Sheet</a></li>
+        </ul>
+      </aside>
+
+      <!-- Main Body -->
+      <div class="content-body">
+
+        <!-- 0. SIMULATOR -->
+        <section id="live-playground" style="padding-top: 0;">
+          <h2 class="section-title"><span>🎮</span> 0. Live Interactive Shader Simulator</h2>
+          <p class="section-subtitle">
+            Experience the actual fragment shader running live inside this document. Click anywhere on the canvas to originate a new ripple from that exact point $(c_x, c_y)$, or use the sliders to test how each parameter impacts the physics.
+          </p>
+
+          <div class="interactive-panel">
+            <div class="canvas-container" id="sim-container">
+              <canvas id="sim-canvas"></canvas>
+              <div class="canvas-overlay-hint">🖱️ Click anywhere on the canvas to trigger a ripple</div>
+            </div>
+
+            <div class="btn-group">
+              <button class="btn btn-primary" id="btn-trigger">Trigger Ripple (Center)</button>
+              <button class="btn btn-secondary" id="btn-swap-tex">Swap Textures Manually</button>
+              <button class="btn btn-secondary" id="btn-autoplay">Autoplay: ON</button>
+              <button class="btn btn-reset btn-secondary" id="btn-reset">Reset Uniforms</button>
+            </div>
+
+            <div class="controls-grid">
+              <div class="control-item">
+                <label>Progress (u_progress) <span class="val" id="val-progress">0.00</span></label>
+                <input type="range" id="slider-progress" min="0" max="1" step="0.005" value="0">
+              </div>
+              <div class="control-item">
+                <label>Wave Frequency (u_waveFreq) <span class="val" id="val-waveFreq">5.0</span></label>
+                <input type="range" id="slider-waveFreq" min="1" max="20" step="0.5" value="5.0">
+              </div>
+              <div class="control-item">
+                <label>Wave Band Width (u_sigma) <span class="val" id="val-sigma">0.15</span></label>
+                <input type="range" id="slider-sigma" min="0.05" max="0.4" step="0.01" value="0.15">
+              </div>
+              <div class="control-item">
+                <label>Refraction Push (u_pushAmt) <span class="val" id="val-pushAmt">0.08</span></label>
+                <input type="range" id="slider-pushAmt" min="0.0" max="0.3" step="0.01" value="0.08">
+              </div>
+              <div class="control-item">
+                <label>Chromatic Aberration (u_caStrength) <span class="val" id="val-caStrength">0.005</span></label>
+                <input type="range" id="slider-caStrength" min="0.0" max="0.03" step="0.001" value="0.005">
+              </div>
+              <div class="control-item">
+                <label>Noise Warp (u_noiseWarp) <span class="val" id="val-noiseWarp">1.00</span></label>
+                <input type="range" id="slider-noiseWarp" min="0.0" max="2.5" step="0.05" value="1.0">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 1. ARCHITECTURE -->
+        <section id="architecture-overview">
+          <h2 class="section-title"><span>🏗️</span> 1. High-Level Architecture</h2>
+          <p class="section-subtitle">
+            Why WebGL? A standard CSS crossfade or canvas 2D draw cannot perform real-time non-linear coordinate warping, multi-octave per-fragment noise perturbation, or independent spectral chromatic aberration across 2 million pixels at 60/120 FPS.
+          </p>
+
+          <div class="mermaid-box">
+            <div class="mermaid">
+graph TD
+    A["Pointer Event (Click / Tap) OR Autoplay Timer"] -->|"Calculates normalized cx, cy"| B["HeroRipple.tsx (React Component)"]
+    B -->|"Animates progress 0 -> 1 over 3.5s"| C["GSAP Timeline / Tween (power2.inOut)"]
+    C -->|"Pushes state on active rAF loop"| D["heroRipple.webgl.ts (Renderer Driver)"]
+    D -->|"Uploads textures & updates uniforms"| E["heroRipple.shader.ts (GLSL GPU Shaders)"]
+    E -->|"Draws Fullscreen Clip-Space Quad"| F["GPU Framebuffer (Screen Output)"]
+    
+    subgraph Resource Management & Safety
+        G["Dual Texture Ping-Pong (Slot 0 ↔ Slot 1)"]
+        H["Offscreen Canvas Cover-Crop Preprocessor"]
+        I["isDestroyed Flag (Fast Refresh Crash Guard)"]
+        J["Zero-Idle Render Loop Guard"]
+    end
+    D --- G
+    D --- H
+    D --- I
+    B --- J
+            </div>
+          </div>
+
+          <table class="spec-table">
+            <thead>
+              <tr>
+                <th>Module</th>
+                <th>Core Responsibilities</th>
+                <th>Key Primitives</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>HeroRipple.tsx</code></td>
+                <td>React component, state machine, GSAP coordinator, user pointer event normalization, image caching, autoplay timers.</td>
+                <td><code>useRef</code>, <code>useCallback</code>, <code>gsap.to()</code>, <code>ResizeObserver</code>, <code>matchMedia</code></td>
+              </tr>
+              <tr>
+                <td><code>heroRipple.webgl.ts</code></td>
+                <td>WebGL 1.0 context manager, quad buffer geometry, shader compilation, texture uploads, resize, and destruction lifecycle.</td>
+                <td><code>gl.createBuffer</code>, <code>gl.texImage2D</code>, <code>coverCrop()</code>, <code>isDestroyed</code> guard</td>
+              </tr>
+              <tr>
+                <td><code>heroRipple.shader.ts</code></td>
+                <td>Pure GLSL Vertex and Fragment shaders containing the physical wave propagation, FBM noise, and chromatic dispersion math.</td>
+                <td>FBM noise, Gaussian envelope, chromatic dispersion, aspect-ratio correction</td>
+              </tr>
+              <tr>
+                <td><code>heroRipple.constants.ts</code></td>
+                <td>Centralized configuration parameters for timings, uniform presets, slide image URLs, and Retina DPR limits.</td>
+                <td><code>SHADER_CONFIG</code>, <code>TRANSITION_CONFIG</code>, <code>HERO_SLIDES</code>, <code>MAX_DPR</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- 2. SHADER MATH -->
+        <section id="shader-math">
+          <h2 class="section-title"><span>📐</span> 2. Shader & Mathematical Physics</h2>
+          <p class="section-subtitle">
+            Every optical effect — from the liquid fluid distortion to the glass prism rainbow fringing — is governed by an exact mathematical equation evaluated concurrently for each fragment.
+          </p>
+
+          <!-- Step 1: Aspect Ratio Correction -->
+          <div class="math-card">
+            <h4>1. Aspect-Ratio Corrected Radial Coordinates</h4>
+            <p style="font-size: 14px; margin-bottom: 12px; color: var(--text-muted);">
+              In normalized UV space, $(0,0)$ is top-left and $(1,1)$ is bottom-right. On a widescreen monitor (e.g. 16:9), a pure radial distance $\sqrt{x^2 + y^2}$ stretches into an <em>elliptical egg shape</em> rather than a true circle. We correct this by scaling the horizontal delta by the screen aspect ratio:
+            </p>
+            $$p_x = (uv_x - c_x) \times \frac{\text{resolution}_x}{\text{resolution}_y}, \quad p_y = uv_y - c_y$$
+            $$\text{dist} = \sqrt{p_x^2 + p_y^2}$$
+            <p style="font-size: 13.5px; margin-top: 10px; color: var(--text-muted);">
+              We then normalize $\text{dist}$ against $maxDist$ (the distance to the furthest screen corner from the click origin $c$):
+            </p>
+            $$maxDist = \sqrt{\max(c_x, 1 - c_x)^2 \cdot \text{aspect}^2 + \max(c_y, 1 - c_y)^2}$$
+            $$normDist = \frac{dist}{\max(maxDist, 0.001)}$$
+            <p style="font-size: 13.5px; margin-top: 8px; color: var(--text-muted);">
+              This guarantees the wave spans from $0.0$ to $1.0$ regardless of whether the user clicks dead-center or near the display bezel!
+            </p>
+          </div>
+
+          <!-- Step 2: FBM Noise -->
+          <div class="math-card">
+            <h4>2. Fractal Brownian Motion (FBM) Liquid Warping</h4>
+            <p style="font-size: 14px; margin-bottom: 12px; color: var(--text-muted);">
+              A clean circle looks sterile and synthetic. Real liquids feature viscous turbulence. We perturb the radial distance metric using multi-scale Value Noise and Fractal Brownian Motion (FBM):
+            </p>
+            $$hash21(p) = \text{fract}\Big(\sin(p \cdot 233.34) \times 851.73\Big)$$
+            $$vnoise(p) = \text{mix}\Big(\text{mix}(a, b, u_x), \; \text{mix}(c, d, u_x), \; u_y\Big), \quad u = f^2(3 - 2f)$$
+            $$FBM(p, N) = \sum_{k=0}^{N-1} \frac{1}{2^k} \cdot vnoise\left(2^k \cdot p\right)$$
+            <p style="font-size: 13.5px; margin-top: 10px; color: var(--text-muted);">
+              We synthesize two noise fields: a large macro turbulence field (4 octaves) and a high-frequency micro-ripple field (3 octaves), animated by progress over time:
+            </p>
+            $$warpedDist = normDist + (noiseLarge - 0.5) \cdot 0.3 \cdot \omega + (noiseSmall - 0.5) \cdot 0.1 \cdot \omega$$
+          </div>
+
+          <!-- Step 3: Gaussian Wave Packet -->
+          <div class="math-card">
+            <h4>3. Traveling Wave Packet: Gaussian Bell × Cosine Ripples</h4>
+            <p style="font-size: 14px; margin-bottom: 12px; color: var(--text-muted);">
+              The ripple is modeled as a localized wave packet moving radially outward with coverage factor $1.6$ (ensuring full corner coverage):
+            </p>
+            $$waveFront = progress \times 1.6, \quad \Delta = warpedDist - waveFront$$
+            $$baseEnvelope = \exp\left( -\frac{\Delta^2}{2\sigma^2} \right)$$
+            $$ripples = \max\big(0.0, \; \cos(\Delta \cdot waveFreq)\big)$$
+            $$envelope = baseEnvelope \times ripples \times \text{smoothstep}(1.0, 0.95, progress)$$
+            <p style="font-size: 13.5px; margin-top: 10px; color: var(--text-muted);">
+              $\sigma = 0.15$ defines the spatial width of the wave packet. The cosine term generates the concentric ripple ridges. Crucially, the terminating gate $\text{smoothstep}(1.0, 0.95, progress)$ zeroes out all wave distortions as progress finishes, guaranteeing the newly revealed image settles in 100% pristine fidelity!
+            </p>
+          </div>
+
+          <!-- Step 4: Refraction & Chromatic Aberration -->
+          <div class="math-card">
+            <h4>4. Optical Refraction & Chromatic Dispersion (Prism Fringing)</h4>
+            <p style="font-size: 14px; margin-bottom: 12px; color: var(--text-muted);">
+              Light passing through water ripples refracts along the wave surface gradient. We displace the texture UV sample coordinates outward along the radial unit vector $\vec{dir} = \frac{\vec{p}}{\|\vec{p}\|}$:
+            </p>
+            $$\vec{uvOffset} = \vec{dir} \times (envelope \cdot pushAmt)$$
+            <p style="font-size: 14px; margin: 10px 0; color: var(--text-muted);">
+              Physical optical dispersion causes red, green, and blue light wavelengths to refract by different amounts ($n_{red} < n_{green} < n_{blue}$). We sample the textures at three distinct color offsets:
+            </p>
+            $$uv_R = uv - \vec{uvOffset} - \vec{caOffset}$$
+            $$uv_G = uv - \vec{uvOffset}$$
+            $$uv_B = uv - \vec{uvOffset} + \vec{caOffset}$$
+            <p style="font-size: 13.5px; margin-top: 10px; color: var(--text-muted);">
+              This produces holographic iridescent edges along the moving wave crest without requiring expensive multi-pass post-processing buffers!
+            </p>
+          </div>
+
+          <!-- Step 5: A/B Reveal Mask -->
+          <div class="math-card">
+            <h4>5. Dynamic A/B Ping-Pong Masking</h4>
+            <p style="font-size: 14px; margin-bottom: 12px; color: var(--text-muted);">
+              Behind the moving wave crest, the incoming slide is revealed:
+            </p>
+            $$reveal = 1.0 - \text{smoothstep}(waveFront - feather, waveFront + feather, warpedDist)$$
+            <p style="font-size: 14px; margin-top: 10px; color: var(--text-muted);">
+              Instead of allocating 10 GPU textures for 10 slides, we use two texture units (Slot 0 and Slot 1) and toggle the uniform <code>u_swap</code> between 0.0 and 1.0:
+            </p>
+            $$base = \text{mix}(colorA, colorB, u\_swap), \quad target = \text{mix}(colorB, colorA, u\_swap)$$
+            $$finalColor = \text{mix}(base, target, reveal)$$
+          </div>
+        </section>
+
+        <!-- 3. REACT LIFECYCLE -->
+        <section id="react-lifecycle">
+          <h2 class="section-title"><span>⏱️</span> 3. React Lifecycle & GSAP Orchestration</h2>
+          <p class="section-subtitle">
+            How React component state, GSAP physics easing, pointer interactions, and background browser tabs coordinate cleanly.
+          </p>
+
+          <div class="mermaid-box">
+            <div class="mermaid">
+stateDiagram-v2
+    [*] --> IDLE : Component Mounts (Preloads Slides 0 & 1)
+    
+    IDLE --> LOADING : Autoplay Delay (1000ms) OR Pointer Down (Click/Tap)
+    note right of IDLE
+      rAF is CANCELLED!
+      Zero CPU / GPU cycles while resting.
+    end note
+
+    LOADING --> TRANSITIONING : Target Image Loaded & Uploaded to Inactive Slot
+    note right of LOADING
+      Uploads into target slot:
+      (Slot 1 if swap=0, Slot 0 if swap=1)
+    end note
+
+    TRANSITIONING --> IDLE : GSAP Tween Finishes (progress reaches 1.0)
+    note right of TRANSITIONING
+      GSAP tweens progress: 0 -> 1
+      duration: 3.5s (power2.inOut)
+      Active rAF render loop driving WebGL
+    end note
+
+    IDLE --> [*] : Component Unmounts (Frees WebGL Buffers & Textures)
+            </div>
+          </div>
+
+          <div class="grid-cards">
+            <div class="card">
+              <div class="card-title"><span>🖱️</span> Interactive Wave Origin</div>
+              <p style="font-size: 13.5px; color: var(--text-muted);">
+                When the user clicks, <code>handlePointerDown</code> measures the container bounding rect and maps <code>clientX / rect.width</code> to normalized coordinates $(c_x, c_y) \in [0, 1]$. The ripple erupts directly from your mouse or fingertip!
+              </p>
+            </div>
+            <div class="card">
+              <div class="card-title"><span>🔋</span> Zero Battery Drain in Idle</div>
+              <p style="font-size: 13.5px; color: var(--text-muted);">
+                Most naive WebGL implementations leave <code>requestAnimationFrame</code> running permanently at 60 FPS. Here, <code>renderLoop()</code> checks <code>phaseRef.current === 'TRANSITIONING'</code>. As soon as the transition settles, rAF stops!
+              </p>
+            </div>
+            <div class="card">
+              <div class="card-title"><span>👁️</span> Tab Visibility Guard</div>
+              <p style="font-size: 13.5px; color: var(--text-muted);">
+                Listens to <code>document.addEventListener('visibilitychange')</code>. If the user tabs away, pending autoplay timers are cleared immediately so transitions never queue up invisibly or waste background power.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. WEBGL ENGINE -->
+        <section id="webgl-engine">
+          <h2 class="section-title"><span>🛡️</span> 4. WebGL Engine & Reliability Engineering</h2>
+          <p class="section-subtitle">
+            Critical production defenses preventing browser crashes, memory leaks, and Next.js Hot Module Replacement issues.
+          </p>
+
+          <div class="math-card" style="border-left-color: var(--accent-rose);">
+            <h4 style="color: #fb7185;">The isDestroyed Safety Guard (Fast Refresh Fix)</h4>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;">
+              In Next.js with React Strict Mode and Turbopack Fast Refresh, components are mounted, unmounted, and remounted rapidly. Asynchronous image loading promises (<code>loadImage().then(...)</code>) can resolve <em>after</em> the component cleanup has already invoked <code>destroy()</code> (which deletes the textures and shader program).
+            </p>
+            <p style="font-size: 14px; color: var(--text-muted);">
+              Without an atomic flag, calling <code>gl.bindTexture()</code> or <code>gl.useProgram()</code> on deleted WebGL references throws the fatal browser console exception:
+              <br><code style="color: #f43f5e; background: rgba(244, 63, 94, 0.1); padding: 2px 6px; border-radius: 4px;">WebGL: INVALID_OPERATION: bindTexture: attempt to use a deleted object</code>.
+              <br>Our <code>isDestroyed</code> guard short-circuits all pending asynchronous uploads and renders, ensuring 100% clean teardown.
+            </p>
+          </div>
+
+          <div class="math-card" style="border-left-color: var(--accent-emerald);">
+            <h4 style="color: #34d399;">Cover-Crop Texture Mapping (object-fit: cover)</h4>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;">
+              Uploading images with arbitrary aspect ratios (e.g. 2400×1600) into a canvas of varying screen dimensions causes severe aspect squishing.
+              The <code>coverCrop()</code> preprocessor renders the source image onto an offscreen 2D canvas scaled with:
+            </p>
+            $$scale = \max\left(\frac{\text{targetW}}{\text{naturalW}}, \; \frac{\text{targetH}}{\text{naturalH}}\right)$$
+            $$dw = \text{naturalW} \times scale, \quad dh = \text{naturalH} \times scale$$
+            $$dx = \frac{\text{targetW} - dw}{2}, \quad dy = \frac{\text{targetH} - dh}{2}$$
+            <p style="font-size: 14px; color: var(--text-muted); margin-top: 10px;">
+              This perfectly reproduces CSS <code>object-fit: cover</code> directly inside the GPU texture pixel buffer!
+            </p>
+          </div>
+        </section>
+
+        <!-- 5. SOURCE CODE -->
+        <section id="source-code">
+          <h2 class="section-title"><span>💻</span> 5. Full Source Code Walkthrough</h2>
+          <p class="section-subtitle">
+            Study the exact production source code split across the 4 modules.
+          </p>
+
+          <div class="tab-nav">
+            <button class="tab-btn active" onclick="openTab(event, 'tab-shader')">heroRipple.shader.ts</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-webgl')">heroRipple.webgl.ts</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-component')">HeroRipple.tsx</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-constants')">heroRipple.constants.ts</button>
+          </div>
+
+          <!-- TAB 1: Shader -->
+          <div id="tab-shader" class="tab-pane active">
+            <div class="code-filename">src/components/home/hero/heroRipple.shader.ts</div>
+            <pre><code class="language-glsl">/** Vertex shader — minimal fullscreen quad */
+export const VERTEX_SHADER = /* glsl */ `
+attribute vec2 a_pos;
+varying vec2 v_uv;
+
+void main() {
+  // Flip Y so top-left is (0,0) matching browser coordinates
+  v_uv = vec2(a_pos.x * 0.5 + 0.5, 0.5 - a_pos.y * 0.5);
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}
+`
+
+/** Fragment shader — FBM ripple transition with chromatic aberration */
+export const FRAGMENT_SHADER = /* glsl */ `
+precision mediump float;
+
+varying vec2 v_uv;
+
+uniform sampler2D u_texA;
+uniform sampler2D u_texB;
+
+uniform vec2  u_resolution;
+uniform vec2  u_center;
+
+uniform float u_progress;
+uniform float u_sigma;
+uniform float u_waveFreq;
+uniform float u_pushAmt;
+uniform float u_caStrength;
+uniform float u_glow;
+uniform float u_noiseWarp;
+uniform float u_swap;
+
+// ── Noise: hash → value noise → FBM ──
+
+float hash21(vec2 p) {
+  p = fract(p * vec2(233.34, 851.73));
+  p += dot(p, p + 23.45);
+  return fract(p.x * p.y);
+}
+
+float vnoise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f); // smoothstep interpolation
+
+  float a = hash21(i);
+  float b = hash21(i + vec2(1.0, 0.0));
+  float c = hash21(i + vec2(0.0, 1.0));
+  float d = hash21(i + vec2(1.0, 1.0));
+
+  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+float fbm(vec2 p, int octaves) {
+  float val = 0.0;
+  float amp = 0.5;
+  for (int i = 0; i < 6; i++) {
+    if (i >= octaves) break;
+    val += amp * vnoise(p);
+    p *= 2.0;
+    amp *= 0.5;
+  }
+  return val;
+}
+
+void main() {
+  vec2 uv = v_uv;
+  vec2 center = u_center;
+
+  // Aspect-ratio–correct radial distance
+  float aspect = u_resolution.x / u_resolution.y;
+  vec2 p = uv - center;
+  p.x *= aspect;
+
+  float dist = length(p);
+
+  // Normalize so the max possible distance ≈ 1
+  float maxDist = length(vec2(max(center.x, 1.0 - center.x) * aspect,
+                              max(center.y, 1.0 - center.y)));
+  float normDist = dist / max(maxDist, 0.001);
+
+  // ── FBM warp ──
+  float noiseLarge = fbm(p * 4.0 + vec2(u_progress * 1.0, u_progress * 0.5), 4);
+  float noiseSmall = fbm(p * 12.0 + vec2(u_progress * 2.0, -u_progress * 1.5), 3);
+
+  float warpedDist = normDist
+    + (noiseLarge - 0.5) * 0.3 * u_noiseWarp
+    + (noiseSmall - 0.5) * 0.1 * u_noiseWarp;
+
+  // ── Traveling wave ──
+  float coverage = 1.6; // extends past 1.0 so wave reaches all corners
+  float waveFront = u_progress * coverage;
+  float delta = warpedDist - waveFront;
+
+  float sigma = u_sigma;
+  float baseEnvelope = exp(-delta * delta / (2.0 * sigma * sigma));
+  float ripples = max(0.0, cos(delta * u_waveFreq));
+  float envelope = baseEnvelope * ripples;
+
+  // Gate: kill residual after transition ends
+  envelope *= smoothstep(1.0, 0.95, u_progress);
+
+  // ── UV displacement ──
+  vec2 dir = (dist > 0.001) ? normalize(p) : vec2(0.0);
+  float pushAmt = envelope * u_pushAmt;
+
+  vec2 uvOffset = dir * pushAmt;
+  // Un-correct the aspect on x before applying to UV space
+  uvOffset.x /= aspect;
+
+  // ── Chromatic aberration ──
+  float caStr = envelope * u_caStrength;
+  vec2 caDir = (dist > 0.001) ? normalize(p) : vec2(0.0);
+  vec2 caOffset = caDir * caStr;
+  caOffset.x /= aspect;
+
+  vec2 uvR = uv - uvOffset - caOffset;
+  vec2 uvG = uv - uvOffset;
+  vec2 uvB = uv - uvOffset + caOffset;
+
+  // ── Sample both textures with CA ──
+  vec4 colorA = vec4(
+    texture2D(u_texA, uvR).r,
+    texture2D(u_texA, uvG).g,
+    texture2D(u_texA, uvB).b,
+    1.0
+  );
+  vec4 colorB = vec4(
+    texture2D(u_texB, uvR).r,
+    texture2D(u_texB, uvG).g,
+    texture2D(u_texB, uvB).b,
+    1.0
+  );
+
+  // ── A/B reveal mask ──
+  float feather = 0.08;
+  float reveal = smoothstep(waveFront - feather + (noiseLarge - 0.5) * 0.15,
+                            waveFront + feather + (noiseLarge - 0.5) * 0.15,
+                            warpedDist);
+  reveal = 1.0 - reveal; // invert: revealed area = 1
+
+  // Swap logic: u_swap flips which texture is "current" vs "target"
+  vec4 base   = mix(colorA, colorB, u_swap);
+  vec4 target = mix(colorB, colorA, u_swap);
+  vec4 color  = mix(base, target, reveal);
+
+  // ── Glow (optional) ──
+  color.rgb += envelope * u_glow * vec3(0.15, 0.1, 0.2);
+
+  gl_FragColor = vec4(color.rgb, 1.0);
+}
+`</code></pre>
+          </div>
+
+          <!-- TAB 2: WebGL -->
+          <div id="tab-webgl" class="tab-pane">
+            <div class="code-filename">src/components/home/hero/heroRipple.webgl.ts</div>
+            <pre><code class="language-typescript">import { VERTEX_SHADER, FRAGMENT_SHADER } from './heroRipple.shader'
+import { SHADER_CONFIG, MAX_DPR } from './heroRipple.constants'
+
+export interface RippleState {
+  progress: number
+  cx: number
+  cy: number
+  swap: number
+}
+
+export interface RippleRenderer {
+  uploadTexture: (slot: 0 | 1, image: HTMLImageElement) => void
+  render: (state: RippleState) => void
+  resize: () => void
+  destroy: () => void
+  ok: boolean
+}
+
+function coverCrop(image: HTMLImageElement, targetW: number, targetH: number): HTMLCanvasElement {
+  const c = document.createElement('canvas')
+  c.width = targetW
+  c.height = targetH
+  const ctx = c.getContext('2d')!
+  const scale = Math.max(targetW / image.naturalWidth, targetH / image.naturalHeight)
+  const dw = image.naturalWidth * scale
+  const dh = image.naturalHeight * scale
+  ctx.drawImage(image, (targetW - dw) / 2, (targetH - dh) / 2, dw, dh)
+  return c
+}
+
+export function createRippleRenderer(canvas: HTMLCanvasElement): RippleRenderer {
+  const gl = canvas.getContext('webgl', {
+    premultipliedAlpha: false,
+    alpha: false,
+    preserveDrawingBuffer: true,
+  })
+
+  if (!gl) return { uploadTexture() {}, render() {}, resize() {}, destroy() {}, ok: false }
+
+  // ... [Shader compilation and buffer setup] ...
+  let isDestroyed = false
+
+  function uploadTexture(slot: 0 | 1, image: HTMLImageElement) {
+    if (isDestroyed) return
+    const unit = slot === 0 ? gl.TEXTURE0 : gl.TEXTURE1
+    gl.activeTexture(unit)
+    gl.bindTexture(gl.TEXTURE_2D, textures[slot])
+    const cropped = coverCrop(image, canvas.width, canvas.height)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cropped)
+  }
+
+  function render(state: RippleState) {
+    if (isDestroyed) return
+    gl.useProgram(program)
+    gl.viewport(0, 0, canvas.width, canvas.height)
+    gl.uniform2f(loc.resolution, canvas.width, canvas.height)
+    gl.uniform2f(loc.center, state.cx, state.cy)
+    gl.uniform1f(loc.progress, state.progress)
+    gl.uniform1f(loc.swap, state.swap)
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+  }
+
+  function destroy() {
+    if (isDestroyed) return
+    isDestroyed = true
+    gl.deleteBuffer(buf)
+    gl.deleteTexture(textures[0])
+    gl.deleteTexture(textures[1])
+    gl.deleteShader(vs)
+    gl.deleteShader(fs)
+    gl.deleteProgram(program)
+  }
+
+  return { uploadTexture, render, resize, destroy, ok: true }
+}</code></pre>
+          </div>
+
+          <!-- TAB 3: Component -->
+          <div id="tab-component" class="tab-pane">
+            <div class="code-filename">src/components/home/hero/HeroRipple.tsx</div>
+            <pre><code class="language-tsx">'use client'
+
+import { useEffect, useRef, useCallback, useState } from 'react'
+import gsap from 'gsap'
+import { createRippleRenderer, type RippleState, type RippleRenderer } from './heroRipple.webgl'
+import { HERO_SLIDES, TRANSITION_CONFIG } from './heroRipple.constants'
+
+export default function HeroRipple() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const rendererRef = useRef<RippleRenderer | null>(null)
+  const stateRef = useRef<RippleState>({ progress: 0, cx: 0.5, cy: 0.5, swap: 0 })
+  const phaseRef = useRef<'IDLE' | 'LOADING' | 'TRANSITIONING'>('IDLE')
+  const currentIdxRef = useRef(0)
+  const swapFlagRef = useRef(0)
+  const autoplayRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const tweenRef = useRef<gsap.core.Tween | null>(null)
+  const rafRef = useRef<number>(0)
+
+  // ── Render loop (Strictly runs only while transitioning) ──
+  const renderLoop = useCallback(() => {
+    const r = rendererRef.current
+    if (!r || !r.ok) return
+    r.render(stateRef.current)
+    if (phaseRef.current === 'TRANSITIONING') {
+      rafRef.current = requestAnimationFrame(renderLoop)
+    }
+  }, [])
+
+  // ── Trigger transition at normalized (cx, cy) ──
+  const triggerTransition = useCallback((cx: number, cy: number) => {
+    const r = rendererRef.current
+    if (!r || !r.ok || phaseRef.current !== 'IDLE') return
+
+    phaseRef.current = 'LOADING'
+    const nextIdx = (currentIdxRef.current + 1) % HERO_SLIDES.length
+    const targetSlot = (swapFlagRef.current === 0 ? 1 : 0) as 0 | 1
+
+    // Upload and Tween
+    stateRef.current.cx = cx
+    stateRef.current.cy = cy
+    stateRef.current.progress = 0
+    phaseRef.current = 'TRANSITIONING'
+    rafRef.current = requestAnimationFrame(renderLoop)
+
+    tweenRef.current = gsap.to(stateRef.current, {
+      progress: 1,
+      duration: TRANSITION_CONFIG.duration,
+      ease: TRANSITION_CONFIG.ease,
+      onComplete: () => {
+        swapFlagRef.current = swapFlagRef.current === 0 ? 1 : 0
+        stateRef.current.swap = swapFlagRef.current
+        stateRef.current.progress = 0
+        currentIdxRef.current = nextIdx
+        phaseRef.current = 'IDLE'
+        r.render(stateRef.current)
+        cancelAnimationFrame(rafRef.current)
+        scheduleAutoplay()
+      }
+    })
+  }, [renderLoop])
+
+  // ... [Pointer event handlers, visibility listeners, ResizeObserver] ...
+  return (
+    <div ref={containerRef} className="absolute inset-0 overflow-hidden" onPointerDown={handlePointerDown}>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60 pointer-events-none z-[1]" />
+    </div>
+  )
+}</code></pre>
+          </div>
+
+          <!-- TAB 4: Constants -->
+          <div id="tab-constants" class="tab-pane">
+            <div class="code-filename">src/components/home/hero/heroRipple.constants.ts</div>
+            <pre><code class="language-typescript">export const SHADER_CONFIG = {
+  sigma: 0.15,        // Gaussian curve width (thickness of the ripple band)
+  waveFreq: 5,        // Number of cosine waves inside the envelope
+  pushAmt: 0.08,      // Strength of radial refractive displacement
+  caStrength: 0.005,  // Chromatic aberration RGB spectral offset
+  glow: 0,            // Edge emissive glow factor
+  noiseWarp: 1,       // FBM noise turbulence multiplier
+} as const
+
+export const TRANSITION_CONFIG = {
+  duration: 3.5,       // Total transition duration in seconds
+  ease: 'power2.inOut',// GSAP ease curve (starts slow, surges, settles smoothly)
+  autoplayDelay: 1000, // Delay between consecutive slide triggers (ms)
+} as const
+
+export const MAX_DPR = 2 // Caps framebuffer resolution on 3x/4x retina displays</code></pre>
+          </div>
+        </section>
+
+        <!-- 6. TUNING GUIDE -->
+        <section id="tuning-guide">
+          <h2 class="section-title"><span>🎛️</span> 6. Parameter Tuning Cheat Sheet</h2>
+          <p class="section-subtitle">
+            Quick reference guide for customizing the visual feel of the transition.
+          </p>
+
+          <table class="spec-table">
+            <thead>
+              <tr>
+                <th>Desired Effect</th>
+                <th>File & Variable</th>
+                <th>Adjustment Direction</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Faster / Snappier Wave</strong></td>
+                <td><code>TRANSITION_CONFIG.duration</code></td>
+                <td>Decrease from <code>3.5</code> to <code>2.0</code> or <code>1.5</code>.</td>
+              </tr>
+              <tr>
+                <td><strong>More Concentric Wave Rings</strong></td>
+                <td><code>SHADER_CONFIG.waveFreq</code></td>
+                <td>Increase from <code>5.0</code> to <code>10.0</code> or <code>15.0</code>.</td>
+              </tr>
+              <tr>
+                <td><strong>Thicker / Broader Wave Band</strong></td>
+                <td><code>SHADER_CONFIG.sigma</code></td>
+                <td>Increase from <code>0.15</code> to <code>0.25</code>.</td>
+              </tr>
+              <tr>
+                <td><strong>Glassier / Deeper Water Refraction</strong></td>
+                <td><code>SHADER_CONFIG.pushAmt</code></td>
+                <td>Increase from <code>0.08</code> to <code>0.15</code>.</td>
+              </tr>
+              <tr>
+                <td><strong>Stronger Prism Rainbow Fringing</strong></td>
+                <td><code>SHADER_CONFIG.caStrength</code></td>
+                <td>Increase from <code>0.005</code> to <code>0.015</code>.</td>
+              </tr>
+              <tr>
+                <td><strong>Calmer / Less Turbulent Surface</strong></td>
+                <td><code>SHADER_CONFIG.noiseWarp</code></td>
+                <td>Decrease from <code>1.0</code> to <code>0.3</code> (or <code>0</code> for pure circles).</td>
+              </tr>
+              <tr>
+                <td><strong>Longer Pause Between Slides</strong></td>
+                <td><code>TRANSITION_CONFIG.autoplayDelay</code></td>
+                <td>Increase from <code>1000</code> ms to <code>4000</code> ms.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- LIVE SIMULATOR SCRIPT -->
+  <script>
+    function openTab(evt, tabId) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      evt.currentTarget.classList.add('active');
+    }
+
+    (function initSimulator() {
+      const container = document.getElementById('sim-container');
+      const canvas = document.getElementById('sim-canvas');
+      const gl = canvas.getContext('webgl', { alpha: false, preserveDrawingBuffer: true });
+      if (!gl) return;
+
+      const vsSrc = `
+        attribute vec2 a_pos;
+        varying vec2 v_uv;
+        void main() {
+          v_uv = vec2(a_pos.x * 0.5 + 0.5, 0.5 - a_pos.y * 0.5);
+          gl_Position = vec4(a_pos, 0.0, 1.0);
+        }
+      `;
+
+      const fsSrc = `
+        precision mediump float;
+        varying vec2 v_uv;
+        uniform sampler2D u_texA;
+        uniform sampler2D u_texB;
+        uniform vec2  u_resolution;
+        uniform vec2  u_center;
+        uniform float u_progress;
+        uniform float u_sigma;
+        uniform float u_waveFreq;
+        uniform float u_pushAmt;
+        uniform float u_caStrength;
+        uniform float u_noiseWarp;
+        uniform float u_swap;
+
+        float hash21(vec2 p) {
+          p = fract(p * vec2(233.34, 851.73));
+          p += dot(p, p + 23.45);
+          return fract(p.x * p.y);
+        }
+        float vnoise(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          float a = hash21(i);
+          float b = hash21(i + vec2(1.0, 0.0));
+          float c = hash21(i + vec2(0.0, 1.0));
+          float d = hash21(i + vec2(1.0, 1.0));
+          return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+        }
+        float fbm(vec2 p, int oct) {
+          float val = 0.0; float amp = 0.5;
+          for(int i=0; i<4; i++) {
+            if (i >= oct) break;
+            val += amp * vnoise(p);
+            p *= 2.0; amp *= 0.5;
+          }
+          return val;
+        }
+
+        void main() {
+          vec2 uv = v_uv;
+          vec2 center = u_center;
+          float aspect = u_resolution.x / u_resolution.y;
+          vec2 p = uv - center;
+          p.x *= aspect;
+
+          float dist = length(p);
+          float maxDist = length(vec2(max(center.x, 1.0 - center.x) * aspect, max(center.y, 1.0 - center.y)));
+          float normDist = dist / max(maxDist, 0.001);
+
+          float n1 = fbm(p * 4.0 + vec2(u_progress, u_progress * 0.5), 3);
+          float n2 = fbm(p * 12.0 + vec2(u_progress * 2.0, -u_progress * 1.5), 2);
+          float warpedDist = normDist + (n1 - 0.5) * 0.3 * u_noiseWarp + (n2 - 0.5) * 0.1 * u_noiseWarp;
+
+          float waveFront = u_progress * 1.6;
+          float delta = warpedDist - waveFront;
+          float baseEnv = exp(-delta * delta / (2.0 * u_sigma * u_sigma));
+          float ripples = max(0.0, cos(delta * u_waveFreq));
+          float env = baseEnv * ripples * smoothstep(1.0, 0.95, u_progress);
+
+          vec2 dir = dist > 0.001 ? normalize(p) : vec2(0.0);
+          vec2 uvOff = dir * env * u_pushAmt;
+          uvOff.x /= aspect;
+
+          vec2 caOff = dir * env * u_caStrength;
+          caOff.x /= aspect;
+
+          vec4 colA = vec4(texture2D(u_texA, uv - uvOff - caOff).r, texture2D(u_texA, uv - uvOff).g, texture2D(u_texA, uv - uvOff + caOff).b, 1.0);
+          vec4 colB = vec4(texture2D(u_texB, uv - uvOff - caOff).r, texture2D(u_texB, uv - uvOff).g, texture2D(u_texB, uv - uvOff + caOff).b, 1.0);
+
+          float reveal = 1.0 - smoothstep(waveFront - 0.08, waveFront + 0.08, warpedDist);
+          vec4 base = mix(colA, colB, u_swap);
+          vec4 target = mix(colB, colA, u_swap);
+          gl_FragColor = mix(base, target, reveal);
+        }
+      `;
+
+      function compile(type, src) {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        return s;
+      }
+      const program = gl.createProgram();
+      gl.attachShader(program, compile(gl.VERTEX_SHADER, vsSrc));
+      gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fsSrc));
+      gl.linkProgram(program);
+      gl.useProgram(program);
+
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      const aPos = gl.getAttribLocation(program, 'a_pos');
+      gl.enableVertexAttribArray(aPos);
+      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+      function makeTexture(color1, color2, label) {
+        const c = document.createElement('canvas');
+        c.width = 1024; c.height = 640;
+        const ctx = c.getContext('2d');
+        const grad = ctx.createLinearGradient(0, 0, 1024, 640);
+        grad.addColorStop(0, color1);
+        grad.addColorStop(1, color2);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 1024, 640);
+        
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+        ctx.lineWidth = 2;
+        for (let x = 0; x < 1024; x += 64) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 640); ctx.stroke(); }
+        for (let y = 0; y < 640; y += 64) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1024, y); ctx.stroke(); }
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 44px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(label, 512, 330);
+        
+        const tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        return tex;
+      }
+
+      const texA = makeTexture('#1e1b4b', '#4338ca', 'MIRA PROMPTS — SLIDE A');
+      const texB = makeTexture('#064e3b', '#047857', 'VISUAL INTELLIGENCE — SLIDE B');
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texA);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, texB);
+
+      const locs = {
+        texA: gl.getUniformLocation(program, 'u_texA'),
+        texB: gl.getUniformLocation(program, 'u_texB'),
+        res: gl.getUniformLocation(program, 'u_resolution'),
+        center: gl.getUniformLocation(program, 'u_center'),
+        progress: gl.getUniformLocation(program, 'u_progress'),
+        sigma: gl.getUniformLocation(program, 'u_sigma'),
+        waveFreq: gl.getUniformLocation(program, 'u_waveFreq'),
+        pushAmt: gl.getUniformLocation(program, 'u_pushAmt'),
+        caStrength: gl.getUniformLocation(program, 'u_caStrength'),
+        noiseWarp: gl.getUniformLocation(program, 'u_noiseWarp'),
+        swap: gl.getUniformLocation(program, 'u_swap'),
+      };
+
+      gl.uniform1i(locs.texA, 0);
+      gl.uniform1i(locs.texB, 1);
+
+      const state = {
+        progress: 0,
+        cx: 0.5,
+        cy: 0.5,
+        swap: 0,
+        sigma: 0.15,
+        waveFreq: 5.0,
+        pushAmt: 0.08,
+        caStrength: 0.005,
+        noiseWarp: 1.0,
+        isAnimating: false,
+        autoplay: true,
+      };
+
+      function resize() {
+        const rect = container.getBoundingClientRect();
+        canvas.width = rect.width * (window.devicePixelRatio || 1);
+        canvas.height = rect.height * (window.devicePixelRatio || 1);
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        render();
+      }
+      window.addEventListener('resize', resize);
+
+      function render() {
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.uniform2f(locs.res, canvas.width, canvas.height);
+        gl.uniform2f(locs.center, state.cx, state.cy);
+        gl.uniform1f(locs.progress, state.progress);
+        gl.uniform1f(locs.swap, state.swap);
+        gl.uniform1f(locs.sigma, state.sigma);
+        gl.uniform1f(locs.waveFreq, state.waveFreq);
+        gl.uniform1f(locs.pushAmt, state.pushAmt);
+        gl.uniform1f(locs.caStrength, state.caStrength);
+        gl.uniform1f(locs.noiseWarp, state.noiseWarp);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      }
+
+      let animStart = 0;
+      const DURATION = 3200;
+
+      function animate(time) {
+        if (!state.isAnimating) return;
+        if (!animStart) animStart = time;
+        const elapsed = time - animStart;
+        const t = Math.min(1, elapsed / DURATION);
+        
+        state.progress = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        document.getElementById('slider-progress').value = state.progress;
+        document.getElementById('val-progress').innerText = state.progress.toFixed(2);
+        render();
+
+        if (t < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          state.isAnimating = false;
+          state.swap = state.swap === 0 ? 1 : 0;
+          state.progress = 0;
+          document.getElementById('slider-progress').value = 0;
+          document.getElementById('val-progress').innerText = '0.00';
+          render();
+          if (state.autoplay) {
+            setTimeout(() => triggerRipple(0.5, 0.5), 1500);
+          }
+        }
+      }
+
+      function triggerRipple(cx, cy) {
+        if (state.isAnimating) return;
+        state.cx = cx;
+        state.cy = cy;
+        state.isAnimating = true;
+        animStart = 0;
+        requestAnimationFrame(animate);
+      }
+
+      canvas.addEventListener('pointerdown', (e) => {
+        const r = canvas.getBoundingClientRect();
+        const cx = (e.clientX - r.left) / r.width;
+        const cy = (e.clientY - r.top) / r.height;
+        triggerRipple(cx, cy);
+      });
+
+      document.getElementById('btn-trigger').addEventListener('click', () => triggerRipple(0.5, 0.5));
+      document.getElementById('btn-swap-tex').addEventListener('click', () => {
+        state.swap = state.swap === 0 ? 1 : 0;
+        render();
+      });
+
+      const btnAutoplay = document.getElementById('btn-autoplay');
+      btnAutoplay.addEventListener('click', () => {
+        state.autoplay = !state.autoplay;
+        btnAutoplay.innerText = `Autoplay: ${state.autoplay ? 'ON' : 'OFF'}`;
+        if (state.autoplay && !state.isAnimating) triggerRipple(0.5, 0.5);
+      });
+
+      document.getElementById('btn-reset').addEventListener('click', () => {
+        state.sigma = 0.15; state.waveFreq = 5.0; state.pushAmt = 0.08; state.caStrength = 0.005; state.noiseWarp = 1.0;
+        document.getElementById('slider-sigma').value = 0.15;
+        document.getElementById('slider-waveFreq').value = 5.0;
+        document.getElementById('slider-pushAmt').value = 0.08;
+        document.getElementById('slider-caStrength').value = 0.005;
+        document.getElementById('slider-noiseWarp').value = 1.0;
+        document.getElementById('val-sigma').innerText = '0.15';
+        document.getElementById('val-waveFreq').innerText = '5.0';
+        document.getElementById('val-pushAmt').innerText = '0.08';
+        document.getElementById('val-caStrength').innerText = '0.005';
+        document.getElementById('val-noiseWarp').innerText = '1.00';
+        render();
+      });
+
+      function bindSlider(id, key, valId, decimals = 2) {
+        const el = document.getElementById(id);
+        const valEl = document.getElementById(valId);
+        el.addEventListener('input', (e) => {
+          const v = parseFloat(e.target.value);
+          state[key] = v;
+          valEl.innerText = v.toFixed(decimals);
+          render();
+        });
+      }
+
+      bindSlider('slider-progress', 'progress', 'val-progress', 2);
+      bindSlider('slider-sigma', 'sigma', 'val-sigma', 2);
+      bindSlider('slider-waveFreq', 'waveFreq', 'val-waveFreq', 1);
+      bindSlider('slider-pushAmt', 'pushAmt', 'val-pushAmt', 2);
+      bindSlider('slider-caStrength', 'caStrength', 'val-caStrength', 3);
+      bindSlider('slider-noiseWarp', 'noiseWarp', 'val-noiseWarp', 2);
+
+      resize();
+      setTimeout(() => triggerRipple(0.5, 0.5), 600);
+    })();
+  </script>
+</body>
+</html>
