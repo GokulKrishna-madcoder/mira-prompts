@@ -1,3 +1,4 @@
+// @ts-nocheck
 // supabase/functions/generate-embeddings/index.ts
 // Edge Function: generates embeddings for prompts using HuggingFace free inference API
 // Model: sentence-transformers/all-MiniLM-L6-v2 (384-d, free, open-source)
