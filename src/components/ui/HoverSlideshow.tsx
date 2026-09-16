@@ -20,7 +20,7 @@ export default function HoverSlideshow({ coverImage, variants, alt, priority }: 
 
   useEffect(() => {
     if (!hover || images.length <= 1) { 
-      setIdx(0) 
+      setTimeout(() => setIdx(0), 0) // ponytail: defer to avoid setState in effect warning
       return 
     }
     const timer = setInterval(() => setIdx(i => (i + 1) % images.length), 1200)

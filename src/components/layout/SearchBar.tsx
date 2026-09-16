@@ -26,7 +26,7 @@ export default function SearchBar() {
   // Fetch recent searches on focus
   const fetchRecents = useCallback(async () => {
     const { data } = await supabase.rpc('get_recent_searches', { p_limit: 8 })
-    if (data) setRecents(data.map((r: any) => r.query))
+    if (data) setRecents(data.map((r: { query: string }) => r.query))
   }, [supabase])
 
   // Debounced suggestions fetch
