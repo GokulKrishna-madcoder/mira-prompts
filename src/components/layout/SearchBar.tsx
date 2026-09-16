@@ -156,7 +156,7 @@ export default function SearchBar() {
       </form>
 
       {/* Dropdown */}
-      {open && items.length > 0 && (
+      {open && (items.length > 0 || query.length >= 3) && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 max-h-[70vh] overflow-y-auto" role="listbox">
           
           {/* Recent searches header */}
