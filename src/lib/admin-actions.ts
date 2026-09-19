@@ -236,7 +236,7 @@ export async function updatePrompt(id: string, formData: FormData) {
   redirect('/admin/prompts')
 }
 
-export async function deletePrompt(id: string) {
+export async function archivePrompt(id: string) {
   const { supabase, user } = await requireAdmin()
   const { data: before } = await supabase.from('prompts').select('title, status').eq('id', id).single()
 
@@ -249,6 +249,41 @@ export async function deletePrompt(id: string) {
     resourceId: id,
     before: before ? { title: before.title, status: before.status } : undefined,
     after: { status: 'archived' },
+  })
+
+  revalidatePath('/admin/prompts')
+}
+
+export async function restorePrompt(id: string) {
+  const { supabase, user } = await requireAdmin()
+  const { data: before } = await supabase.from('prompts').select('title, status').eq('id', id).single()
+
+  await supabase.from('prompts').update({ status: 'draft' }).eq('id', id)
+
+  await logAuditEvent({
+    actorUserId: user.id,
+    action: 'prompt.restore',
+    resourceType: 'prompt',
+    resourceId: id,
+    before: before ? { title: before.title, status: before.status } : undefined,
+    after: { status: 'draft' },
+  })
+
+  revalidatePath('/admin/prompts')
+}
+
+export async function hardDeletePrompt(id: string) {
+  const { supabase, user } = await requireAdmin()
+  const { data: before } = await supabase.from('prompts').select('title, status').eq('id', id).single()
+
+  await supabase.from('prompts').delete().eq('id', id)
+
+  await logAuditEvent({
+    actorUserId: user.id,
+    action: 'prompt.delete',
+    resourceType: 'prompt',
+    resourceId: id,
+    before: before ? { title: before.title, status: before.status } : undefined,
   })
 
   revalidatePath('/admin/prompts')
