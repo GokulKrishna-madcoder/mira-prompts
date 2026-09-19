@@ -19,7 +19,9 @@ export default async function AdminDashboard() {
     { data: recentPrompts },
     { data: topCopiedPrompts },
     { data: platformMetrics },
-    { data: globalStats }
+    { data: globalStats },
+    { count: liveTotalUsers },
+    { data: liveSubscriptions }
   ] = await Promise.all([
     supabase.from('prompts').select('*', { count: 'exact', head: true }),
     supabase
@@ -38,20 +40,33 @@ export default async function AdminDashboard() {
       .select('*')
       .order('date', { ascending: true })
       .limit(30),
-    supabase.from('prompts').select('view_count, copy_count, save_count')
+    supabase.from('prompts').select('view_count, copy_count, save_count'),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
+    supabase.from('subscriptions').select('status, plan:subscription_plans(amount, billing_interval)').in('status', ['active', 'trialing', 'completed']) // ponytail: live sync
   ])
 
   const trueTotalViews = globalStats?.reduce((acc, p) => acc + (p.view_count || 0), 0) || 0
   const trueTotalCopies = globalStats?.reduce((acc, p) => acc + (p.copy_count || 0), 0) || 0
   const trueTotalSaves = globalStats?.reduce((acc, p) => acc + (p.save_count || 0), 0) || 0
 
-  const latestMetrics = platformMetrics?.[platformMetrics.length - 1] || {}
-  const mrrRupees = Math.round((latestMetrics.mrr || 0) / 100)
+  let liveMrrRupees = 0
+  let livePaidUsers = 0
+  liveSubscriptions?.forEach((sub: any) => {
+    if (sub.status === 'active' || sub.status === 'trialing') {
+      const plan = Array.isArray(sub.plan) ? sub.plan[0] : sub.plan
+      if (!plan) return
+      const amountRs = (plan.amount || 0) / 100
+      if (plan.billing_interval === 'monthly') liveMrrRupees += amountRs
+      if (plan.billing_interval === 'yearly') liveMrrRupees += Math.round(amountRs / 12)
+    }
+    // All completed/active/trialing count as paid users
+    livePaidUsers++
+  })
 
   const stats = [
-    { label: 'MRR', value: `₹${mrrRupees.toLocaleString()}`, icon: TrendingUp, color: 'bg-emerald-50 text-emerald-600' },
-    { label: 'Total Users', value: (latestMetrics.total_users || 0).toLocaleString(), icon: Eye, color: 'bg-rose-50 text-rose-600' },
-    { label: 'Paid Users', value: (latestMetrics.paid_users || 0).toLocaleString(), icon: Bookmark, color: 'bg-indigo-50 text-indigo-600' },
+    { label: 'MRR', value: `₹${liveMrrRupees.toLocaleString()}`, icon: TrendingUp, color: 'bg-emerald-50 text-emerald-600' },
+    { label: 'Total Users', value: (liveTotalUsers || 0).toLocaleString(), icon: Eye, color: 'bg-rose-50 text-rose-600' },
+    { label: 'Paid Users', value: livePaidUsers.toLocaleString(), icon: Bookmark, color: 'bg-indigo-50 text-indigo-600' },
     { label: 'Total Prompts', value: promptsCount || 0, icon: FileText, color: 'bg-blue-50 text-blue-600' },
     { label: 'Total Views', value: trueTotalViews.toLocaleString(), icon: Eye, color: 'bg-green-50 text-green-600' },
     { label: 'Total Copies', value: trueTotalCopies.toLocaleString(), icon: Copy, color: 'bg-purple-50 text-purple-600' },
