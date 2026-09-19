@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     root: process.cwd(), // Resolves the turbopack.root warning
   },
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
