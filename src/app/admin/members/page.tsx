@@ -34,8 +34,16 @@ export default async function AdminMembersPage() {
     `)
     .order('created_at', { ascending: false })
 
-  // Fetch raw auth users to get emails
-  const { data: { users: authUsers } } = await supabaseAdmin.auth.admin.listUsers()
+  // Fetch raw auth users to get emails (Paginated to handle >50 users)
+  const authUsers: any[] = []
+  let page = 1
+  while (true) {
+    const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 })
+    if (error || !users || users.length === 0) break
+    authUsers.push(...users)
+    if (users.length < 1000) break
+    page++
+  }
   
   // Map emails to profiles
   const members = profiles?.map(p => {
