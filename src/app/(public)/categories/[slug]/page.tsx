@@ -1,9 +1,10 @@
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import MasonryGrid from '@/components/ui/MasonryGrid'
+import InfiniteMasonry from '@/components/ui/InfiniteMasonry'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import type { PromptCard } from '@/types/prompt'
+import type { FeedConfig } from '@/lib/feed-actions'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -57,13 +58,15 @@ export default async function CategoryPage({ params }: Props) {
 
   const { data: prompts } = await supabase
     .from('prompts')
-    .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
+    .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, created_at, category:categories(slug)')
     .eq('status', 'published')
     .eq('category_id', category.id)
     .order('created_at', { ascending: false })
-    .limit(60)
+    .order('id', { ascending: false })
+    .limit(50)
 
   const typedPrompts = (prompts || []) as PromptCard[]
+  const feedConfig: FeedConfig = { feedType: 'latest', categoryId: category.id }
 
   let savedIds: string[] = []
   if (user) {
@@ -121,7 +124,7 @@ export default async function CategoryPage({ params }: Props) {
           <p className="text-gray-500 text-sm mt-2">{category.description}</p>
         )}
       </div>
-      <MasonryGrid prompts={typedPrompts} savedIds={savedIds} isLoggedIn={!!user} />
+      <InfiniteMasonry initialPrompts={typedPrompts} savedIds={savedIds} isLoggedIn={!!user} feedConfig={feedConfig} />
     </main>
   )
 }

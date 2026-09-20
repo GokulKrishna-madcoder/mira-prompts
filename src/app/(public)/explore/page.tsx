@@ -2,11 +2,11 @@ import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import Image from 'next/image'
-import MasonryGrid from '@/components/ui/MasonryGrid'
+import InfiniteMasonry from '@/components/ui/InfiniteMasonry'
 import ExploreTabs from '@/components/ui/ExploreTabs'
 import type { PromptCard } from '@/types/prompt'
+import type { FeedConfig } from '@/lib/feed-actions'
 
-// Helper to assign a random gorgeous gradient to categories based on index
 const categoryGradients = [
   'from-pink-500 to-rose-500',
   'from-purple-500 to-indigo-500',
@@ -37,7 +37,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
   const { tab } = await searchParams
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 1. Fetch Top 3 Prompts for "Best of Mira Prompts"
+  // 1. Best of Mira Prompts
   let { data: bestPrompts } = await supabase
     .from('prompts')
     .select('id, title, slug, image_url, is_premium, category:categories(name)')
@@ -55,59 +55,59 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
     bestPrompts = topViewed || []
   }
 
-  // 2. Fetch Categories
+  // 2. Categories
   const { data: categories } = await supabase
     .from('categories')
     .select('id, name, slug')
     .order('sort_order')
 
-  // 3. Fetch Prompts for Masonry — sorted by active tab
-  let tabPrompts: PromptCard[] | null = null
+  // 3. Feed config and initial batch
+  const feedType = tab === 'popular' ? 'popular' : tab === 'trending' ? 'trending' : 'latest'
+  const feedConfig: FeedConfig = { feedType }
 
-  if (tab === 'trending') {
-    // Use trending scores for trending tab
-    const { data: trendingScores } = await supabase
+  let tabPrompts: PromptCard[] = []
+
+  if (feedType === 'trending') {
+    const { data: scores } = await supabase
       .from('prompt_trending_scores')
       .select('prompt_id, score')
       .eq('window_size', 'week')
       .order('score', { ascending: false })
-      .limit(30)
+      .limit(50)
 
-    if (trendingScores && trendingScores.length > 0) {
-      const promptIds = trendingScores.map(t => t.prompt_id)
+    if (scores && scores.length > 0) {
+      const ids = scores.map(t => t.prompt_id)
       const { data: trendingPrompts } = await supabase
         .from('prompts')
         .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
         .eq('status', 'published')
-        .in('id', promptIds)
+        .in('id', ids)
 
       if (trendingPrompts) {
-        const scoreMap = new Map(trendingScores.map(t => [t.prompt_id, t.score]))
+        const scoreMap = new Map(scores.map(t => [t.prompt_id, t.score]))
         const promptMap = new Map(trendingPrompts.map(p => [p.id, p]))
-        tabPrompts = trendingScores
+        tabPrompts = scores
           .map(t => {
-            const prompt = promptMap.get(t.prompt_id)
-            if (!prompt) return null
-            return { ...prompt, trending_score: scoreMap.get(t.prompt_id) || 0 } as PromptCard
+            const p = promptMap.get(t.prompt_id)
+            if (!p) return null
+            return { ...p, trending_score: scoreMap.get(t.prompt_id) || 0 } as PromptCard
           })
           .filter(Boolean) as PromptCard[]
       }
     }
-  }
-
-  // Fallback to regular query
-  if (!tabPrompts) {
-    const sortField = tab === 'popular' ? 'view_count' : 'created_at'
+  } else {
+    const sortField = feedType === 'popular' ? 'view_count' : 'created_at'
     const { data } = await supabase
       .from('prompts')
-      .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
+      .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, created_at, category:categories(slug)')
       .eq('status', 'published')
       .order(sortField, { ascending: false })
-      .limit(30)
-    tabPrompts = data as PromptCard[]
+      .order('id', { ascending: false })
+      .limit(50)
+    tabPrompts = (data as PromptCard[]) || []
   }
 
-  // 4. Fetch User's Saves
+  // 4. User saves
   let savedIds: string[] = []
   if (user) {
     const { data: saves } = await supabase
@@ -122,7 +122,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
   return (
     <main id="explore-main" className="explore-main w-full max-w-[1400px] mx-auto px-4 md:px-8 py-10 flex flex-col items-center">
       
-      {/* SECTION 1: Explore the best of Mira Prompts */}
+      {/* SECTION 1: Best of Mira Prompts */}
       <section id="explore-best" className="w-full flex flex-col items-center mb-16">
         <h2 className="text-2xl font-bold text-black mb-8 text-center">
           Explore the best of Mira Prompts
@@ -138,7 +138,6 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
                 className="object-cover"
                 priority
               />
-              {/* Dark overlay for text readability */}
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
               <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-white">
                 <span className="text-xs font-bold uppercase tracking-widest mb-2 opacity-80">
@@ -168,7 +167,6 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
                 href={`/categories/${cat.slug}`}
                 className={`relative h-28 md:h-32 rounded-[24px] overflow-hidden shadow-sm flex items-center justify-center p-4 bg-gradient-to-br ${gradient} transform transition-transform hover:-translate-y-1 hover:shadow-md group`}
               >
-                {/* Subtle dark overlay for contrast */}
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
                 <span className="relative z-10 text-white font-bold text-sm md:text-base text-center drop-shadow-sm">
                   {cat.name}
@@ -179,7 +177,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
         </div>
       </section>
 
-      {/* SECTION 3: Tabbed feed — New / Popular / Trending */}
+      {/* SECTION 3: Tabbed feed */}
       <section id="explore-feed" className="w-full flex flex-col items-center">
         <div className="w-full flex items-center justify-between mb-6 max-w-[1400px]">
           <h2 className="text-xl font-bold text-black">
@@ -188,12 +186,10 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
           <ExploreTabs />
         </div>
         <div className="w-full -mx-4 md:-mx-8">
-          <MasonryGrid prompts={tabPrompts || []} savedIds={savedIds} isLoggedIn={!!user} />
+          <InfiniteMasonry initialPrompts={tabPrompts} savedIds={savedIds} isLoggedIn={!!user} feedConfig={feedConfig} />
         </div>
       </section>
 
     </main>
   )
 }
-
-

@@ -1,9 +1,10 @@
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import MasonryGrid from '@/components/ui/MasonryGrid'
+import InfiniteMasonry from '@/components/ui/InfiniteMasonry'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import type { PromptCard } from '@/types/prompt'
+import type { FeedConfig } from '@/lib/feed-actions'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -66,14 +67,17 @@ export default async function TagPage({ params }: Props) {
   if (promptIds.length > 0) {
     const { data } = await supabase
       .from('prompts')
-      .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
+      .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, created_at, category:categories(slug)')
       .eq('status', 'published')
       .in('id', promptIds)
       .order('created_at', { ascending: false })
-      .limit(60)
+      .order('id', { ascending: false })
+      .limit(50)
 
     prompts = (data || []) as PromptCard[]
   }
+
+  const feedConfig: FeedConfig = { feedType: 'latest', tagSlug: slug }
 
   let savedIds: string[] = []
   if (user) {
@@ -131,7 +135,7 @@ export default async function TagPage({ params }: Props) {
           {prompts.length} prompt{prompts.length !== 1 ? 's' : ''} tagged with #{tag.name}
         </p>
       </div>
-      <MasonryGrid prompts={prompts} savedIds={savedIds} isLoggedIn={!!user} />
+      <InfiniteMasonry initialPrompts={prompts} savedIds={savedIds} isLoggedIn={!!user} feedConfig={feedConfig} />
     </main>
   )
 }

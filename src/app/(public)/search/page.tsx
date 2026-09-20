@@ -1,14 +1,15 @@
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import MasonryGrid from '@/components/ui/MasonryGrid'
+import InfiniteMasonry from '@/components/ui/InfiniteMasonry'
 import type { PromptCard } from '@/types/prompt'
+import type { FeedConfig } from '@/lib/feed-actions'
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
   const { q } = await searchParams
   return {
     title: q ? `"${q}" — Search Results` : 'Search — Mira Prompts',
     description: q ? `Discover AI prompts matching "${q}" on Mira Prompts.` : 'Search curated AI image prompts.',
-    robots: { index: false, follow: true }, // ponytail: noindex search pages, SEO juice stays on category/tag pages
+    robots: { index: false, follow: true },
   }
 }
 
@@ -18,25 +19,23 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const { data: { user } } = await supabase.auth.getUser()
 
   let prompts: PromptCard[] = []
+  const feedConfig: FeedConfig = { feedType: 'search', searchQuery: q?.trim() || '' }
 
   if (q && q.trim().length > 0) {
-    // Use the existing search_prompt_ids RPC for now
-    // ponytail: swap to hybrid_search_prompts once embeddings are backfilled
     const { data: matchedIds } = await supabase.rpc('search_prompt_ids', { search_term: q.trim() })
-    const ids = matchedIds?.map((m: any) => m.prompt_id) || []
+    const allIds = matchedIds?.map((m: any) => m.prompt_id) || []
+    const pageIds = allIds.slice(0, 50) // ponytail: first 50 only
 
-    if (ids.length > 0) {
+    if (pageIds.length > 0) {
       const { data } = await supabase
         .from('prompts')
         .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
         .eq('status', 'published')
-        .in('id', ids)
-        .limit(60)
+        .in('id', pageIds)
       prompts = (data as PromptCard[]) || []
     }
   }
 
-  // Fetch saves for logged-in user
   let savedIds: string[] = []
   if (user) {
     const { data: saves } = await supabase.from('prompt_saves').select('prompt_id').eq('user_id', user.id)
@@ -51,7 +50,6 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <h1 className="text-2xl font-bold text-black">
               Results for &quot;<span className="text-gray-600">{q}</span>&quot;
             </h1>
-            <p className="text-sm text-gray-500 mt-1">{prompts.length} prompt{prompts.length !== 1 ? 's' : ''} found</p>
           </div>
         ) : (
           <h1 className="text-2xl font-bold text-black mb-2">Search</h1>
@@ -59,7 +57,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       </div>
 
       {prompts.length > 0 ? (
-        <MasonryGrid prompts={prompts} savedIds={savedIds} isLoggedIn={!!user} />
+        <InfiniteMasonry initialPrompts={prompts} savedIds={savedIds} isLoggedIn={!!user} feedConfig={feedConfig} />
       ) : q ? (
         <div className="flex flex-col items-center justify-center py-24 px-4 text-center">
           <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">

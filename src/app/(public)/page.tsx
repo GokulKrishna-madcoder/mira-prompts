@@ -1,11 +1,12 @@
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import MasonryGrid from '@/components/ui/MasonryGrid'
+import InfiniteMasonry from '@/components/ui/InfiniteMasonry'
 import CategoryTabs from '@/components/ui/CategoryTabs'
 import SortDropdown from '@/components/ui/SortDropdown'
 import LandingPage from '@/components/home/LandingPage'
 import FirstPromptModal from '@/components/onboarding/FirstPromptModal'
 import type { PromptCard } from '@/types/prompt'
+import type { FeedConfig } from '@/lib/feed-actions'
 
 export const metadata: Metadata = {
   title: 'Curated AI Image Prompts',
@@ -32,75 +33,67 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     return <LandingPage prompts={landingPrompts || []} />
   }
 
-  // ─── LOGGED-IN FEED (existing logic) ───
+  // ─── LOGGED-IN FEED ───
   const { data: categories } = await supabase
     .from('categories')
     .select('id, name, slug')
     .order('sort_order')
 
-  let prompts: PromptCard[] | null = null
+  // Determine feed type
+  const feedType = sort === 'trending' ? 'trending' : sort === 'popular' ? 'popular' : 'latest'
+  const feedConfig: FeedConfig = { feedType, category: category || undefined }
 
-  if (sort === 'trending') {
-    const { data: trendingScores } = await supabase
+  let prompts: PromptCard[] = []
+
+  if (feedType === 'trending') {
+    const { data: scores } = await supabase
       .from('prompt_trending_scores')
       .select('prompt_id, score')
       .eq('window_size', 'week')
       .order('score', { ascending: false })
-      .limit(60)
+      .limit(50)
 
-    if (trendingScores && trendingScores.length > 0) {
-      const promptIds = trendingScores.map(t => t.prompt_id)
+    if (scores && scores.length > 0) {
+      const ids = scores.map(t => t.prompt_id)
       const { data: trendingPrompts } = await supabase
         .from('prompts')
         .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
         .eq('status', 'published')
-        .in('id', promptIds)
+        .in('id', ids)
 
       if (trendingPrompts) {
-        const scoreMap = new Map(trendingScores.map(t => [t.prompt_id, t.score]))
+        const scoreMap = new Map(scores.map(t => [t.prompt_id, t.score]))
         const promptMap = new Map(trendingPrompts.map(p => [p.id, p]))
-        prompts = trendingScores
+        prompts = scores
           .map(t => {
-            const prompt = promptMap.get(t.prompt_id)
-            if (!prompt) return null
-            return { ...prompt, trending_score: scoreMap.get(t.prompt_id) || 0 } as PromptCard
+            const p = promptMap.get(t.prompt_id)
+            if (!p) return null
+            return { ...p, trending_score: scoreMap.get(t.prompt_id) || 0 } as PromptCard
           })
           .filter(Boolean) as PromptCard[]
       }
     }
-  }
-
-  if (!prompts) {
+  } else {
+    const sortField = feedType === 'popular' ? 'view_count' : 'created_at'
     let query = supabase
       .from('prompts')
-      .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, category:categories(slug)')
+      .select('id, title, slug, image_url, view_count, copy_count, is_premium, has_variants, variants, created_at, category:categories(slug)')
       .eq('status', 'published')
-      .limit(60)
-
-    const sortField = sort === 'popular' ? 'view_count' : 'created_at'
-    query = query.order(sortField, { ascending: false })
-
-    if (q) {
-      const { data: matchedIds } = await supabase.rpc('search_prompt_ids', { search_term: q })
-      const ids = matchedIds?.map((m: any) => m.prompt_id) || []
-      if (ids.length > 0) {
-        query = query.in('id', ids)
-      } else {
-        query = query.eq('id', '00000000-0000-0000-0000-000000000000')
-      }
-    }
+      .order(sortField, { ascending: false })
+      .order('id', { ascending: false })
+      .limit(50)
 
     if (category) {
       query = query.eq('categories.slug', category)
     }
 
     const { data } = await query
-    prompts = data as PromptCard[]
-  }
+    prompts = (data as PromptCard[]) || []
 
-  const displayPrompts: PromptCard[] = category && prompts
-    ? prompts.filter(p => p.category !== null)
-    : prompts || []
+    if (category) {
+      prompts = prompts.filter(p => p.category !== null)
+    }
+  }
 
   let savedIds: string[] = []
   if (user) {
@@ -132,7 +125,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
         </div>
       )}
       <div id="home-masonry-wrapper" className="home-masonry-wrapper mt-2">
-        <MasonryGrid prompts={displayPrompts} savedIds={savedIds} isLoggedIn={!!user} />
+        <InfiniteMasonry initialPrompts={prompts} savedIds={savedIds} isLoggedIn={!!user} feedConfig={feedConfig} />
       </div>
     </main>
   )
