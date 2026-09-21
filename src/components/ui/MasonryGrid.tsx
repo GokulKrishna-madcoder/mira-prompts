@@ -1,3 +1,6 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Eye, Copy } from 'lucide-react'
@@ -12,11 +15,99 @@ function fmt(n: number): string {
   return String(n)
 }
 
+function PromptCardView({ p, index, savedIds, isLoggedIn }: { p: PromptCard, index: number, savedIds: string[], isLoggedIn: boolean }) {
+  return (
+    <div id={`card-${p.id}`} className="prompt-card break-inside-avoid relative group cursor-zoom-in w-full">
+      <Link href={`/prompts/${p.slug}`} className="prompt-card-link block">
+        <div className="prompt-card-image relative rounded-[16px] overflow-hidden bg-gray-100">
+          <div className="prompt-card-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10" />
+
+          {/* Variant hover crossfade / Slideshow */}
+          {p.has_variants && Array.isArray(p.variants) && p.variants.length > 0 ? (
+            <HoverSlideshow
+              coverImage={p.image_url}
+              variants={p.variants}
+              alt={p.title}
+              priority={index < 4}
+            />
+          ) : (
+            <Image
+              src={p.image_url}
+              alt={p.title}
+              width={500}
+              height={700}
+              className="prompt-card-img w-full h-auto object-cover relative z-0"
+              priority={index < 4}
+            />
+          )}
+
+          {isLoggedIn && (
+            <div className="prompt-card-save absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <SaveButton promptId={p.id} initialSaved={savedIds.includes(p.id)} variant="card" />
+            </div>
+          )}
+
+          {p.is_premium && (
+            <div className="absolute top-3 left-3 z-20 px-2.5 py-1 bg-black/70 backdrop-blur-md rounded-full text-white text-xs font-bold border border-white/10 shadow-sm flex items-center gap-1">
+              👑 Prime
+            </div>
+          )}
+
+          {p.trending_score && p.trending_score > 0 && (
+            <div className={`absolute z-20 ${p.is_premium ? 'top-12 left-3' : 'top-3 left-3'}`}>
+              <TrendingBadge score={p.trending_score} />
+            </div>
+          )}
+
+          {/* Metrics overlay — bottom-left, visible on hover */}
+          {((p.view_count ?? 0) > 0 || (p.copy_count ?? 0) > 0) && (
+            <div className="prompt-card-metrics absolute bottom-3 left-3 z-20 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              {(p.view_count ?? 0) > 0 && (
+                <span className="flex items-center gap-1 text-white/90 text-xs font-semibold drop-shadow-md">
+                  <Eye className="w-3.5 h-3.5" />
+                  {fmt(p.view_count!)}
+                </span>
+              )}
+              {(p.copy_count ?? 0) > 0 && (
+                <span className="flex items-center gap-1 text-white/90 text-xs font-semibold drop-shadow-md">
+                  <Copy className="w-3.5 h-3.5" />
+                  {fmt(p.copy_count!)}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </Link>
+
+      <div className="prompt-card-footer mt-2 flex items-start justify-between px-1">
+        <p className="prompt-card-title text-sm font-semibold truncate text-black pr-2">{p.title}</p>
+        <CardMenuDropdown slug={p.slug} imageUrl={p.image_url} />
+      </div>
+    </div>
+  )
+}
+
 export default function MasonryGrid({ prompts, savedIds = [], isLoggedIn = false }: {
   prompts: PromptCard[]
   savedIds?: string[]
   isLoggedIn?: boolean
 }) {
+  const [cols, setCols] = useState<number | null>(null)
+
+  useEffect(() => {
+    const updateCols = () => {
+      const w = window.innerWidth
+      if (w >= 1280) setCols(6) // xl
+      else if (w >= 1024) setCols(5) // lg
+      else if (w >= 768) setCols(4) // md
+      else if (w >= 640) setCols(3) // sm
+      else setCols(2)
+    }
+    updateCols()
+    window.addEventListener('resize', updateCols)
+    return () => window.removeEventListener('resize', updateCols)
+  }, [])
+
   if (!prompts || prompts.length === 0) {
     return (
       <div id="empty-state" className="empty-state py-24 flex flex-col items-center justify-center text-center px-4">
@@ -31,80 +122,32 @@ export default function MasonryGrid({ prompts, savedIds = [], isLoggedIn = false
     )
   }
 
+  // SSR Fallback (preserves SEO and prevents layout shift on fast networks)
+  // Renders the traditional vertical newspaper flow using CSS multi-columns until hydration
+  if (cols === null) {
+    return (
+      <div id="masonry-grid" className="masonry-grid columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 px-4 md:px-8 space-y-4 w-full">
+        {prompts.map((p, index) => (
+          <PromptCardView key={p.id} p={p} index={index} savedIds={savedIds} isLoggedIn={isLoggedIn} />
+        ))}
+      </div>
+    )
+  }
+
+  // Client-Side Horizontal Flow
+  // Mathematically splits the array left-to-right (1->Col1, 2->Col2)
+  const columns: PromptCard[][] = Array.from({ length: cols }, () => [])
+  prompts.forEach((p, i) => columns[i % cols].push(p))
+
   return (
-    <div id="masonry-grid" className="masonry-grid columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 px-4 md:px-8 space-y-4 w-full">
-      {prompts.map((p, index) => {
-        return (
-        <div key={p.id} id={`card-${p.id}`} className="prompt-card break-inside-avoid relative group cursor-zoom-in">
-          <Link href={`/prompts/${p.slug}`} className="prompt-card-link block">
-            <div className="prompt-card-image relative rounded-[16px] overflow-hidden bg-gray-100">
-              <div className="prompt-card-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10" />
-
-              {/* Variant hover crossfade / Slideshow */}
-              {p.has_variants && Array.isArray(p.variants) && p.variants.length > 0 ? (
-                <HoverSlideshow
-                  coverImage={p.image_url}
-                  variants={p.variants}
-                  alt={p.title}
-                  priority={index < 4}
-                />
-              ) : (
-                <Image
-                  src={p.image_url}
-                  alt={p.title}
-                  width={500}
-                  height={700}
-                  className="prompt-card-img w-full h-auto object-cover relative z-0"
-                  priority={index < 4}
-                />
-              )}
-
-              {isLoggedIn && (
-                <div className="prompt-card-save absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <SaveButton promptId={p.id} initialSaved={savedIds.includes(p.id)} variant="card" />
-                </div>
-              )}
-
-              {p.is_premium && (
-                <div className="absolute top-3 left-3 z-20 px-2.5 py-1 bg-black/70 backdrop-blur-md rounded-full text-white text-xs font-bold border border-white/10 shadow-sm flex items-center gap-1">
-                  👑 Prime
-                </div>
-              )}
-
-              {p.trending_score && p.trending_score > 0 && (
-                <div className={`absolute z-20 ${p.is_premium ? 'top-12 left-3' : 'top-3 left-3'}`}>
-                  <TrendingBadge score={p.trending_score} />
-                </div>
-              )}
-
-              {/* Metrics overlay — bottom-left, visible on hover */}
-              {((p.view_count ?? 0) > 0 || (p.copy_count ?? 0) > 0) && (
-                <div className="prompt-card-metrics absolute bottom-3 left-3 z-20 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  {(p.view_count ?? 0) > 0 && (
-                    <span className="flex items-center gap-1 text-white/90 text-xs font-semibold drop-shadow-md">
-                      <Eye className="w-3.5 h-3.5" />
-                      {fmt(p.view_count!)}
-                    </span>
-                  )}
-                  {(p.copy_count ?? 0) > 0 && (
-                    <span className="flex items-center gap-1 text-white/90 text-xs font-semibold drop-shadow-md">
-                      <Copy className="w-3.5 h-3.5" />
-                      {fmt(p.copy_count!)}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          </Link>
-
-          <div className="prompt-card-footer mt-2 flex items-start justify-between px-1">
-            <p className="prompt-card-title text-sm font-semibold truncate text-black pr-2">{p.title}</p>
-            <CardMenuDropdown slug={p.slug} imageUrl={p.image_url} />
-          </div>
+    <div id="masonry-grid-flex" className="flex flex-row gap-4 px-4 md:px-8 w-full items-start">
+      {columns.map((col, i) => (
+        <div key={i} className="flex flex-col gap-4 flex-1 min-w-0">
+          {col.map(p => (
+            <PromptCardView key={p.id} p={p} index={prompts.indexOf(p)} savedIds={savedIds} isLoggedIn={isLoggedIn} />
+          ))}
         </div>
-      ); })}
+      ))}
     </div>
   )
 }
-
-
