@@ -7,7 +7,10 @@ import { CheckCircle2, AlertCircle } from 'lucide-react'
 
 export const metadata = { title: 'Members - Admin' }
 
-export default async function AdminMembersPage() {
+import DateRangeFilter from '@/components/admin/DateRangeFilter'
+
+export default async function AdminMembersPage({ searchParams }: { searchParams: Promise<{ from?: string, to?: string }> }) {
+  const { from, to } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -22,7 +25,7 @@ export default async function AdminMembersPage() {
   )
 
   // Fetch profiles with authoritative subscriptions and entitlements
-  const { data: profiles } = await supabaseAdmin
+  let profilesQuery = supabaseAdmin
     .from('profiles')
     .select(`
       *,
@@ -33,6 +36,11 @@ export default async function AdminMembersPage() {
       entitlements (feature_key, active)
     `)
     .order('created_at', { ascending: false })
+
+  if (from) profilesQuery = profilesQuery.gte('created_at', `${from}T00:00:00Z`)
+  if (to) profilesQuery = profilesQuery.lte('created_at', `${to}T23:59:59Z`)
+
+  const { data: profiles } = await profilesQuery
 
   // Fetch raw auth users to get emails (Paginated to handle >50 users)
   const authUsers: any[] = []
@@ -65,11 +73,12 @@ export default async function AdminMembersPage() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-black">Members</h1>
           <p className="text-gray-500 text-sm mt-1">Manage user access and authoritative subscriptions.</p>
         </div>
+        <DateRangeFilter />
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

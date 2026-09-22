@@ -5,7 +5,10 @@ import { redirect } from 'next/navigation'
 import AdminLineChart from '@/components/admin/AdminLineChart'
 import LiveRefresher from '@/components/admin/LiveRefresher'
 
-export default async function AdminDashboard() {
+import DateRangeFilter from '@/components/admin/DateRangeFilter'
+
+export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ from?: string, to?: string }> }) {
+  const { from, to } = await searchParams
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -13,6 +16,27 @@ export default async function AdminDashboard() {
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role === 'editor') redirect('/admin/prompts')
+
+  let recentPromptsQuery = supabase
+    .from('prompts')
+    .select('id, title, status, created_at, view_count, copy_count, save_count')
+    .order('created_at', { ascending: false })
+    .limit(7)
+
+  let metricsQuery = supabase
+    .from('daily_platform_metrics')
+    .select('*')
+    .order('date', { ascending: true })
+    .limit(30)
+
+  if (from) {
+    recentPromptsQuery = recentPromptsQuery.gte('created_at', `${from}T00:00:00Z`)
+    metricsQuery = metricsQuery.gte('date', from)
+  }
+  if (to) {
+    recentPromptsQuery = recentPromptsQuery.lte('created_at', `${to}T23:59:59Z`)
+    metricsQuery = metricsQuery.lte('date', to)
+  }
 
   const [
     { count: promptsCount },
@@ -24,22 +48,14 @@ export default async function AdminDashboard() {
     { data: liveSubscriptions }
   ] = await Promise.all([
     supabase.from('prompts').select('*', { count: 'exact', head: true }),
-    supabase
-      .from('prompts')
-      .select('id, title, status, created_at, view_count, copy_count, save_count')
-      .order('created_at', { ascending: false })
-      .limit(7),
+    recentPromptsQuery,
     supabase
       .from('prompts')
       .select('id, title, copy_count, view_count')
       .eq('status', 'published')
       .order('copy_count', { ascending: false })
       .limit(10),
-    supabase
-      .from('daily_platform_metrics')
-      .select('*')
-      .order('date', { ascending: true })
-      .limit(30),
+    metricsQuery,
     supabase.from('prompts').select('view_count, copy_count, save_count'),
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('subscriptions').select('status, plan:subscription_plans(amount, billing_interval)').in('status', ['active', 'trialing', 'completed']) // ponytail: live sync
@@ -82,18 +98,23 @@ export default async function AdminDashboard() {
       }))
 
   return (
-    <div id="admin-dashboard" className="admin-dashboard p-8 max-w-6xl mx-auto">
+    <div id="admin-dashboard" className="admin-dashboard p-8 max-w-6xl mx-auto space-y-6">
       <LiveRefresher intervalMs={15000} />
-      {/* Header */}
-      <div id="dashboard-header" className="dashboard-header flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="dashboard-title text-2xl font-bold text-black">Dashboard</h1>
-          <p className="dashboard-subtitle text-gray-500 text-sm mt-1">Overview of your Mira Prompts</p>
+          <h1 className="text-2xl font-bold text-gray-900">Platform Overview</h1>
+          <p className="text-gray-500">Welcome back! Here's what's happening on Mira Prompts.</p>
         </div>
-        <Link id="dashboard-btn-new" href="/admin/prompts/new" className="dashboard-btn-new flex items-center gap-2 px-5 py-3 bg-black text-white rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors">
-          <PlusCircle className="w-4 h-4" />
-          New Prompt
-        </Link>
+        <div className="flex items-center gap-3">
+          <DateRangeFilter />
+          <Link
+            href="/admin/prompts/new"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-colors"
+          >
+            <PlusCircle className="w-5 h-5" />
+            New Prompt
+          </Link>
+        </div>
       </div>
 
       {/* Stat Cards */}

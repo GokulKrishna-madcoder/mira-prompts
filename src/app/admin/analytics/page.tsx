@@ -14,7 +14,10 @@ function getFallbackDates(): { date: string; value: number }[] {
   }))
 }
 
-export default async function AdminAnalyticsPage() {
+import DateRangeFilter from '@/components/admin/DateRangeFilter'
+
+export default async function AdminAnalyticsPage({ searchParams }: { searchParams: Promise<{ from?: string, to?: string }> }) {
+  const { from, to } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -27,6 +30,35 @@ export default async function AdminAnalyticsPage() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
+  let metricsQuery = supabaseAdmin
+    .from('daily_platform_metrics')
+    .select('*')
+    .order('date', { ascending: true })
+    .limit(30)
+    
+  let transactionsQuery = supabaseAdmin
+    .from('payment_transactions')
+    .select('*, profiles(display_name), subscription_plans(name)')
+    .order('created_at', { ascending: false })
+    .limit(20)
+
+  let eventsQuery = supabaseAdmin
+    .from('analytics_events')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(30)
+
+  if (from) {
+    metricsQuery = metricsQuery.gte('date', from)
+    transactionsQuery = transactionsQuery.gte('created_at', `${from}T00:00:00Z`)
+    eventsQuery = eventsQuery.gte('created_at', `${from}T00:00:00Z`)
+  }
+  if (to) {
+    metricsQuery = metricsQuery.lte('date', to)
+    transactionsQuery = transactionsQuery.lte('created_at', `${to}T23:59:59Z`)
+    eventsQuery = eventsQuery.lte('created_at', `${to}T23:59:59Z`)
+  }
+
   // Fetch all data in parallel
   const [
     { data: metricsHistory },
@@ -35,12 +67,7 @@ export default async function AdminAnalyticsPage() {
     { data: topPrompts },
     { data: recentEvents }
   ] = await Promise.all([
-    // 30-day metrics history for charts
-    supabaseAdmin
-      .from('daily_platform_metrics')
-      .select('*')
-      .order('date', { ascending: true })
-      .limit(30),
+    metricsQuery,
 
     // Latest metrics
     supabaseAdmin
@@ -50,12 +77,7 @@ export default async function AdminAnalyticsPage() {
       .limit(1)
       .maybeSingle(),
 
-    // Recent transactions
-    supabaseAdmin
-      .from('payment_transactions')
-      .select('*, profiles(display_name), subscription_plans(name)')
-      .order('created_at', { ascending: false })
-      .limit(20),
+    transactionsQuery,
 
     // Top trending
     supabaseAdmin
@@ -65,12 +87,7 @@ export default async function AdminAnalyticsPage() {
       .order('score', { ascending: false })
       .limit(5),
 
-    // Recent analytics events
-    supabaseAdmin
-      .from('analytics_events')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(30)
+    eventsQuery
   ])
 
   // Build chart data from metrics history
@@ -149,9 +166,12 @@ export default async function AdminAnalyticsPage() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-black">Analytics & Platform Metrics</h1>
-        <p className="text-gray-500 text-sm mt-1">Authoritative metrics powered by daily aggregation pipelines.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-black">Analytics & Platform Metrics</h1>
+          <p className="text-gray-500 text-sm mt-1">Authoritative metrics powered by daily aggregation pipelines.</p>
+        </div>
+        <DateRangeFilter />
       </div>
 
       {/* KPI Cards */}
