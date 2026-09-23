@@ -18,11 +18,15 @@ export default async function AdminAuditPage() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  const { data: logs } = await supabaseAdmin
+  const { data: logs, error } = await supabaseAdmin
     .from('admin_audit_logs')
-    .select('*, profiles(display_name, email)')
+    .select('*, profiles(display_name)')
     .order('created_at', { ascending: false })
     .limit(100)
+
+  if (error) {
+    console.error('Audit log fetch error:', error)
+  }
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
