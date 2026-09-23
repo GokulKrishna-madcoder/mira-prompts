@@ -17,25 +17,35 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role === 'editor') redirect('/admin/prompts')
 
-  let recentPromptsQuery = supabase
-    .from('prompts')
-    .select('id, title, status, created_at, view_count, copy_count, save_count')
-    .order('created_at', { ascending: false })
-    .limit(7)
+  let recentPromptsQuery = supabase.from('prompts').select('id, title, status, created_at, view_count, copy_count, save_count').order('created_at', { ascending: false }).limit(7)
+  let metricsQuery = supabase.from('daily_platform_metrics').select('*').order('date', { ascending: true })
+  let promptsCountQuery = supabase.from('prompts').select('*', { count: 'exact', head: true })
+  let topCopiedQuery = supabase.from('prompts').select('id, title, copy_count, view_count').eq('status', 'published').order('copy_count', { ascending: false }).limit(10)
+  let globalStatsQuery = supabase.from('prompts').select('view_count, copy_count, save_count')
+  let profilesCountQuery = supabase.from('profiles').select('*', { count: 'exact', head: true })
+  let subscriptionsQuery = supabase.from('subscriptions').select('status, plan:subscription_plans(amount, billing_interval)').in('status', ['active', 'trialing', 'completed'])
 
-  let metricsQuery = supabase
-    .from('daily_platform_metrics')
-    .select('*')
-    .order('date', { ascending: true })
-    .limit(30)
+  if (!from && !to) {
+    metricsQuery = metricsQuery.limit(30)
+  }
 
   if (from) {
-    recentPromptsQuery = recentPromptsQuery.gte('created_at', `${from}T00:00:00Z`)
+    const fromStr = `${from}T00:00:00Z`
+    recentPromptsQuery = recentPromptsQuery.gte('created_at', fromStr)
     metricsQuery = metricsQuery.gte('date', from)
+    promptsCountQuery = promptsCountQuery.gte('created_at', fromStr)
+    topCopiedQuery = topCopiedQuery.gte('created_at', fromStr)
+    profilesCountQuery = profilesCountQuery.gte('created_at', fromStr)
+    subscriptionsQuery = subscriptionsQuery.gte('created_at', fromStr)
   }
   if (to) {
-    recentPromptsQuery = recentPromptsQuery.lte('created_at', `${to}T23:59:59Z`)
+    const toStr = `${to}T23:59:59Z`
+    recentPromptsQuery = recentPromptsQuery.lte('created_at', toStr)
     metricsQuery = metricsQuery.lte('date', to)
+    promptsCountQuery = promptsCountQuery.lte('created_at', toStr)
+    topCopiedQuery = topCopiedQuery.lte('created_at', toStr)
+    profilesCountQuery = profilesCountQuery.lte('created_at', toStr)
+    subscriptionsQuery = subscriptionsQuery.lte('created_at', toStr)
   }
 
   const [
@@ -47,23 +57,28 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
     { count: liveTotalUsers },
     { data: liveSubscriptions }
   ] = await Promise.all([
-    supabase.from('prompts').select('*', { count: 'exact', head: true }),
+    promptsCountQuery,
     recentPromptsQuery,
-    supabase
-      .from('prompts')
-      .select('id, title, copy_count, view_count')
-      .eq('status', 'published')
-      .order('copy_count', { ascending: false })
-      .limit(10),
+    topCopiedQuery,
     metricsQuery,
-    supabase.from('prompts').select('view_count, copy_count, save_count'),
-    supabase.from('profiles').select('*', { count: 'exact', head: true }),
-    supabase.from('subscriptions').select('status, plan:subscription_plans(amount, billing_interval)').in('status', ['active', 'trialing', 'completed']) // ponytail: live sync
+    globalStatsQuery,
+    profilesCountQuery,
+    subscriptionsQuery
   ])
 
-  const trueTotalViews = globalStats?.reduce((acc, p) => acc + (p.view_count || 0), 0) || 0
-  const trueTotalCopies = globalStats?.reduce((acc, p) => acc + (p.copy_count || 0), 0) || 0
-  const trueTotalSaves = globalStats?.reduce((acc, p) => acc + (p.save_count || 0), 0) || 0
+  const isDateFiltered = !!from || !!to
+  
+  const trueTotalViews = isDateFiltered 
+    ? platformMetrics?.reduce((acc, m) => acc + (m.total_views || 0), 0) || 0
+    : globalStats?.reduce((acc, p) => acc + (p.view_count || 0), 0) || 0
+
+  const trueTotalCopies = isDateFiltered 
+    ? platformMetrics?.reduce((acc, m) => acc + (m.total_copies || 0), 0) || 0
+    : globalStats?.reduce((acc, p) => acc + (p.copy_count || 0), 0) || 0
+
+  const trueTotalSaves = isDateFiltered 
+    ? platformMetrics?.reduce((acc, m) => acc + (m.total_saves || 0), 0) || 0
+    : globalStats?.reduce((acc, p) => acc + (p.save_count || 0), 0) || 0
 
   let liveMrrRupees = 0
   let livePaidUsers = 0
