@@ -4,32 +4,9 @@ import { useState, useRef, useCallback } from 'react'
 import { createPrompt, updatePrompt } from '@/lib/admin-actions'
 import { Plus, Trash2, X, Upload, Image as ImageIcon } from 'lucide-react'
 
-const AI_TOOLS = ['ChatGPT', 'Claude', 'Gemini', 'Grok', 'Midjourney', 'DALL-E', 'Stable Diffusion', 'Lovable']
+import imageCompression from 'browser-image-compression'
 
-const convertToWebP = (file: File): Promise<File> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const img = new globalThis.Image()
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-        canvas.width = img.width
-        canvas.height = img.height
-        const ctx = canvas.getContext('2d')
-        if (!ctx) return reject('No canvas context')
-        ctx.drawImage(img, 0, 0)
-        canvas.toBlob((blob) => {
-          if (!blob) return reject('Blob creation failed')
-          resolve(new File([blob], file.name.replace(/\.[^/.]+$/, '') + '.webp', { type: 'image/webp' }))
-        }, 'image/webp', 0.85)
-      }
-      img.onerror = reject
-      img.src = e.target?.result as string
-    }
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
+const AI_TOOLS = ['ChatGPT', 'Claude', 'Gemini', 'Grok', 'Midjourney', 'DALL-E', 'Stable Diffusion', 'Lovable']
 
 type VariantType = 'standard' | 'gender' | 'creative_ads'
 
@@ -98,7 +75,7 @@ export default function PromptForm({ categories, initialData }: { categories: { 
       for (const field of imageFields) {
         const file = formData.get(field) as File
         if (file && file.size > 0 && !file.type.includes('webp')) {
-          const webp = await convertToWebP(file)
+          const webp = await imageCompression(file, { maxSizeMB: 0.2, maxWidthOrHeight: 1200, useWebWorker: true, fileType: 'image/webp' })
           formData.set(field, webp)
         }
       }

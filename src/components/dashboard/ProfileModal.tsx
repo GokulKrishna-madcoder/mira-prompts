@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { X, Upload, Camera } from 'lucide-react'
 import { updateProfile } from '@/lib/user-actions'
 import { getAvatarGradient } from '@/lib/avatar'
+import imageCompression from 'browser-image-compression'
 
 export default function ProfileModal({ profile, email, avatarUrl }: { profile: any, email: string, avatarUrl?: string | null }) {
   const router = useRouter()
@@ -32,6 +33,17 @@ export default function ProfileModal({ profile, email, avatarUrl }: { profile: a
     setIsSubmitting(true)
     const formData = new FormData(e.currentTarget)
     try {
+      const avatarFile = formData.get('avatar') as File
+      if (avatarFile && avatarFile.size > 0 && !avatarFile.type.includes('webp')) {
+        const compressedAvatar = await imageCompression(avatarFile, {
+          maxSizeMB: 0.05,
+          maxWidthOrHeight: 400,
+          useWebWorker: true,
+          fileType: 'image/webp'
+        })
+        formData.set('avatar', compressedAvatar)
+      }
+
       const res = await updateProfile(formData)
       if (res.error) alert(res.error)
       else closeModal()
